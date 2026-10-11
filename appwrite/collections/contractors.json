@@ -1,0 +1,48 @@
+{
+  "id": "contractors",
+  "name": "contractors",
+  "purpose": "Contractor firm assigned to a project (one row per project assignment).",
+  "attributes": [
+    {
+      "key": "name",
+      "type": "string",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "trade",
+      "type": "string",
+      "required": true,
+      "note": "e.g. masonry, plumbing"
+    },
+    {
+      "key": "project_id",
+      "type": "string",
+      "required": true,
+      "note": "-> projects"
+    },
+    {
+      "key": "progress_pct",
+      "type": "int",
+      "required": true,
+      "note": "0-100, set by site log updates"
+    },
+    {
+      "key": "active",
+      "type": "bool",
+      "required": true,
+      "note": ""
+    }
+  ],
+  "indexes": [
+    {
+      "key": "ix_project",
+      "type": "key",
+      "attributes": [
+        "project_id",
+        "active"
+      ]
+    }
+  ],
+  "permissions_note": "Read: site/ops/executive via API. Write: admin API; progress_pct via site log endpoint."
+}

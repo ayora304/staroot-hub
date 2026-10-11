@@ -1,0 +1,54 @@
+{
+  "id": "role_permissions",
+  "name": "role_permissions",
+  "purpose": "Admin-editable role to module permission map.",
+  "attributes": [
+    {
+      "key": "role",
+      "type": "enum[executive,manager,sales_marketing,ops_frontoffice,site_engineer]",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "module",
+      "type": "enum[hub,approvals,crm,site,inventory,notifications,admin]",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "can_read",
+      "type": "bool",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "can_write",
+      "type": "bool",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "can_approve",
+      "type": "bool",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "scope",
+      "type": "enum[own,department,all]",
+      "required": true,
+      "note": "Row visibility scope"
+    }
+  ],
+  "indexes": [
+    {
+      "key": "uq_role_module",
+      "type": "unique",
+      "attributes": [
+        "role",
+        "module"
+      ]
+    }
+  ],
+  "permissions_note": "Read via API (cached client-side for UI hiding only). Write: admin API only."
+}

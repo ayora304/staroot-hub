@@ -1,0 +1,79 @@
+{
+  "id": "inventory_items",
+  "name": "inventory_items",
+  "purpose": "Catalogue of trackable assets and consumables.",
+  "attributes": [
+    {
+      "key": "sku",
+      "type": "string",
+      "required": true,
+      "note": "Unique"
+    },
+    {
+      "key": "name",
+      "type": "string",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "category",
+      "type": "string",
+      "required": false,
+      "note": "e.g. marketing, tents"
+    },
+    {
+      "key": "kind",
+      "type": "enum[consumable,returnable]",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "unit",
+      "type": "string",
+      "required": true,
+      "note": "e.g. pcs"
+    },
+    {
+      "key": "quantity_on_hand",
+      "type": "int",
+      "required": true,
+      "note": "Changed only by movements"
+    },
+    {
+      "key": "reorder_level",
+      "type": "int",
+      "required": false,
+      "note": ""
+    },
+    {
+      "key": "active",
+      "type": "bool",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "version",
+      "type": "int",
+      "required": true,
+      "note": "Optimistic concurrency"
+    }
+  ],
+  "indexes": [
+    {
+      "key": "uq_sku",
+      "type": "unique",
+      "attributes": [
+        "sku"
+      ]
+    },
+    {
+      "key": "ix_kind",
+      "type": "key",
+      "attributes": [
+        "kind",
+        "active"
+      ]
+    }
+  ],
+  "permissions_note": "Read via API by role scope. quantity_on_hand never written directly."
+}

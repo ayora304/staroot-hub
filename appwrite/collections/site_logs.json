@@ -1,0 +1,99 @@
+{
+  "id": "site_logs",
+  "name": "site_logs",
+  "purpose": "Daily contractor progress entries.",
+  "attributes": [
+    {
+      "key": "client_id",
+      "type": "string",
+      "required": true,
+      "note": "Idempotency key, unique"
+    },
+    {
+      "key": "project_id",
+      "type": "string",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "contractor_id",
+      "type": "string",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "log_date",
+      "type": "datetime",
+      "required": true,
+      "note": "Date of work"
+    },
+    {
+      "key": "work_done",
+      "type": "text",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "materials_used",
+      "type": "text",
+      "required": false,
+      "note": ""
+    },
+    {
+      "key": "blockers",
+      "type": "text",
+      "required": false,
+      "note": ""
+    },
+    {
+      "key": "status",
+      "type": "enum[on_track,delayed,blocked]",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "progress_pct",
+      "type": "int",
+      "required": false,
+      "note": "Updates contractors.progress_pct"
+    },
+    {
+      "key": "photo_ids",
+      "type": "string[]",
+      "required": false,
+      "note": "Max 3 per section"
+    },
+    {
+      "key": "engineer_id",
+      "type": "string",
+      "required": true,
+      "note": ""
+    }
+  ],
+  "indexes": [
+    {
+      "key": "uq_client",
+      "type": "unique",
+      "attributes": [
+        "client_id"
+      ]
+    },
+    {
+      "key": "ix_proj_date",
+      "type": "key",
+      "attributes": [
+        "project_id",
+        "log_date"
+      ]
+    },
+    {
+      "key": "ix_contractor",
+      "type": "key",
+      "attributes": [
+        "contractor_id",
+        "log_date"
+      ]
+    }
+  ],
+  "permissions_note": "Create via API (site_engineer, manager). Edit within 24h by author via API; deletes disallowed."
+}

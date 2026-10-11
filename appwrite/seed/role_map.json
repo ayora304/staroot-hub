@@ -1,0 +1,38 @@
+{
+  "_note": "Seed for role_permissions. Admin-editable after seeding. scope: own | department | all.",
+  "permissions": [
+    {"role":"executive","module":"hub","can_read":true,"can_write":false,"can_approve":false,"scope":"all"},
+    {"role":"executive","module":"approvals","can_read":true,"can_write":true,"can_approve":true,"scope":"all"},
+    {"role":"executive","module":"crm","can_read":true,"can_write":false,"can_approve":false,"scope":"all"},
+    {"role":"executive","module":"site","can_read":true,"can_write":false,"can_approve":false,"scope":"all"},
+    {"role":"executive","module":"inventory","can_read":true,"can_write":false,"can_approve":false,"scope":"all"},
+    {"role":"executive","module":"notifications","can_read":true,"can_write":true,"can_approve":false,"scope":"own"},
+    {"role":"executive","module":"admin","can_read":true,"can_write":true,"can_approve":false,"scope":"all"},
+
+    {"role":"manager","module":"hub","can_read":true,"can_write":false,"can_approve":false,"scope":"department"},
+    {"role":"manager","module":"approvals","can_read":true,"can_write":true,"can_approve":true,"scope":"department"},
+    {"role":"manager","module":"crm","can_read":true,"can_write":true,"can_approve":false,"scope":"department"},
+    {"role":"manager","module":"site","can_read":true,"can_write":true,"can_approve":false,"scope":"department"},
+    {"role":"manager","module":"inventory","can_read":true,"can_write":true,"can_approve":false,"scope":"department"},
+    {"role":"manager","module":"notifications","can_read":true,"can_write":true,"can_approve":false,"scope":"own"},
+
+    {"role":"sales_marketing","module":"hub","can_read":true,"can_write":false,"can_approve":false,"scope":"own"},
+    {"role":"sales_marketing","module":"approvals","can_read":true,"can_write":true,"can_approve":false,"scope":"own"},
+    {"role":"sales_marketing","module":"crm","can_read":true,"can_write":true,"can_approve":false,"scope":"own"},
+    {"role":"sales_marketing","module":"inventory","can_read":true,"can_write":false,"can_approve":false,"scope":"department"},
+    {"role":"sales_marketing","module":"notifications","can_read":true,"can_write":true,"can_approve":false,"scope":"own"},
+
+    {"role":"ops_frontoffice","module":"hub","can_read":true,"can_write":false,"can_approve":false,"scope":"own"},
+    {"role":"ops_frontoffice","module":"approvals","can_read":true,"can_write":true,"can_approve":false,"scope":"own"},
+    {"role":"ops_frontoffice","module":"crm","can_read":true,"can_write":true,"can_approve":false,"scope":"own"},
+    {"role":"ops_frontoffice","module":"site","can_read":true,"can_write":false,"can_approve":false,"scope":"department"},
+    {"role":"ops_frontoffice","module":"inventory","can_read":true,"can_write":true,"can_approve":false,"scope":"department"},
+    {"role":"ops_frontoffice","module":"notifications","can_read":true,"can_write":true,"can_approve":false,"scope":"own"},
+
+    {"role":"site_engineer","module":"hub","can_read":true,"can_write":false,"can_approve":false,"scope":"own"},
+    {"role":"site_engineer","module":"approvals","can_read":true,"can_write":true,"can_approve":false,"scope":"own"},
+    {"role":"site_engineer","module":"site","can_read":true,"can_write":true,"can_approve":false,"scope":"own"},
+    {"role":"site_engineer","module":"inventory","can_read":true,"can_write":true,"can_approve":false,"scope":"own"},
+    {"role":"site_engineer","module":"notifications","can_read":true,"can_write":true,"can_approve":false,"scope":"own"}
+  ]
+}

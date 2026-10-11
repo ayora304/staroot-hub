@@ -1,0 +1,11 @@
+{
+  "_note": "PLACEHOLDER VALUES. Owner must confirm thresholds and currency before go-live. Ranges are [min_amount, max_amount): inclusive lower, exclusive upper. null max = no upper bound.",
+  "rules": [
+    {"category":"petty_cash","min_amount":0,"max_amount":20000,"currency":"KES","approver_role":"manager","priority":10,"active":true},
+    {"category":"petty_cash","min_amount":20000,"max_amount":null,"currency":"KES","approver_role":"executive","priority":10,"active":true},
+    {"category":"procurement","min_amount":0,"max_amount":500000,"currency":"KES","approver_role":"manager","priority":10,"active":true},
+    {"category":"procurement","min_amount":500000,"max_amount":null,"currency":"KES","approver_role":"executive","priority":10,"active":true},
+    {"category":"leave","min_amount":0,"max_amount":null,"currency":"KES","approver_role":"manager","priority":10,"active":true},
+    {"category":"contract","min_amount":0,"max_amount":null,"currency":"KES","approver_role":"executive","priority":10,"active":true}
+  ]
+}

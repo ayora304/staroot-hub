@@ -1,0 +1,7 @@
+{
+  "_note": "SAMPLE DATA. Replace with the real project list. Projects are data, never code.",
+  "projects": [
+    {"name":"Sample Project One","slug":"sample-one","location":"Nairobi","status":"active","sort_order":1},
+    {"name":"Sample Project Two","slug":"sample-two","location":"Nairobi","status":"active","sort_order":2}
+  ]
+}

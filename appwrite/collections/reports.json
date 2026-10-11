@@ -1,0 +1,72 @@
+{
+  "id": "reports",
+  "name": "reports",
+  "purpose": "Published master reports. A published report is an immutable snapshot.",
+  "attributes": [
+    {
+      "key": "client_id",
+      "type": "string",
+      "required": true,
+      "note": "Idempotency key, unique"
+    },
+    {
+      "key": "title",
+      "type": "string",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "report_date",
+      "type": "datetime",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "author_id",
+      "type": "string",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "author_name",
+      "type": "string",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "schema_version",
+      "type": "int",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "snapshot",
+      "type": "text",
+      "required": true,
+      "note": "JSON: disclaimer + projects[].sections[] (title, bullets[], photo file IDs). Use longtext/mediumtext attribute"
+    },
+    {
+      "key": "status",
+      "type": "enum[published,superseded]",
+      "required": true,
+      "note": ""
+    }
+  ],
+  "indexes": [
+    {
+      "key": "uq_client",
+      "type": "unique",
+      "attributes": [
+        "client_id"
+      ]
+    },
+    {
+      "key": "ix_date",
+      "type": "key",
+      "attributes": [
+        "report_date"
+      ]
+    }
+  ],
+  "permissions_note": "Create via API. Never edited: a correction is a new report that supersedes the old one."
+}

@@ -1,0 +1,61 @@
+{
+  "id": "approval_rules",
+  "name": "approval_rules",
+  "purpose": "Configurable routing rules.",
+  "attributes": [
+    {
+      "key": "category",
+      "type": "enum[petty_cash,procurement,leave,contract]",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "min_amount",
+      "type": "float",
+      "required": true,
+      "note": "Inclusive"
+    },
+    {
+      "key": "max_amount",
+      "type": "float",
+      "required": false,
+      "note": "Exclusive; null = no upper bound"
+    },
+    {
+      "key": "currency",
+      "type": "string",
+      "required": true,
+      "note": "Default KES"
+    },
+    {
+      "key": "approver_role",
+      "type": "enum[manager,executive]",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "priority",
+      "type": "int",
+      "required": true,
+      "note": "Lower number wins on overlap"
+    },
+    {
+      "key": "active",
+      "type": "bool",
+      "required": true,
+      "note": ""
+    }
+  ],
+  "indexes": [
+    {
+      "key": "ix_cat",
+      "type": "key",
+      "attributes": [
+        "category",
+        "active",
+        "priority"
+      ]
+    }
+  ],
+  "permissions_note": "Read via API. Write: admin API only. Boundary: amount >= min and < max, so an amount exactly at a threshold routes upward."
+}

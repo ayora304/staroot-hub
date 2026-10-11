@@ -1,0 +1,73 @@
+{
+  "id": "lead_activities",
+  "name": "lead_activities",
+  "purpose": "Append-only notes, calls and stage changes.",
+  "attributes": [
+    {
+      "key": "client_id",
+      "type": "string",
+      "required": true,
+      "note": "Idempotency key, unique"
+    },
+    {
+      "key": "lead_id",
+      "type": "string",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "type",
+      "type": "enum[note,call,email,whatsapp,viewing,stage_change]",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "body",
+      "type": "text",
+      "required": false,
+      "note": ""
+    },
+    {
+      "key": "from_stage",
+      "type": "string",
+      "required": false,
+      "note": ""
+    },
+    {
+      "key": "to_stage",
+      "type": "string",
+      "required": false,
+      "note": ""
+    },
+    {
+      "key": "author_id",
+      "type": "string",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "occurred_at_client",
+      "type": "datetime",
+      "required": false,
+      "note": "Informational"
+    }
+  ],
+  "indexes": [
+    {
+      "key": "uq_client",
+      "type": "unique",
+      "attributes": [
+        "client_id"
+      ]
+    },
+    {
+      "key": "ix_lead",
+      "type": "key",
+      "attributes": [
+        "lead_id",
+        "$createdAt"
+      ]
+    }
+  ],
+  "permissions_note": "Create via API only. No update, no delete."
+}

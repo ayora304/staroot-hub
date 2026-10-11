@@ -1,0 +1,104 @@
+{
+  "id": "movements",
+  "name": "movements",
+  "purpose": "Append-only ledger of dispatch/receipt/return/adjustment.",
+  "attributes": [
+    {
+      "key": "client_id",
+      "type": "string",
+      "required": true,
+      "note": "Idempotency key (UUID), unique"
+    },
+    {
+      "key": "item_id",
+      "type": "string",
+      "required": true,
+      "note": "-> inventory_items"
+    },
+    {
+      "key": "type",
+      "type": "enum[dispatch,receipt,return,adjustment]",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "quantity",
+      "type": "int",
+      "required": true,
+      "note": "Positive; direction implied by type"
+    },
+    {
+      "key": "from_location",
+      "type": "string",
+      "required": false,
+      "note": ""
+    },
+    {
+      "key": "to_location",
+      "type": "string",
+      "required": false,
+      "note": ""
+    },
+    {
+      "key": "custodian_id",
+      "type": "string",
+      "required": false,
+      "note": "User holding the asset after this movement"
+    },
+    {
+      "key": "project_id",
+      "type": "string",
+      "required": false,
+      "note": ""
+    },
+    {
+      "key": "note",
+      "type": "text",
+      "required": false,
+      "note": ""
+    },
+    {
+      "key": "photo_ids",
+      "type": "string[]",
+      "required": false,
+      "note": "Storage file IDs; see photo_records"
+    },
+    {
+      "key": "occurred_at_client",
+      "type": "datetime",
+      "required": false,
+      "note": "Informational only"
+    },
+    {
+      "key": "recorded_by",
+      "type": "string",
+      "required": true,
+      "note": ""
+    }
+  ],
+  "indexes": [
+    {
+      "key": "uq_client",
+      "type": "unique",
+      "attributes": [
+        "client_id"
+      ]
+    },
+    {
+      "key": "ix_item_time",
+      "type": "key",
+      "attributes": [
+        "item_id",
+        "$createdAt"
+      ]
+    },
+    {
+      "key": "ix_custodian",
+      "type": "key",
+      "attributes": [
+        "custodian_id"
+      ]
+    }
+  ],
+  "permissions_note": "Create via API only. No update, no delete (corrections are new adjustment rows)."
+}

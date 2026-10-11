@@ -1,0 +1,66 @@
+{
+  "id": "notifications",
+  "name": "notifications",
+  "purpose": "In-app inbox mirroring every push.",
+  "attributes": [
+    {
+      "key": "user_id",
+      "type": "string",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "type",
+      "type": "string",
+      "required": true,
+      "note": "e.g. approval_requested"
+    },
+    {
+      "key": "title",
+      "type": "string",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "body",
+      "type": "string",
+      "required": false,
+      "note": ""
+    },
+    {
+      "key": "link",
+      "type": "string",
+      "required": false,
+      "note": "In-app route"
+    },
+    {
+      "key": "source_id",
+      "type": "string",
+      "required": false,
+      "note": ""
+    },
+    {
+      "key": "read",
+      "type": "bool",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "read_at",
+      "type": "datetime",
+      "required": false,
+      "note": ""
+    }
+  ],
+  "indexes": [
+    {
+      "key": "ix_user_read",
+      "type": "key",
+      "attributes": [
+        "user_id",
+        "read"
+      ]
+    }
+  ],
+  "permissions_note": "Created by server. Owner may read and set read/read_at via document permission; nothing else."
+}

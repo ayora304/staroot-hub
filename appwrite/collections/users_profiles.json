@@ -1,0 +1,79 @@
+{
+  "id": "users_profiles",
+  "name": "users_profiles",
+  "purpose": "One row per staff member: role, department, devices.",
+  "attributes": [
+    {
+      "key": "user_id",
+      "type": "string",
+      "required": true,
+      "note": "Appwrite Auth user ID, unique"
+    },
+    {
+      "key": "email",
+      "type": "string",
+      "required": true,
+      "note": "Must match ALLOWED_EMAIL_DOMAIN"
+    },
+    {
+      "key": "display_name",
+      "type": "string",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "role",
+      "type": "enum[executive,manager,sales_marketing,ops_frontoffice,site_engineer]",
+      "required": true,
+      "note": "Server-controlled"
+    },
+    {
+      "key": "department",
+      "type": "enum[executive,operations,sales,marketing]",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "is_admin",
+      "type": "bool",
+      "required": true,
+      "note": "Can edit roles/projects/rules; default false"
+    },
+    {
+      "key": "active",
+      "type": "bool",
+      "required": true,
+      "note": "Deactivated users are rejected by the API"
+    },
+    {
+      "key": "push_subscriptions",
+      "type": "string[]",
+      "required": false,
+      "note": "One JSON string per device (endpoint + keys)"
+    }
+  ],
+  "indexes": [
+    {
+      "key": "uq_user",
+      "type": "unique",
+      "attributes": [
+        "user_id"
+      ]
+    },
+    {
+      "key": "uq_email",
+      "type": "unique",
+      "attributes": [
+        "email"
+      ]
+    },
+    {
+      "key": "ix_role",
+      "type": "key",
+      "attributes": [
+        "role"
+      ]
+    }
+  ],
+  "permissions_note": "Users read own row only. All writes via API (admin endpoints), except push_subscriptions via /api/push/subscribe."
+}

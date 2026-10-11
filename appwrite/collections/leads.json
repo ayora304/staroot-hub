@@ -1,0 +1,117 @@
+{
+  "id": "leads",
+  "name": "leads",
+  "purpose": "CRM leads.",
+  "attributes": [
+    {
+      "key": "client_id",
+      "type": "string",
+      "required": true,
+      "note": "Idempotency key, unique"
+    },
+    {
+      "key": "client_name",
+      "type": "string",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "phone",
+      "type": "string",
+      "required": true,
+      "note": "E.164 normalised"
+    },
+    {
+      "key": "email",
+      "type": "string",
+      "required": false,
+      "note": ""
+    },
+    {
+      "key": "source",
+      "type": "enum[social_media,referral,website,walk_in]",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "project_id",
+      "type": "string",
+      "required": false,
+      "note": "Property of interest"
+    },
+    {
+      "key": "budget",
+      "type": "float",
+      "required": false,
+      "note": ""
+    },
+    {
+      "key": "budget_currency",
+      "type": "string",
+      "required": false,
+      "note": "Default KES"
+    },
+    {
+      "key": "stage",
+      "type": "enum[prospect,viewing,negotiation,won,lost]",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "assigned_to",
+      "type": "string",
+      "required": false,
+      "note": "Sales rep user ID"
+    },
+    {
+      "key": "created_by",
+      "type": "string",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "last_contacted_at",
+      "type": "datetime",
+      "required": false,
+      "note": "Server-set when a contact activity is added"
+    },
+    {
+      "key": "stage_changed_at",
+      "type": "datetime",
+      "required": false,
+      "note": ""
+    },
+    {
+      "key": "version",
+      "type": "int",
+      "required": true,
+      "note": ""
+    }
+  ],
+  "indexes": [
+    {
+      "key": "uq_client",
+      "type": "unique",
+      "attributes": [
+        "client_id"
+      ]
+    },
+    {
+      "key": "ix_assignee_stage",
+      "type": "key",
+      "attributes": [
+        "assigned_to",
+        "stage"
+      ]
+    },
+    {
+      "key": "ix_stale",
+      "type": "key",
+      "attributes": [
+        "stage",
+        "last_contacted_at"
+      ]
+    }
+  ],
+  "permissions_note": "Created/updated via API only. Sales reps see assigned leads; managers see department; executive sees all."
+}

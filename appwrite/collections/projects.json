@@ -1,0 +1,54 @@
+{
+  "id": "projects",
+  "name": "projects",
+  "purpose": "Building projects/sites. Data, never hard-coded.",
+  "attributes": [
+    {
+      "key": "name",
+      "type": "string",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "slug",
+      "type": "string",
+      "required": true,
+      "note": "Stable key, unique"
+    },
+    {
+      "key": "location",
+      "type": "string",
+      "required": false,
+      "note": ""
+    },
+    {
+      "key": "status",
+      "type": "enum[active,archived]",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "sort_order",
+      "type": "int",
+      "required": false,
+      "note": ""
+    }
+  ],
+  "indexes": [
+    {
+      "key": "uq_slug",
+      "type": "unique",
+      "attributes": [
+        "slug"
+      ]
+    },
+    {
+      "key": "ix_status",
+      "type": "key",
+      "attributes": [
+        "status"
+      ]
+    }
+  ],
+  "permissions_note": "Read via API for any signed-in user. Write: admin API only."
+}

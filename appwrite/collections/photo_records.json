@@ -1,0 +1,97 @@
+{
+  "id": "photo_records",
+  "name": "photo_records",
+  "purpose": "Per-photo evidence metadata and server verification result.",
+  "attributes": [
+    {
+      "key": "client_id",
+      "type": "string",
+      "required": true,
+      "note": "Idempotency key, unique"
+    },
+    {
+      "key": "file_id",
+      "type": "string",
+      "required": true,
+      "note": "Appwrite Storage ID"
+    },
+    {
+      "key": "owner_collection",
+      "type": "enum[movements,site_logs,reports]",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "owner_id",
+      "type": "string",
+      "required": false,
+      "note": "Set after parent syncs"
+    },
+    {
+      "key": "captured_at_client",
+      "type": "datetime",
+      "required": true,
+      "note": "From device"
+    },
+    {
+      "key": "gps_lat",
+      "type": "float",
+      "required": false,
+      "note": ""
+    },
+    {
+      "key": "gps_lng",
+      "type": "float",
+      "required": false,
+      "note": ""
+    },
+    {
+      "key": "gps_accuracy_m",
+      "type": "float",
+      "required": false,
+      "note": ""
+    },
+    {
+      "key": "skew_seconds",
+      "type": "int",
+      "required": false,
+      "note": "|server receipt - captured_at_client|"
+    },
+    {
+      "key": "verification",
+      "type": "enum[verified,unverified]",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "reasons",
+      "type": "string[]",
+      "required": false,
+      "note": "e.g. no_gps, clock_skew, stale_capture"
+    },
+    {
+      "key": "uploaded_by",
+      "type": "string",
+      "required": true,
+      "note": ""
+    }
+  ],
+  "indexes": [
+    {
+      "key": "uq_client",
+      "type": "unique",
+      "attributes": [
+        "client_id"
+      ]
+    },
+    {
+      "key": "ix_owner",
+      "type": "key",
+      "attributes": [
+        "owner_collection",
+        "owner_id"
+      ]
+    }
+  ],
+  "permissions_note": "Server-written only. Read via API with the parent record's scope."
+}

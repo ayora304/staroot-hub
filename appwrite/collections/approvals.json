@@ -1,0 +1,137 @@
+{
+  "id": "approvals",
+  "name": "approvals",
+  "purpose": "Internal approval requests.",
+  "attributes": [
+    {
+      "key": "client_id",
+      "type": "string",
+      "required": true,
+      "note": "Idempotency key, unique"
+    },
+    {
+      "key": "requestor_id",
+      "type": "string",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "requestor_email",
+      "type": "string",
+      "required": true,
+      "note": "From session, not client"
+    },
+    {
+      "key": "category",
+      "type": "enum[petty_cash,procurement,leave,contract]",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "title",
+      "type": "string",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "details",
+      "type": "text",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "amount",
+      "type": "float",
+      "required": false,
+      "note": ""
+    },
+    {
+      "key": "currency",
+      "type": "string",
+      "required": false,
+      "note": "Default KES"
+    },
+    {
+      "key": "attachment_ids",
+      "type": "string[]",
+      "required": false,
+      "note": ""
+    },
+    {
+      "key": "department",
+      "type": "enum[executive,operations,sales,marketing]",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "status",
+      "type": "enum[pending,approved,rejected,revision_requested]",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "assigned_role",
+      "type": "enum[manager,executive]",
+      "required": false,
+      "note": "Null when finished"
+    },
+    {
+      "key": "assigned_to",
+      "type": "string",
+      "required": false,
+      "note": "Specific user ID if resolved"
+    },
+    {
+      "key": "rule_id",
+      "type": "string",
+      "required": false,
+      "note": "Rule applied at routing time"
+    },
+    {
+      "key": "version",
+      "type": "int",
+      "required": true,
+      "note": "Optimistic concurrency"
+    },
+    {
+      "key": "decided_at",
+      "type": "datetime",
+      "required": false,
+      "note": ""
+    }
+  ],
+  "indexes": [
+    {
+      "key": "uq_client",
+      "type": "unique",
+      "attributes": [
+        "client_id"
+      ]
+    },
+    {
+      "key": "ix_assignee",
+      "type": "key",
+      "attributes": [
+        "assigned_to",
+        "status"
+      ]
+    },
+    {
+      "key": "ix_requestor",
+      "type": "key",
+      "attributes": [
+        "requestor_id",
+        "status"
+      ]
+    },
+    {
+      "key": "ix_role_status",
+      "type": "key",
+      "attributes": [
+        "assigned_role",
+        "status"
+      ]
+    }
+  ],
+  "permissions_note": "Created and transitioned via API only. Client never sets status or assignee."
+}

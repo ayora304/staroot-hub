@@ -1,0 +1,67 @@
+{
+  "id": "sync_audit",
+  "name": "sync_audit",
+  "purpose": "Server log of every synced action outcome.",
+  "attributes": [
+    {
+      "key": "client_id",
+      "type": "string",
+      "required": true,
+      "note": "Outbox action ID"
+    },
+    {
+      "key": "user_id",
+      "type": "string",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "device_id",
+      "type": "string",
+      "required": false,
+      "note": ""
+    },
+    {
+      "key": "action_type",
+      "type": "string",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "outcome",
+      "type": "enum[applied,duplicate,conflict,rejected,error]",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "detail",
+      "type": "text",
+      "required": false,
+      "note": ""
+    },
+    {
+      "key": "attempts",
+      "type": "int",
+      "required": false,
+      "note": ""
+    }
+  ],
+  "indexes": [
+    {
+      "key": "ix_client",
+      "type": "key",
+      "attributes": [
+        "client_id"
+      ]
+    },
+    {
+      "key": "ix_user_time",
+      "type": "key",
+      "attributes": [
+        "user_id",
+        "$createdAt"
+      ]
+    }
+  ],
+  "permissions_note": "Server-written only. Read: admin API."
+}

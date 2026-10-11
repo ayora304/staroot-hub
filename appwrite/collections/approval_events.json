@@ -1,0 +1,74 @@
+{
+  "id": "approval_events",
+  "name": "approval_events",
+  "purpose": "Append-only audit trail for approvals.",
+  "attributes": [
+    {
+      "key": "approval_id",
+      "type": "string",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "seq",
+      "type": "int",
+      "required": true,
+      "note": "1,2,3... per approval, unique with approval_id"
+    },
+    {
+      "key": "action",
+      "type": "enum[submitted,approved,rejected,revision_requested,resubmitted,reassigned,comment]",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "actor_id",
+      "type": "string",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "actor_role",
+      "type": "string",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "from_status",
+      "type": "string",
+      "required": false,
+      "note": ""
+    },
+    {
+      "key": "to_status",
+      "type": "string",
+      "required": true,
+      "note": ""
+    },
+    {
+      "key": "comment",
+      "type": "text",
+      "required": false,
+      "note": "Required for reject/revision"
+    }
+  ],
+  "indexes": [
+    {
+      "key": "uq_approval_seq",
+      "type": "unique",
+      "attributes": [
+        "approval_id",
+        "seq"
+      ]
+    },
+    {
+      "key": "ix_approval",
+      "type": "key",
+      "attributes": [
+        "approval_id",
+        "seq"
+      ]
+    }
+  ],
+  "permissions_note": "Create via API only. No update, no delete, for any role including admin."
+}

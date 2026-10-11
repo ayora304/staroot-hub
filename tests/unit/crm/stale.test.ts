@@ -1,1 +1,4 @@
-// TODO: tests/unit/crm/stale.test.ts
+import { describe, it } from 'vitest';
+
+describe('crm/stale', () => { it.todo('implement in its phase'); });
+

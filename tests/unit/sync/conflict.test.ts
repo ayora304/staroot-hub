@@ -1,1 +1,4 @@
-// TODO: tests/unit/sync/conflict.test.ts
+import { describe, it } from 'vitest';
+
+describe('sync/conflict', () => { it.todo('implement in its phase'); });
+

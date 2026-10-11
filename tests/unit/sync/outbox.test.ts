@@ -1,1 +1,4 @@
-// TODO: tests/unit/sync/outbox.test.ts
+import { describe, it } from 'vitest';
+
+describe('sync/outbox', () => { it.todo('implement in its phase'); });
+

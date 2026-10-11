@@ -1,1 +1,4 @@
-// TODO: tests/unit/approvals/audit.test.ts
+import { describe, it } from 'vitest';
+
+describe('approvals/audit', () => { it.todo('implement in its phase'); });
+

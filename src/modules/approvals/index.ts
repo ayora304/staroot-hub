@@ -1,1 +1,2 @@
-// TODO: src/modules/approvals/index.ts
+export { ApprovalsApp } from './components/ApprovalsApp'
+export { registerApprovalHandlers } from './services/approvals.sync'

@@ -661,3 +661,215 @@ The header is stamped automatically in UTC+3 (Nairobi time). Entry format:
 * Transition to **Phase 2: Offline Outbox & Sync Engine** (`src/core/offline/`).
 
 ##ed of google gemini workflow
+
+##start of claude code again
+---
+
+## 15. Progress update: Appwrite setup fixes and Phase 2 code (Sunday, 11 October 2026)
+
+*Appended; earlier sections are unchanged. Where this section disagrees with section 1 or 14, this section is newer and wins.*
+
+### 15.1 Corrections to earlier statements
+
+- **Database ID is `staroot_hub`, not `staroot_hub_db`.** `APPWRITE_DATABASE_ID=staroot_hub` in `.env` and in the host's env settings. It must match whatever the API code reads.
+- **Storage buckets (`proofs`, `attachments`) are NOT created by `scripts/appwrite-setup.ts`.** They must be created by hand in the Appwrite console (or the script extended) before Phase 3 (attachments) and Phase 5 (photos).
+- **Section 1 verification status is out of date.** `npm install`, `npm run typecheck`, the real Vitest run and the Appwrite setup script have now all been run. See 15.4. `npm run build` and `vercel dev` have NOT been run yet.
+
+### 15.2 Appwrite setup: what broke and how it was fixed
+
+1. **`TypeError: fetch failed ... invalid onError method`** on Node v26. Cause: old `node-appwrite` bundled an undici dispatcher that the newer built-in fetch rejects. Fix: `npm install node-appwrite@latest`.
+2. **`IndexType` is no longer exported.** The enum is now `DatabasesIndexType` (also `TablesDBIndexType`, `DocumentsDBIndexType`, `VectorsDBIndexType`). Script updated to `DatabasesIndexType.Unique` / `.Key`.
+3. **`Invalid databaseId`**: IDs must be at most 36 chars of `a-z A-Z 0-9 . - _`, not starting with a special char. Fixed by setting `APPWRITE_DATABASE_ID=staroot_hub`.
+4. **`missing scopes ["collections.write"]`**: the API key needs these scopes: `databases.read/write`, `collections.read/write`, `attributes.read/write`, `indexes.read/write`, `documents.read/write`. Fixed by creating a key with all Databases scopes.
+5. **`maximum number of databases ... reached` (403)** on re-run. Appwrite checks the plan limit before the duplicate check, so `db.create` returns 403 instead of 409 once the database exists. Fix: the script now calls `db.get(DB)` first and only creates on 404.
+6. **`attribute_limit_exceeded` on `site_logs`.** Cause: collection row-size limit. Every `text` attribute was 5000 chars. Fix: `text` attributes are now 2000 chars (except `snapshot`, which stays 1,000,000). `site_logs` was deleted in the console and rebuilt by re-running the script. **If a long-text field is ever needed, store it in a separate collection linked by an ID string, not in the same row.**
+7. The script now finishes with `Done.` and seeded `approval_rules` (6 rows) and `projects` (2 rows) along with `role_permissions`.
+8. `scripts/appwrite-setup.ts` is now fully typed (no implicit `any`) and passes strict `tsc`. It is idempotent: existing items print `exists`.
+
+### 15.3 First admin user
+
+- Created in Appwrite Auth, email verified, with a matching `users_profiles` row. Login confirmed working by the owner.
+- **Valid `role` values:** `executive`, `manager`, `sales_marketing`, `ops_frontoffice`, `site_engineer`. There is no `admin` role. Admin access comes from the separate `is_admin: true` flag on the profile (use `role: executive` plus `is_admin: true` for the owner).
+- `scripts/create-profile.ts` is a one-off helper used to create the profile row from code and print the real Appwrite error (the console form hid it). It is not part of the app and can be deleted.
+- `department` may also be an enum. If profile creation complains about it, use one of the values the error lists.
+
+### 15.4 Phase 2: offline outbox and sync engine (code written, tested)
+
+**Files (all under `src/core/offline/` unless noted):**
+
+| File | Purpose |
+|---|---|
+| `types.ts` | `OutboxItem`, `OutboxStore` interface, `SyncError`, `SyncHandler`, `SyncSnapshot`. No runtime imports. |
+| `dexieStore.ts` | Dexie implementation. Own database `staroot-outbox` with tables `items` (`++seq, &id, status`) and `blobs` (`id`). |
+| `syncEngine.ts` | `createSyncEngine`, `backoffMs`, `classifyError`. Single-flight drain loop, triggers, status snapshot. |
+| `instance.ts` | App-wide singletons `outboxStore` and `syncEngine`. |
+| `index.ts` | Re-exports plus `useSyncStatus()` hook and `unsyncedCount()`. |
+| `tests/unit/helpers/memoryStore.ts` | In-memory store with the same contract, for engine tests. |
+| `tests/unit/sync/syncEngine.test.ts` | 17 tests for the engine. |
+
+**Behaviour:**
+
+- `enqueue()` writes to IndexedDB first and returns at once. Passing the same `id` twice stores one item (idempotent). `item.id` is the `client_id` the server must use for idempotency.
+- Items are sent oldest-first (by `seq`). One failing item does not block the others.
+- Error classes (`classifyError`, or throw `SyncError(kind, msg)` from a handler): network error with no status, 5xx, 408, 425, 429 = retry with exponential backoff (2 s base, 5 min cap, equal jitter), `failed` after 8 attempts. Other 4xx = `failed` immediately. 409 = `needs_review` (never silently overwritten). **401 = pause the loop without burning attempts.** 403 fails only that item.
+- Triggers: after enqueue, `online`/`offline` events, tab becomes visible, a 30 s poll, and a timer scheduled for the next retry. There is **no dependency on Background Sync**, so it works on iOS Safari.
+- Items stuck in `syncing` after a crash or closed tab are returned to `pending` at the start of the next drain.
+- Successful items are deleted from the outbox together with their blobs. Handlers receive `getBlob(id)`. Photos must be uploaded before the metadata is written (handler's job).
+- An item whose type has no registered handler is marked `failed` (it does not loop). **Register handlers before calling `syncEngine.start()`.**
+- UI API: `useSyncStatus()` returns `{pending, syncing, failed, needsReview, online, running, paused, lastSyncAt}`. Engine methods: `retry(id)`, `retryAllFailed()`, `discard(id)`, `hasUnsynced()`.
+
+**Decisions added (extend DECISIONS.md, continuing from D19):**
+
+- **D20.** The outbox uses its own Dexie database (`staroot-outbox`), separate from the session/`meta` database, so the two cannot conflict.
+- **D21.** 401 pauses the loop; 403 fails a single item. Reason: the existing rule "401 or 403 wipes local data" in `AuthProvider` would destroy unsynced work, so the wipe must be guarded (see 15.6).
+- **D22.** `text` attributes are capped at 2000 characters because of the Appwrite row-size limit (see 15.2 item 6).
+- **D23.** The engine polls every 30 s as the iOS fallback; Background Sync is an optional extra, never a requirement.
+
+### 15.5 Verification status (supersedes section 1)
+
+- **Passing:** `npm test` = 32 tests pass, 7 `it.todo` (3 files run: emailDomain 4, rbac 11, syncEngine 17).
+- **Tooling changes:** Vitest upgraded from 2.1.9 to 3.2.x (`npm install -D vitest@^3`) because Vitest 2 bundled its own Vite 5 and its plugin types clashed with the project's Vite 6 in `vite.config.ts`. Check `npm ls vite` shows a single version.
+- **Test stubs:** the empty stub test files (`approvals/audit`, `approvals/routing`, `camera/compress`, `crm/stale`, `sync/conflict`, `sync/idempotency`, `sync/outbox`) now contain a single `it.todo` so the suite is green. Replace them as each phase lands. The outbox and idempotency behaviour is currently covered inside `syncEngine.test.ts`.
+- **Typecheck:** was down to one error (file name casing: `memorystore.ts` vs `memoryStore.ts` on disk; TypeScript is case-sensitive about names on Windows). Fix: rename the file to `memoryStore.ts`. Re-run `npm run typecheck` to confirm it is clean.
+- **Not run yet:** `npm run build`, `vercel dev` login test in the browser, any Playwright test, and a real-IndexedDB test of `dexieStore.ts` (it is only exercised in a browser; the engine tests use the in-memory store).
+
+### 15.6 Still to do to close Phase 2
+
+1. Call `syncEngine.start()` once in `src/main.tsx`, after handlers are registered.
+2. Replace the hard-coded zero in `BADGES` in `HubScreen.tsx` with `unsyncedCount(useSyncStatus())`.
+3. Guard `clearAllLocalData()`: await `syncEngine.hasUnsynced()` and warn or block before wiping. Also review `AuthProvider`'s "401 or 403 wipes local data" rule against D21.
+4. Run `npm run build` and fix any errors.
+5. Log changelog entries with `scripts/add-changelog.ps1`.
+6. Optional but recommended once Phase 3 provides a real action: a Playwright offline test (go offline, submit, reconnect, confirm no duplicates).
+
+### 15.7 Other open items
+
+- `npm audit` reports 8 vulnerabilities (5 moderate, 1 high, 2 critical). Review with `npm audit`; do not run `npm audit fix --force` blindly.
+- npm warns that esbuild's postinstall is not covered by `allowScripts` (`npm install-scripts ls`, `npm install-scripts approve esbuild`). Only needed if `tsx` or Vite fail to start.
+- No handlers are registered yet, so nothing actually syncs until Phase 3 registers the first one.
+- Open questions in section 12 are still unanswered (thresholds, email domain, real project list, Appwrite hosting, API host).
+
+**Next step: finish 15.6, then start Phase 3 (Approvals Engine).** Before Phase 3, the author needs the real shape of `api/` (`apiFetch`, `ApiError`, `requireAccess`) so handlers are written against the actual code.
+
+
+
+---
+
+## 16. Progress update: Phase 2 wiring and code review (Sunday, 11 October 2026)
+
+*Appended after section 15; earlier sections are unchanged. Read this before starting Phase 3.*
+
+### 16.1 Verified since section 15
+
+- `npm run typecheck` is clean and `npm run build` passes (Vite 6.4, 477 modules, service worker built, 10 precache entries, about 565 KiB). Only a chunk-size warning (main bundle 533 kB). Code-splitting is a Phase 7 task.
+- `npm test`: 32 passed, 7 todo (emailDomain 4, rbac 11, syncEngine 17). The `memorystore.ts` casing error was fixed by renaming the file to `memoryStore.ts`.
+- NOT yet verified: the wiring edits below (typecheck after applying them), `vercel dev` login in a browser, and the PWA/service worker at runtime.
+
+### 16.2 Phase 2 wiring (files written; owner must copy them into the repo)
+
+| File | Change |
+|---|---|
+| `src/main.tsx` | Imports `syncEngine` from `./core/offline` and calls `syncEngine.start()` once at module level (not in an effect, so StrictMode cannot start it twice). Handlers must be registered before this call. |
+| `src/modules/hub/components/HubScreen.tsx` | Uses `useSyncStatus()` and `unsyncedCount()`. Shows a live banner when items are queued (syncing, waiting for connection, needs attention, or sign in again) with a Retry button for failed items. Sign-out now asks for confirmation if items are unsynced and then calls `outboxStore.clear()` before `signOut()`. |
+
+Why the sign-out clear matters: the outbox is a separate Dexie database (`staroot-outbox`, D20), so the older `clearAllLocalData()` almost certainly does not touch it. Without clearing, user A's queued actions could be sent under user B's session on a shared device and be attributed to B.
+
+### 16.3 Recommended edits from the code review (NOT confirmed applied; check each)
+
+1. **`src/core/offline/instance.ts`:** pass a `classify` function to `createSyncEngine` so session-level server codes pause the queue instead of failing items. Codes treated as session problems: `unauthenticated`, `unverified`, `no_profile`, `csrf`. Do NOT include `forbidden` (it is also the RBAC denial code, which should fail only that item). Everything else falls through to `classifyError`. This works because `ApiError.code` carries the server's `code` and `api/_lib/http.ts` returns `{ error, code }`.
+2. **`src/core/api/` (`apiFetch`):** add `timeoutMs?: number` to `Options` and use `signal: opts.signal ?? AbortSignal.timeout(opts.timeoutMs ?? 30_000)`. Without a timeout one hung request stalls the whole sync queue. Raise the timeout for photo uploads.
+3. **`api/_lib/auth.ts`:** in `authenticate()`, only treat an Appwrite error with `code === 401` as "session expired". Any other error from `Account.get()` should throw `HttpError(503, ..., 'auth_unavailable')`. Currently every failure becomes a 401, and `AuthProvider` wipes local data on 401, so a brief Appwrite outage could erase a field user's unsynced work.
+4. **`api/_lib/http.ts` `readJson`:** wrap `JSON.parse` for a string `req.body` in try/catch and throw `HttpError(400, 'Invalid JSON', 'bad_json')` (currently a 500).
+5. **`api/_lib/http.ts` `parseCookies`:** wrap `decodeURIComponent` in try/catch and keep the raw value on failure. A malformed cookie currently makes every request fail with a 500 before authentication.
+6. **Phase 7 note:** `getIp` trusts the first `x-forwarded-for` value, which clients can spoof. Prefer the host's trusted header (`x-vercel-forwarded-for` or `x-real-ip` on Vercel) before relying on it for rate limiting.
+
+### 16.4 Open item: `AuthProvider` wipe on 401/403
+
+The brief says a 401 or 403 from the API wipes local data (`clearAllLocalData()`). The owner has not yet shown that file. To check: `Get-ChildItem src -Recurse -Include *.ts,*.tsx | Select-String clearAllLocalData`. Required behaviour: the automatic wipe must NOT delete `staroot-outbox` (the same user can sign back in and resume). Only the explicit, confirmed sign-out in `HubScreen` clears it. Also note a 403 from RBAC (`forbidden`) should not log the user out at all.
+
+### 16.5 Rules for Phase 3 handlers (derived from the review)
+
+- **Create endpoints must be idempotent and return 200 for a duplicate.** `handler()` in `api/_lib/http.ts` turns any non-`HttpError` into a 500. A retried create that hits the unique `client_id` index must catch the duplicate, load the existing record and return it with 200. Never return 409 for a replay: the sync engine treats 409 as `needs_review`, and a 500 would be retried forever.
+- **Endpoint order (unchanged):** `authenticate(req)`, `assertCsrf(req)` for mutations, `requireAccess(ctx, module, action)`, zod validation, then the work. `requestor_id`, `requestor_email`, `department`, `status` and the assignee come from the server (session and routing), never from the client.
+- **Routing:** match rules by `category`, `active`, and `currency` first, then `amount >= min_amount` and (`max_amount` is null or `amount < max_amount`), lowest `priority` number wins. Categories without an amount (`leave`, `contract`) need rules with `min_amount: 0` and no `max_amount`. Decide how to handle a request whose currency has no matching rule (suggest: reject with a clear validation error).
+- **Concurrency:** `approvals.version` is optimistic concurrency. A stale version should return a conflict the engine routes to `needs_review`. Append an `approval_events` row for every transition (never update or delete events).
+- **Schema notes:** `approvals.details` is `text` (2000 chars after decision D22). `approvals.department` enum is `executive, operations, sales, marketing`; the profile `department` enum may differ, so map it deliberately. `assigned_role` enum is `manager, executive`. `src/core/api` ENDPOINTS currently holds only `session` and `logout`; add the approvals routes there.
+- **Handlers:** register each action type with `syncEngine.registerHandler(type, fn)` before `syncEngine.start()` in `main.tsx`. The handler sends `item.id` as `client_id`. For photos: upload the files first, then write the metadata.
+
+### 16.6 Next steps, in order
+
+1. Copy `src/main.tsx` and `HubScreen.tsx` into the repo; apply the recommended edits in 16.3; run `npm run typecheck`.
+2. Run `vercel dev`, sign in at `http://localhost:3000`, confirm the Hub loads with no sync banner.
+3. Resolve 16.4 (`clearAllLocalData` check).
+4. Add changelog entries with `scripts/add-changelog.ps1` (Phase 2 and the wiring).
+5. Start Phase 3 (Approvals Engine): routing logic with unit tests first, then endpoints, then UI, following 16.5.
+6. Still open from section 15.7: `npm audit` findings, the esbuild install-scripts warning, creating the storage buckets by hand, and the unanswered owner questions in section 12.
+
+###end of claude code again
+
+##claude 111026 1944 start
+
+---
+
+## 17. Progress update: Phase 3a Approvals Engine (Sunday, 11 October 2026)
+
+*Appended after section 16. Phase 2 close-out (section 15.6 and 16.6) is still PENDING by the owner's decision; Phase 3a was built on top of it. Where this section disagrees with earlier ones, this one is newer.*
+
+### 17.1 What Phase 3a contains (code written)
+
+| Area | Files |
+|---|---|
+| Pure domain logic (shared by API and tests) | `src/modules/approvals/types.ts`, `domain/routing.ts`, `domain/stateMachine.ts`, `domain/audit.ts` |
+| Server layer | `api/approvals/{submit,decide,resubmit,list,detail}.ts`, `api/notifications/{list,read}.ts`, `api/_lib/{approvalsRepo,approvalsAccess,approvalsSchemas,notify}.ts` |
+| Client | `src/modules/approvals/{services,hooks,components}/*`, `src/modules/notifications/components/InboxScreen.tsx` |
+| Wiring | `src/core/api/endpoints.ts`, `src/modules/hub/registry.ts` (Inbox card), `src/app/router.tsx`, `main.tsx` calls `registerApprovalHandlers()` before `syncEngine.start()` |
+
+### 17.2 Rules that must not be broken
+
+- **Routing** (`routeApproval`): rule matches on category, currency, `active`, and `amount >= min_amount` and (`max_amount` null or `amount < max_amount`). Lowest `priority` wins, then highest `min_amount`. Leave and contract route as amount 0. No matching rule returns 422 `no_routing_rule` (the request is not created).
+- **Who decides** (`isEligibleApprover`): executives decide any pending request; managers decide only manager-routed requests from their own department; nobody decides their own request.
+- **Comments:** required for `reject` and `request_revision`, never for `approve`.
+- **Versioning:** `approvals.version` starts at 1 (event seq 1 = submitted). Every transition writes an event with `seq = version + 1`, then updates the row to that version. Clients send `base_version`; a mismatch is 409 `conflict`, which the sync engine turns into `needs_review`.
+- **Idempotency:** submit looks up `client_id` first and returns the existing record with 200. Decide and resubmit detect a retry by finding their own event at `seq = base_version + 1` (`findReplay`) and repair an interrupted row update.
+- **Server owns:** `requestor_id`, `requestor_email`, `department`, `status`, `assigned_role`, `rule_id`, `version`, timestamps. Never accept them from the client.
+- **Events are append-only:** `approvalsRepo.ts` has no update or delete for `approval_events`. Do not add one.
+- **Endpoint order:** `authenticate`, `assertCsrf` (mutations), `requireAccess`, zod parse, then work. Non-visible records return 404, not 403.
+
+### 17.3 Verification status
+
+- **Run and passing (pure logic):** 30 unit tests for routing (13), state machine (12) and replay detection (5), executed with Node type-stripping and a small Vitest stand-in; strict `tsc` on the domain files is clean; every new file parses (no syntax errors).
+- **NOT run:** `npm run typecheck` and `npm run build` on the full project, the API endpoints against a live Appwrite, the UI in a browser, and the offline end-to-end test. The author could not install packages.
+- **Highest-risk assumptions** (isolated in two files): `outboxStore.enqueue({ id, type, payload })` in `services/approvals.service.ts`, and `syncEngine.registerHandler(type, handler)` in `services/approvals.sync.ts`. Also `node-appwrite` calls in `api/_lib/approvalsRepo.ts` use the same positional style as `api/_lib/appwrite.ts`.
+- **Required Appwrite change:** new indexes (see `PHASE3_APPLY.md` step 3), then rerun `npm run setup:appwrite`.
+
+### 17.4 Known gaps (Phase 3b and later)
+
+- **No attachments** (receipts, quotations). Needs the `proofs`/`attachments` buckets created by hand, an upload endpoint, and outbox blobs.
+- **No Web Push.** In-app inbox only. Needs VAPID keys, `web-push`, and `api/push/subscribe`.
+- **Reads are online-only.** Lists and details are not cached in Dexie, and a request still sitting in the outbox is not shown in the list until it syncs.
+- **Hub badge for "pending my action" is not wired** (still zero). Use `GET /api/approvals/list?tab=pending_mine` and count.
+- **Lists show the newest 100, no pagination.**
+- **No admin screen** to edit approval rules, so changing thresholds means editing the `approval_rules` collection in Appwrite.
+- **Decision screen is a full page**, not the slide-up sheet in the spec.
+- **A CEO's own request cannot be approved** (D27). Needs an admin reassign feature or a policy decision (open question).
+- Event-then-update is not atomic; the retry repair covers crashes, but there is no background reconciler (Phase 7).
+
+### 17.5 Next steps
+
+1. Apply and verify Phase 3a (`PHASE3_APPLY.md`). Close Phase 2 using the earlier checklist.
+2. Phase 3b: attachments, Web Push, badge wiring, read cache, queued-item visibility.
+3. Then Phase 4 (CRM).
+
+HANDOFF_SECTION_18.md is ready to paste onto the end of docs/HANDOFF.md. It covers:
+
+Phase 3a delivered: the files and decisions D24 to D29, pointing back to section 17 for the rules.
+Verification status, replacing section 17.3: your own run showed 62 tests passing and 5 todo. Typecheck still fails with the two errors, so the build stops. That means dist is stale.
+Phase 2 pending: both open errors are written up with the fix for each. registerHandler produced no error, so that assumption held.
+Android install investigation: it records that the manifest shows only warnings, lists the five likely causes in order, and includes the recommended manifest. The Installability section and how your phone opens the app are listed as unanswered.
+Phase status table, open decision and next steps: the decision is whether the CEO may approve their own requests.
+
+Once you fix the two errors, I’ll update it with the results. I’ll also need the output of Get-Content src\core\offline\types.ts to correct the enqueue call.
+
+###end of claude code 111026 1950
+
+###

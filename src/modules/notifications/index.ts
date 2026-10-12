@@ -1,1 +1,1 @@
-// TODO: src/modules/notifications/index.ts
+export { InboxScreen } from './components/InboxScreen'

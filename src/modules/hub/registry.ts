@@ -13,6 +13,7 @@ export interface HubModule {
 
 export const HUB_MODULES: HubModule[] = [
   { id: 'approvals', label: 'Approvals', blurb: 'Petty cash, procurement, leave and contract sign-offs', icon: 'approvals', route: '/m/approvals', phase: 3 },
+  { id: 'notifications', label: 'Inbox', blurb: 'Updates on your requests and decisions waiting for you', icon: 'bell', route: '/m/notifications', phase: 3 },
   { id: 'crm', label: 'CRM', blurb: 'Leads, pipeline and client follow-ups', icon: 'crm', route: '/m/crm', phase: 4 },
   { id: 'site', label: 'Site Progress', blurb: 'Daily logs, photo evidence and executive reports', icon: 'site', route: '/m/site', phase: 5 },
   { id: 'inventory', label: 'Inventory & Logistics', blurb: 'Dispatch, receipt and asset custody', icon: 'inventory', route: '/m/inventory', phase: 6 },

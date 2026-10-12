@@ -1,6 +1,6 @@
 import { routeApproval } from '../../src/modules/approvals/domain/routing'
 import { AMOUNT_CATEGORIES, DEFAULT_CURRENCY } from '../../src/modules/approvals/types'
-import { appendEvent, createApproval, findApprovalByClientId, isConflict, listEvents, listRules } from '../_lib/approvalsRepo'
+import { appendEvent, assertAttachmentsOwned, createApproval, findApprovalByClientId, isConflict, listEvents, listRules } from '../_lib/approvalsRepo'
 import { submitSchema } from '../_lib/approvalsSchemas'
 import { assertCsrf, authenticate, type AuthContext } from '../_lib/auth'
 import { handler, HttpError, readJson, send } from '../_lib/http'
@@ -37,6 +37,7 @@ export default handler(async (req, res) => {
   if (!routed.ok) {
     throw new HttpError(422, 'No approval rule covers this request. Ask an administrator to add one.', 'no_routing_rule')
   }
+  await assertAttachmentsOwned(ctx.userId, input.attachment_ids ?? [])
 
   // Everything below comes from the server: the client never chooses requestor, department, status or assignee.
   let approval: Approval
@@ -51,7 +52,7 @@ export default handler(async (req, res) => {
       details: input.details,
       ...(amount !== undefined ? { amount } : {}),
       currency,
-      attachment_ids: [],
+      attachment_ids: input.attachment_ids ?? [],
       status: 'pending',
       assigned_role: routed.approverRole,
       rule_id: routed.rule.$id ?? '',

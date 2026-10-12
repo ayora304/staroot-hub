@@ -1,7 +1,9 @@
 /// <reference lib="webworker" />
 import { cleanupOutdatedCaches, createHandlerBoundToURL, precacheAndRoute } from 'workbox-precaching'
 import { NavigationRoute, registerRoute } from 'workbox-routing'
-import { NetworkOnly } from 'workbox-strategies'
+import { CacheFirst, NetworkOnly } from 'workbox-strategies'
+import { CacheableResponsePlugin } from 'workbox-cacheable-response'
+import { ExpirationPlugin } from 'workbox-expiration'
 
 declare const self: ServiceWorkerGlobalScope & { __WB_MANIFEST: Array<string | { url: string; revision: string | null }> }
 
@@ -10,6 +12,15 @@ precacheAndRoute(self.__WB_MANIFEST)
 
 // SPA: serve the precached shell for any navigation except API calls.
 registerRoute(new NavigationRoute(createHandlerBoundToURL('/index.html'), { denylist: [/^\/api\//] }))
+
+// Lazy module chunks are cached after first use. Large PDF/DOCX renderers are omitted from the install precache.
+registerRoute(
+  ({ request, url }) => request.destination === 'script' && url.pathname.startsWith('/assets/'),
+  new CacheFirst({
+    cacheName: 'staroot-module-chunks-v1',
+    plugins: [new CacheableResponsePlugin({ statuses: [200] }), new ExpirationPlugin({ maxEntries: 40, maxAgeSeconds: 30 * 24 * 60 * 60 })],
+  }),
+)
 
 // API traffic is never cached here. Offline writes are handled by the Phase 2 outbox.
 registerRoute(({ url }) => url.pathname.startsWith('/api/'), new NetworkOnly())

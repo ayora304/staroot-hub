@@ -2,6 +2,7 @@ import { createContext, useCallback, useEffect, useMemo, useState, type ReactNod
 import { ApiError, apiFetch, isNetworkError } from '../api/client'
 import { ENDPOINTS } from '../api/endpoints'
 import { clearAllLocalData, sessionCache } from '../offline/db'
+import { requestPersistentStorage, syncEngine } from '../offline'
 import type { PermissionRow, Profile } from '../rbac/roles'
 
 export interface SessionPayload {
@@ -30,6 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const accept = useCallback(async (s: SessionPayload) => {
     await sessionCache.save(s)
+    syncEngine.setUserId(s.user.id)
     setSession(s)
     setOffline(false)
     setStatus('authed')
@@ -42,14 +44,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (isNetworkError(e)) {
         const cached = await sessionCache.load<SessionPayload>()
         if (cached) {
+          syncEngine.setUserId(cached.user.id)
           setSession(cached)
           setOffline(true)
           setStatus('authed')
           return
         }
       } else if (e instanceof ApiError && (e.status === 401 || e.status === 403)) {
+        syncEngine.setUserId(null)
         await clearAllLocalData()
       }
+      syncEngine.setUserId(null)
       setSession(null)
       setStatus('anon')
     }
@@ -57,6 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     void refresh()
+    void requestPersistentStorage()
     const onOnline = () => void refresh()
     window.addEventListener('online', onOnline)
     return () => window.removeEventListener('online', onOnline)
@@ -70,6 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   )
 
   const signOut = useCallback(async () => {
+    syncEngine.setUserId(null)
     // Offline sign-out only clears this device; the server session ends on next online logout/expiry.
     try {
       await apiFetch(ENDPOINTS.logout, { method: 'POST' })

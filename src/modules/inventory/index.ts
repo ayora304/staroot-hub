@@ -1,1 +1,2 @@
-// TODO: src/modules/inventory/index.ts
+export { InventoryApp } from './components/InventoryApp'
+export { registerInventoryHandlers } from './services/inventory.service'

@@ -27,6 +27,21 @@ interface Options {
   signal?: AbortSignal
 }
 
+export async function apiUpload<T>(path: string, blob: Blob, opts: { uploadId: string; fileName: string; metadata?: Record<string, string | number | null> }): Promise<T> {
+  const csrf = readCookie(CSRF_COOKIE)
+  const headers: Record<string, string> = {
+    'Content-Type': blob.type || 'application/octet-stream',
+    'x-upload-id': opts.uploadId,
+    'x-file-name': encodeURIComponent(opts.fileName),
+  }
+  if (opts.metadata) headers['x-upload-metadata'] = encodeURIComponent(JSON.stringify(opts.metadata))
+  if (csrf) headers[CSRF_HEADER] = csrf
+  const res = await fetch(env.apiBase + path, { method: 'POST', headers, credentials: 'include', body: blob })
+  const data = await res.json().catch(() => null)
+  if (!res.ok) throw new ApiError(res.status, data?.error ?? res.statusText, data?.code)
+  return data as T
+}
+
 export async function apiFetch<T>(path: string, opts: Options = {}): Promise<T> {
   const method = opts.method ?? 'GET'
   const headers: Record<string, string> = { Accept: 'application/json' }

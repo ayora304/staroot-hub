@@ -1,23 +1,60 @@
 # Deployment
 
-> Draft for Phase 0. Finalised in Phase 7. Hosting choices below are **not yet decided** (see Open Questions in `HANDOFF.md`).
+## Runtime layout
 
-## Components
-1. **Appwrite** (cloud or self-hosted): database `staroot_hub`, buckets `proofs` and `attachments`, API key with database + storage scopes.
-2. **Serverless API** (`api/`): any Node-compatible host (e.g. Vercel, Netlify, Cloudflare).
-3. **Static frontend** (Vite build): same host or any CDN; must be served over HTTPS (required for PWA, camera, push).
+The repository is structured for a same-origin Node serverless deployment: Vite serves the static PWA and the `api/` directory exposes authenticated API handlers under `/api`. Same-origin hosting keeps the session and CSRF cookies available to both the PWA and API. The API requires Node.js 20.12 or newer. HTTPS is required for camera capture, service workers, and push.
 
-## Setup order
-1. Create the Appwrite project, database and buckets.
-2. Create collections from `appwrite/collections/*.json` (a Phase 1 script will automate this).
-3. Seed `role_permissions`, `approval_rules`, `projects` from `appwrite/seed/`.
-4. Copy `.env.example` to `.env`, fill values, generate VAPID keys (`npx web-push generate-vapid-keys`).
-5. Set the same variables in the host's secret store.
-6. Deploy API and frontend; confirm `/api/auth/session` responds.
-7. Create the first user, set role `executive` and `is_admin=true` manually in Appwrite.
+The API uses Appwrite as its only server-side data store. The browser receives no Appwrite API key. Do not put server secrets in variables prefixed with `VITE_`.
 
-## Environments
-`local` (dev Appwrite project), `staging`, `production`. Never share API keys or VAPID keys between them.
+For Vercel deployments, `vercel.json` applies `X-Content-Type-Options`, `X-Frame-Options`, and `Referrer-Policy` to static and API responses. API handlers additionally set a restrictive `Permissions-Policy`; the static app must keep camera and location available for evidence capture, so do not apply that API-only restriction globally. Other hosting platforms must configure equivalent headers on static responses.
 
-## Release checklist
-Lighthouse PWA audit passes; offline test matrix green (`TEST_MATRIX.md`); service worker version bumped; CHANGELOG entry written; rollback = redeploy previous build (service worker update prompt handles clients).
+## Appwrite setup
+
+1. Create separate Appwrite projects for development, staging, and production.
+2. Configure a local `.env` from `.env.example`; keep `.env` out of source control.
+3. Create an Appwrite API key limited to the required authentication, database, and storage operations.
+4. Run `npm run setup:appwrite` to create/check database collections, attributes, indexes, private attachments storage, and seed rows. Check that inventory collections and indexes are present.
+5. Set `APPWRITE_BUCKET_ATTACHMENTS=attachments` and `APPWRITE_BUCKET_PROOFS=attachments` when sharing the private bucket. `npm run setup:proofs` verifies the selected bucket and its private file security. Upload APIs still enforce 10 MB approval files and 3 MB JPEG evidence separately.
+6. Create the first verified user and set its `users_profiles` row to role `executive`, `is_admin=true`, and `active=true`.
+7. Confirm the Appwrite deployment supports DocumentsDB transactions; inventory movement creation depends on a transaction to keep the stock count and append-only ledger in sync.
+
+The setup script seeds `role_permissions`, `approval_rules`, and sample `projects`. Review seed data before running it against production.
+
+## Build and environment variables
+
+Run `npm run typecheck` and `npm run build`. Build artifacts are written to `dist/`; the serverless platform must also package the root `api/` functions. Configure these environment variables in each environment’s secret manager:
+
+| Variable | Where | Purpose |
+|---|---|---|
+| `APPWRITE_ENDPOINT` | Server | Appwrite API URL |
+| `APPWRITE_PROJECT_ID` | Server | Appwrite project |
+| `APPWRITE_API_KEY` | Server secret | Server-side authentication, database and storage access |
+| `APPWRITE_DATABASE_ID` | Server | Defaults to `staroot_hub` |
+| `APPWRITE_BUCKET_ATTACHMENTS` | Server | Approval file bucket |
+| `APPWRITE_BUCKET_PROOFS` | Server | Photo bucket; may share `attachments` |
+| `ALLOWED_EMAIL_DOMAIN` | Server | Comma-separated permitted email domains |
+| `DEFAULT_CURRENCY` | Server/build | Defaults to `KES` |
+| `VAPID_PUBLIC_KEY` | Server | Web Push public key |
+| `VAPID_PRIVATE_KEY` | Server secret | Web Push private key |
+| `VAPID_SUBJECT` | Server | `mailto:` contact for push delivery |
+| `VITE_VAPID_PUBLIC_KEY` | Build-time public value | Same VAPID public key used by the server |
+| `VITE_API_BASE` | Build-time public value | Keep `/api` for same-origin requests |
+
+Generate a matching VAPID pair with `npx web-push generate-vapid-keys`. Keep the private key server-only. Do not reuse keys between environments. `API_DEV_TARGET` is for local Vite proxying and is not needed in production.
+
+## Release procedure
+
+1. Deploy a staging build over HTTPS with the API functions and static output on the same origin.
+2. Check an unauthenticated API request returns 401, sign in with a verified active profile, then validate approvals, inventory stock movement and photo access with role-restricted accounts.
+3. Complete the [offline and device release matrix](TEST_MATRIX.md), including a two-account same-device check and an offline replay with attachments/photos.
+4. Run Lighthouse on mobile and desktop. Save the reports and fix installability or security failures before production. Verify first-load performance and offline loading after the module chunks have been visited online.
+5. Deploy the same commit to production, verify the API, Appwrite connectivity, camera, push subscription, service worker update prompt, and monitor server logs.
+6. Roll back by redeploying the prior frontend and API build together. The service worker update prompt lets clients take the prior/current deployment transition deliberately.
+
+## Operational limits and follow-ups
+
+- Login rate limiting is process-local. Add a shared rate-limit store before relying on the configured thresholds across multiple serverless instances.
+- Site and inventory evidence is stored in a private bucket and served through authenticated owner-scope APIs. Keep the bucket private; do not add public file permissions.
+- PDF/DOCX renderer chunks are excluded from install precache to reduce every PWA update download. They are cached after online use; first-time offline export is not guaranteed.
+- Browser IndexedDB is not encrypted by this app. On shared or managed devices, use OS/browser-profile protection. Sign-out clears session/read caches; account-tagged queued writes and blobs remain so their owner can resume them.
+- The deployment platform, domain, VAPID production pair, and shared rate-limit provider still need environment-owner configuration before production release.

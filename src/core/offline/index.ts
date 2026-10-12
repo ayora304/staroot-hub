@@ -4,6 +4,7 @@ import type { SyncSnapshot } from './types';
 
 export { syncEngine, outboxStore } from './instance';
 export { createSyncEngine, classifyError, backoffMs } from './syncEngine';
+export { requestPersistentStorage } from './persistence';
 export * from './types';
 
 /** Live sync status for badges and status chips. */

@@ -17,11 +17,12 @@ export function createMemoryStore(): OutboxStore {
       return saved;
     },
     async get(id) { return items.get(id); },
-    async nextDue(now) {
-      return ordered().find((i) => i.status === 'pending' && i.nextAttemptAt <= now);
+    async list() { return [...ordered()].reverse(); },
+    async nextDue(now, userId) {
+      return ordered().find((i) => i.status === 'pending' && i.userId === userId && i.nextAttemptAt <= now);
     },
-    async nextDueAt() {
-      const p = ordered().filter((i) => i.status === 'pending');
+    async nextDueAt(userId) {
+      const p = ordered().filter((i) => i.status === 'pending' && i.userId === userId);
       return p.length ? Math.min(...p.map((i) => i.nextAttemptAt)) : null;
     },
     async patch(id, patch) {
@@ -34,22 +35,23 @@ export function createMemoryStore(): OutboxStore {
       cur.blobIds.forEach((b) => blobs.delete(b));
       items.delete(id);
     },
-    async recoverStuck() {
-      for (const i of items.values()) if (i.status === 'syncing') i.status = 'pending';
+    async recoverStuck(userId) {
+      for (const i of items.values()) if (i.userId === userId && i.status === 'syncing') i.status = 'pending';
     },
-    async resetFailed(now) {
+    async resetFailed(now, userId) {
       let n = 0;
       for (const i of items.values()) {
-        if (i.status === 'failed') {
+        if (i.userId === userId && i.status === 'failed') {
           Object.assign(i, { status: 'pending', attempts: 0, nextAttemptAt: now, lastError: undefined });
           n++;
         }
       }
       return n;
     },
-    async counts(): Promise<OutboxCounts> {
+    async counts(userId): Promise<OutboxCounts> {
       const c: OutboxCounts = { pending: 0, syncing: 0, failed: 0, needsReview: 0 };
       for (const i of items.values()) {
+        if (i.userId !== userId) continue;
         if (i.status === 'pending') c.pending++;
         else if (i.status === 'syncing') c.syncing++;
         else if (i.status === 'failed') c.failed++;

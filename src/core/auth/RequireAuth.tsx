@@ -7,7 +7,7 @@ export function RequireAuth() {
   const location = useLocation()
   if (status === 'loading') {
     return (
-      <div className="mx-auto max-w-xl space-y-4 p-6 pt-safe">
+      <div className="mx-auto max-w-xl space-y-4 px-safe pt-safe pb-safe">
         <Skeleton className="h-10 w-2/3" />
         <Skeleton className="h-28 w-full" />
         <Skeleton className="h-28 w-full" />

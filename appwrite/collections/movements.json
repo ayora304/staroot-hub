@@ -98,6 +98,22 @@
       "attributes": [
         "custodian_id"
       ]
+    },
+    {
+      "key": "ix_item_custodian",
+      "type": "key",
+      "attributes": [
+        "item_id",
+        "custodian_id"
+      ]
+    },
+    {
+      "key": "ix_type_time",
+      "type": "key",
+      "attributes": [
+        "type",
+        "$createdAt"
+      ]
     }
   ],
   "permissions_note": "Create via API only. No update, no delete (corrections are new adjustment rows)."

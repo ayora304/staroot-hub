@@ -89,7 +89,7 @@ Catalogue of trackable assets and consumables.
 | `active` | bool | yes |  |
 | `version` | int | yes | Optimistic concurrency |
 
-Indexes: `uq_sku` (unique: sku), `ix_kind` (key: kind, active)
+Indexes: `uq_sku` (unique: sku), `ix_kind` (key: kind, active), `ix_active_name` (key: active, name)
 
 Permissions: Read via API by role scope. quantity_on_hand never written directly.
 
@@ -104,16 +104,18 @@ Append-only ledger of dispatch/receipt/return/adjustment.
 | `quantity` | int | yes | Positive; direction implied by type |
 | `from_location` | string | no |  |
 | `to_location` | string | no |  |
-| `custodian_id` | string | no | User holding the asset after this movement |
+| `custodian_id` | string | no | Recipient for dispatch; holder relinquishing the asset for return |
 | `project_id` | string | no |  |
 | `note` | text | no |  |
 | `photo_ids` | string[] | no | Storage file IDs; see photo_records |
 | `occurred_at_client` | datetime | no | Informational only |
 | `recorded_by` | string | yes |  |
 
-Indexes: `uq_client` (unique: client_id), `ix_item_time` (key: item_id, $createdAt), `ix_custodian` (key: custodian_id)
+Indexes: `uq_client` (unique: client_id), `ix_item_time` (key: item_id, $createdAt), `ix_custodian` (key: custodian_id), `ix_item_custodian` (key: item_id, custodian_id), `ix_type_time` (key: type, $createdAt)
 
 Permissions: Create via API only. No update, no delete (corrections are new adjustment rows).
+
+Stock is changed atomically with the movement using an Appwrite DocumentsDB transaction and `inventory_items.version`. Dispatch subtracts quantity. Receipt, return, and adjustment add quantity; adjustments are positive inbound corrections only and are administrator-only. Returnable-asset custody is the dispatch-minus-return ledger per item and custodian. A return cannot exceed that recorded balance. Photo records are appended after the movement parent exists and are repairable through an idempotent replay.
 
 ## `photo_records`
 Per-photo evidence metadata and server verification result.

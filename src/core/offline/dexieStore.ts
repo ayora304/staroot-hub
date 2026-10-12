@@ -17,6 +17,14 @@ class OutboxDB extends Dexie {
       items: '++seq, &id, status',
       blobs: 'id',
     });
+    this.version(2).stores({ items: '++seq, &id, status, userId', blobs: 'id' }).upgrade(async (transaction) => {
+      await transaction.table('items').toCollection().modify((item: OutboxItem) => {
+        if (!item.userId) {
+          item.status = 'needs_review'
+          item.lastError = 'This queued request predates account ownership and was held for safety.'
+        }
+      })
+    });
   }
 }
 
@@ -35,18 +43,19 @@ export function createDexieStore(dbName = 'staroot-outbox'): OutboxStore {
     },
 
     get: (id) => db.items.where('id').equals(id).first(),
+    list: async () => (await db.items.toArray()).sort((a, b) => (b.seq ?? 0) - (a.seq ?? 0)),
 
-    async nextDue(now) {
+    async nextDue(now, userId) {
       const due = await db.items
         .where('status')
         .equals('pending')
-        .filter((i) => i.nextAttemptAt <= now)
+        .filter((i) => i.nextAttemptAt <= now && i.userId === userId)
         .sortBy('seq');
       return due[0];
     },
 
-    async nextDueAt() {
-      const pending = await db.items.where('status').equals('pending').toArray();
+    async nextDueAt(userId) {
+      const pending = await db.items.where('status').equals('pending').filter((i) => i.userId === userId).toArray();
       if (pending.length === 0) return null;
       return Math.min(...pending.map((i) => i.nextAttemptAt));
     },
@@ -64,22 +73,24 @@ export function createDexieStore(dbName = 'staroot-outbox'): OutboxStore {
       });
     },
 
-    async recoverStuck() {
-      await db.items.where('status').equals('syncing').modify({ status: 'pending' });
+    async recoverStuck(userId) {
+      await db.items.where('status').equals('syncing').filter((i) => i.userId === userId).modify({ status: 'pending' });
     },
 
-    async resetFailed(now) {
+    async resetFailed(now, userId) {
       return db.items
         .where('status')
         .equals('failed')
+        .filter((item) => item.userId === userId)
         .modify({ status: 'pending', attempts: 0, nextAttemptAt: now, lastError: undefined });
     },
 
-    async counts(): Promise<OutboxCounts> {
-      const all = await db.items.toArray();
+    async counts(userId): Promise<OutboxCounts> {
+      const all = (await db.items.toArray()).filter((item) => item.userId === userId || !item.userId);
       const c: OutboxCounts = { pending: 0, syncing: 0, failed: 0, needsReview: 0 };
       for (const i of all) {
-        if (i.status === 'pending') c.pending++;
+        if (!i.userId) c.needsReview++;
+        else if (i.status === 'pending') c.pending++;
         else if (i.status === 'syncing') c.syncing++;
         else if (i.status === 'failed') c.failed++;
         else if (i.status === 'needs_review') c.needsReview++;

@@ -1,6 +1,5 @@
 import { useState, type FormEvent } from 'react'
 import { Navigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
 import { ApiError, isNetworkError } from '../api/client'
 import { Button } from '../ui/Button'
 import { Icon } from '../ui/Icons'
@@ -34,11 +33,9 @@ export function SignInScreen() {
     'w-full min-h-12 rounded-xl border border-border bg-surface px-4 text-text placeholder:text-muted focus-visible:outline-2 focus-visible:outline-accent'
 
   return (
-    <main className="flex min-h-dvh items-center justify-center p-6 pt-safe pb-safe">
-      <motion.form
+    <main className="min-h-screen-safe flex items-center justify-center px-safe py-6 pt-safe pb-safe">
+      <form
         onSubmit={onSubmit}
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-sm space-y-5"
         aria-label="Sign in"
       >
@@ -68,7 +65,7 @@ export function SignInScreen() {
           Sign in
         </Button>
         <p className="text-center text-xs text-muted">Accounts are created by an administrator.</p>
-      </motion.form>
+      </form>
     </main>
   )
 }

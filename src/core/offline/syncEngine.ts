@@ -67,6 +67,7 @@ export function createSyncEngine(opts: EngineOptions) {
   let paused = false;
   let started = false;
   let lastSyncAt: number | null = null;
+  let activeUserId: string | null = null;
   let timer: ReturnType<typeof setTimeout> | null = null;
   let interval: ReturnType<typeof setInterval> | null = null;
   let cleanup: (() => void) | null = null;
@@ -75,7 +76,7 @@ export function createSyncEngine(opts: EngineOptions) {
     (Object.keys(a) as (keyof SyncSnapshot)[]).every((k) => a[k] === b[k]);
 
   async function refresh() {
-    const c = await store.counts();
+    const c = activeUserId ? await store.counts(activeUserId) : { pending: 0, syncing: 0, failed: 0, needsReview: 0 };
     const next: SyncSnapshot = { ...c, online: isOnline(), running: running !== null, paused, lastSyncAt };
     if (!same(next, snapshot)) {
       snapshot = next;
@@ -86,7 +87,8 @@ export function createSyncEngine(opts: EngineOptions) {
   async function schedule() {
     if (timer) { clearTimeout(timer); timer = null; }
     if (!started) return;
-    const at = await store.nextDueAt();
+    if (!activeUserId) return;
+    const at = await store.nextDueAt(activeUserId);
     if (at === null) return;
     const delay = Math.min(BACKOFF_CAP_MS, Math.max(1_000, at - now()));
     timer = setTimeout(() => { void drain(); }, delay);
@@ -134,11 +136,12 @@ export function createSyncEngine(opts: EngineOptions) {
     paused = false;
     running = (async () => {
       try {
-        await store.recoverStuck();
+        if (!activeUserId) return;
+        await store.recoverStuck(activeUserId);
         await refresh();
         while (isOnline()) {
-          const item = await store.nextDue(now());
-          if (!item) break;
+          const item = await store.nextDue(now(), activeUserId);
+          if (!item || item.userId !== activeUserId) break;
           if ((await runOne(item)) === 'auth') { paused = true; break; }
         }
       } finally {
@@ -155,6 +158,7 @@ export function createSyncEngine(opts: EngineOptions) {
     const t = now();
     const item: OutboxItem = {
       id: input.id ?? crypto.randomUUID(),
+      userId: input.userId,
       type: input.type,
       payload: input.payload,
       blobIds: blobs.map((b) => b.id),
@@ -175,7 +179,8 @@ export function createSyncEngine(opts: EngineOptions) {
   }
 
   async function retryAllFailed() {
-    const n = await store.resetFailed(now());
+    if (!activeUserId) return 0;
+    const n = await store.resetFailed(now(), activeUserId);
     if (n > 0) void drain().catch(() => undefined);
     return n;
   }
@@ -186,9 +191,12 @@ export function createSyncEngine(opts: EngineOptions) {
   }
 
   async function hasUnsynced() {
-    const c = await store.counts();
+    if (!activeUserId) return false;
+    const c = await store.counts(activeUserId);
     return c.pending + c.syncing + c.failed + c.needsReview > 0;
   }
+
+  async function listItems() { return activeUserId ? (await store.list()).filter((item) => item.userId === activeUserId) : []; }
 
   /** Call once after handlers are registered (e.g. in main.tsx). Returns a stop function. */
   function start(): () => void {
@@ -221,8 +229,9 @@ export function createSyncEngine(opts: EngineOptions) {
   }
 
   return {
+    setUserId(userId: string | null) { activeUserId = userId; void refresh(); if (userId && started) void drain().catch(() => undefined); },
     registerHandler(type: string, fn: SyncHandler) { handlers.set(type, fn); },
-    enqueue, drain, retry, retryAllFailed, discard, hasUnsynced, start, stop, refresh,
+    enqueue, drain, retry, retryAllFailed, discard, hasUnsynced, listItems, start, stop, refresh,
     subscribe(l: () => void) { listeners.add(l); return () => { listeners.delete(l); }; },
     getSnapshot: () => snapshot,
   };

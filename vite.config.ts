@@ -15,7 +15,11 @@ export default defineConfig({
       registerType: 'prompt',
       injectRegister: false,
       manifest: false, // we ship public/manifest.webmanifest ourselves
-      injectManifest: { globPatterns: ['**/*.{js,css,html,svg,png,webmanifest}'] },
+      injectManifest: {
+        globPatterns: ['**/*.{js,css,html,svg,png,webmanifest}'],
+        // Report rendering is demand-loaded. Cache it after use instead of inflating every install/update download.
+        globIgnores: ['**/assets/docx-*.js', '**/assets/jspdf.*.js', '**/assets/html2canvas.*.js', '**/assets/purify.*.js'],
+      },
       devOptions: { enabled: false },
     }),
   ],

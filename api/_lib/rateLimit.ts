@@ -1,7 +1,7 @@
 import { HttpError } from './http'
 
-// In-memory fixed window. Per server instance only, so it slows brute force but is not a hard limit
-// on serverless. TODO(Phase 7): move to a shared store.
+// In-memory fixed window. This is process-local; configure a shared rate-limit store at deployment
+// before relying on the login thresholds across serverless instances.
 const hits = new Map<string, { count: number; resetAt: number }>()
 
 export function rateLimit(key: string, limit: number, windowMs: number) {

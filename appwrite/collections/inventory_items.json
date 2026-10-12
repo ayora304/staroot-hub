@@ -73,6 +73,14 @@
         "kind",
         "active"
       ]
+    },
+    {
+      "key": "ix_active_name",
+      "type": "key",
+      "attributes": [
+        "active",
+        "name"
+      ]
     }
   ],
   "permissions_note": "Read via API by role scope. quantity_on_hand never written directly."

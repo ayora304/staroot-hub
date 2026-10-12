@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { ApiError, isNetworkError } from '../../../core/api/client'
+import { useSession } from '../../../core/auth/useSession'
+import { useSyncStatus } from '../../../core/offline'
 import { getApproval, listApprovals, type ApprovalDetail, type ApprovalSummary } from '../services/approvals.service'
 import type { ApprovalTab } from '../types'
 
@@ -38,11 +40,16 @@ function useLoad<T>(load: (signal: AbortSignal) => Promise<T>, key: string): Loa
   return { data, loading, error, offline, reload: useCallback(() => setTick((t) => t + 1), []) }
 }
 
-export function useApprovalsList(tab: ApprovalTab): Loadable<ApprovalSummary[]> {
-  const r = useLoad((s) => listApprovals(tab, s).then((x) => x.items), `list:${tab}`)
+export function useApprovalsList(tab: ApprovalTab, enabled = true): Loadable<ApprovalSummary[]> {
+  const { session } = useSession()
+  const sync = useSyncStatus()
+  const r = useLoad((s) => enabled
+    ? listApprovals(tab, session?.user.id ?? '', session?.user.email ?? '', session?.profile.department ?? '', s).then((x) => x.items)
+    : Promise.resolve([]), `list:${tab}:${session?.user.id ?? ''}:${enabled}:${sync.pending}:${sync.syncing}:${sync.failed}:${sync.needsReview}`)
   return r
 }
 
 export function useApprovalDetail(id: string): Loadable<ApprovalDetail> {
-  return useLoad((s) => getApproval(id, s), `detail:${id}`)
+  const { session } = useSession()
+  return useLoad((s) => getApproval(id, session?.user.id ?? '', s), `detail:${id}:${session?.user.id ?? ''}`)
 }

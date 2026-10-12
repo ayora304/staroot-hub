@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '../../../core/ui/Button'
+import { useSession } from '../../../core/auth/useSession'
 import { EmptyState } from '../../../core/ui/EmptyState'
 import { Skeleton } from '../../../core/ui/Skeleton'
 import { StatusPill } from '../../../core/ui/StatusPill'
@@ -10,10 +11,13 @@ import { AMOUNT_CATEGORIES, CATEGORY_LABELS, STATUS_LABELS, type Approval, type 
 import { ApprovalTimeline } from './ApprovalTimeline'
 import { STATUS_TONE } from './ApprovalList'
 import { formatMoney, formatWhen } from './format'
+import { env } from '../../../core/config/env'
+import { ENDPOINTS } from '../../../core/api/endpoints'
 
 const field = 'w-full rounded-xl border border-border bg-surface px-4 py-3 text-text focus-visible:outline-2 focus-visible:outline-accent'
 
 function DecisionBar({ a }: { a: Approval }) {
+  const { session } = useSession()
   const navigate = useNavigate()
   const [comment, setComment] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -24,7 +28,8 @@ function DecisionBar({ a }: { a: Approval }) {
     setBusy(true)
     setError(null)
     try {
-      await queueDecision({ approval_id: a.$id, base_version: a.version, action, ...(comment.trim() ? { comment: comment.trim() } : {}) })
+      if (!session) throw new Error('Sign in to save this decision.')
+      await queueDecision({ approval_id: a.$id, base_version: a.version, action, ...(comment.trim() ? { comment: comment.trim() } : {}) }, session.user.id)
       navigate('/m/approvals', { replace: true, state: { queued: true } })
     } catch {
       setError('Could not save your decision on this device.')
@@ -49,6 +54,7 @@ function DecisionBar({ a }: { a: Approval }) {
 }
 
 function ResubmitPanel({ a }: { a: Approval }) {
+  const { session } = useSession()
   const navigate = useNavigate()
   const needsAmount = AMOUNT_CATEGORIES.includes(a.category)
   const [title, setTitle] = useState(a.title)
@@ -63,7 +69,8 @@ function ResubmitPanel({ a }: { a: Approval }) {
     if (needsAmount && !(n > 0)) return setError('Enter an amount greater than zero.')
     setBusy(true)
     try {
-      await queueResubmit({ approval_id: a.$id, base_version: a.version, title: title.trim(), details: details.trim(), ...(needsAmount ? { amount: n, currency: a.currency ?? 'KES' } : {}) })
+      if (!session) throw new Error('Sign in to save this request.')
+      await queueResubmit({ approval_id: a.$id, base_version: a.version, title: title.trim(), details: details.trim(), category: a.category, ...(needsAmount ? { amount: n, currency: a.currency ?? 'KES' } : {}) }, session.user.id)
       navigate('/m/approvals', { replace: true, state: { queued: true } })
     } catch {
       setError('Could not save on this device.')
@@ -105,6 +112,10 @@ export function RequestDetail({ id }: { id: string }) {
         <p className="text-xs text-muted">{a.requestor_email} · {a.department} · {formatWhen(a.$createdAt)}</p>
       </header>
       <p className="whitespace-pre-wrap rounded-2xl border border-border bg-surface p-4 text-text">{a.details}</p>
+      {(a.attachment_ids?.length ?? 0) > 0 && <section aria-label="Attachments" className="space-y-2 rounded-2xl border border-border bg-surface p-4">
+        <h2 className="font-medium text-text">Attachments</h2>
+        {a.attachment_ids?.map((fileId, index) => <a key={fileId} className="block min-h-11 text-sm text-accent underline" href={`${env.apiBase}${ENDPOINTS.approvalsAttachment}?approval_id=${encodeURIComponent(a.$id)}&file_id=${encodeURIComponent(fileId)}`} target="_blank" rel="noreferrer">Open attachment {index + 1}</a>)}
+      </section>}
       {canDecide && <DecisionBar a={a} />}
       {canResubmit && <ResubmitPanel a={a} />}
       <section aria-label="History" className="space-y-3">

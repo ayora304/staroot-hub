@@ -1,5 +1,6 @@
 import type { Approval } from '../../src/modules/approvals/types'
 import { createNotification, listProfilesByRole } from './approvalsRepo'
+import { sendPushToUsers } from './push'
 
 export interface Notice {
   type: string
@@ -12,9 +13,9 @@ export interface Notice {
 /** Best effort: a failed notification must never fail the approval action that triggered it. */
 export async function notifyUsers(userIds: string[], n: Notice): Promise<void> {
   const unique = [...new Set(userIds)]
-  await Promise.allSettled(
-    unique.map((user_id) =>
-      createNotification({
+  await Promise.allSettled([
+    sendPushToUsers(unique, n.link ?? '/m/notifications'),
+    ...unique.map((user_id) => createNotification({
         user_id,
         type: n.type,
         title: n.title.slice(0, 255),
@@ -22,9 +23,8 @@ export async function notifyUsers(userIds: string[], n: Notice): Promise<void> {
         link: (n.link ?? '').slice(0, 255),
         source_id: (n.source_id ?? '').slice(0, 255),
         read: false,
-      }),
-    ),
-  )
+      })),
+  ])
 }
 
 /** Users who should be told a request needs a decision (never the requestor). */

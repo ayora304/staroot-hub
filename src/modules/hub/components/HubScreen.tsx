@@ -4,13 +4,14 @@ import { ROLE_LABELS } from '../../../core/rbac/roles'
 import { InstallPrompt } from '../../../core/pwa/InstallPrompt'
 import { ThemeToggle } from '../../../core/theme/ThemeToggle'
 import { Icon } from '../../../core/ui/Icons'
+import { PushPrePrompt } from '../../notifications/components/PushPrePrompt'
+import { useApprovalsList } from '../../approvals/hooks/use-approvals'
 import { COMING_SOON, HUB_MODULES } from '../registry'
 import type { HubBadges } from '../types'
 import { ComingSoonCard } from './ComingSoonCard'
 import { ModuleCard } from './ModuleCard'
 
-// Pending-approval counts arrive in Phase 3. The unsynced count is live: it comes from useSyncStatus().
-const BADGES: HubBadges = { pendingActions: {}, unsynced: 0 }
+// Unsynced and approval badges are sourced from the live queue and cached/API reads.
 
 function syncMessage(s: ReturnType<typeof useSyncStatus>, total: number): string {
   const noun = total === 1 ? 'item' : 'items'
@@ -24,10 +25,12 @@ export function HubScreen() {
   const { session, offline, signOut } = useSession()
   const { can } = usePermissions()
   const sync = useSyncStatus()
+  const pendingApprovals = useApprovalsList('pending_mine', can('approvals', 'read'))
   if (!session) return null
   const { profile } = session
   const visible = HUB_MODULES.filter((m) => can(m.id, 'read'))
   const unsynced = unsyncedCount(sync)
+  const badges: HubBadges = { pendingActions: { approvals: pendingApprovals.data?.length ?? 0 }, unsynced }
 
   async function handleSignOut() {
     if (await syncEngine.hasUnsynced()) {
@@ -44,7 +47,7 @@ export function HubScreen() {
 
   return (
     <div className="mx-auto max-w-2xl pb-safe">
-      <header className="sticky top-0 z-10 flex items-center justify-between bg-bg/90 px-4 pb-2 pt-safe backdrop-blur">
+      <header className="sticky top-0 z-10 flex items-center justify-between bg-bg/90 px-safe pb-2 pt-safe backdrop-blur">
         <div className="py-2">
           <p className="text-sm text-muted">Hello, {profile.display_name}</p>
           <p className="text-xs text-muted">{ROLE_LABELS[profile.role]}</p>
@@ -88,10 +91,11 @@ export function HubScreen() {
         )}
 
         <InstallPrompt />
+        <PushPrePrompt />
 
         <section aria-label="Modules" className="grid gap-3 sm:grid-cols-2">
           {visible.map((m) => (
-            <ModuleCard key={m.id} module={m} pending={BADGES.pendingActions[m.id] ?? 0} />
+            <ModuleCard key={m.id} module={m} pending={badges.pendingActions[m.id] ?? 0} />
           ))}
         </section>
 

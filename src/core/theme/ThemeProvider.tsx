@@ -12,7 +12,9 @@ const ThemeContext = createContext<ThemeState | null>(null)
 function readStored(): ThemeName {
   try {
     const v = localStorage.getItem(THEME_STORAGE_KEY)
-    if (v === 'gold-dark' || v === 'light') return v
+    if (v === 'dark' || v === 'light') return v
+    // Migrate the previous theme key while preserving existing users' preference.
+    if (v === 'gold-dark') return 'dark'
   } catch {
     /* storage unavailable */
   }
@@ -25,6 +27,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     document.documentElement.dataset.theme = theme
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', THEMES[theme].themeColor)
+    document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]')?.setAttribute('content', theme === 'dark' ? 'black-translucent' : 'default')
   }, [theme])
 
   const setTheme = useCallback((t: ThemeName) => {
@@ -35,7 +38,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       /* ignore */
     }
   }, [])
-  const toggle = useCallback(() => setTheme(theme === 'light' ? 'gold-dark' : 'light'), [theme, setTheme])
+  const toggle = useCallback(() => setTheme(theme === 'light' ? 'dark' : 'light'), [theme, setTheme])
 
   const value = useMemo(() => ({ theme, setTheme, toggle }), [theme, setTheme, toggle])
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>

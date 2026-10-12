@@ -7,5 +7,5 @@ const TONES = {
 } as const
 
 export function StatusPill({ tone = 'neutral', children }: { tone?: keyof typeof TONES; children: React.ReactNode }) {
-  return <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${TONES[tone]}`}>{children}</span>
+  return <span className={`inline-flex min-h-6 items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider ${TONES[tone]}`}>{children}</span>
 }

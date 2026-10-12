@@ -1,1 +1,2 @@
-// TODO: src/modules/site-progress/index.ts
+export { SiteProgressApp } from './components/SiteProgressApp'
+export * from './types'

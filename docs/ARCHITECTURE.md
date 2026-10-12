@@ -18,7 +18,7 @@ Staroot Hub is an offline-first PWA. The browser holds a local copy of what the 
 
 ## 2. Layers and boundaries
 - `src/core/*`: shared infrastructure (auth, rbac, offline, push, api client, camera, export, theme, ui). **Never imports from `modules/`.**
-- `src/modules/*`: one folder per feature, each with `components/`, `services/`, `hooks/`, `types.ts`, `index.ts`. **Modules import from `core/` only, never from each other.** Cross-module needs go through `core/` or the Hub.
+- `src/modules/*`: one folder per feature, each with `components/`, `services/`, `hooks/`, `types.ts`, `index.ts`. **Modules import from `core/` only, never from each other.** Shared camera evidence lives in `core/evidence/`.
 - `api/*`: one file per endpoint. All start with the same pipeline: authenticate session, load profile, check RBAC, zod-validate, check idempotency, act, log to `sync_audit`.
 - `api/_lib/*`: shared server helpers.
 
@@ -35,7 +35,7 @@ Staroot Hub is an offline-first PWA. The browser holds a local copy of what the 
 UI reads from Dexie cache tables first (instant, works offline), then refreshes from the API when online (stale-while-revalidate). Cache is keyed per user and wiped on sign-out.
 
 ## 5. Write path
-UI action -> validate locally -> write optimistic row + outbox entry in one Dexie transaction -> UI updates immediately -> sync engine delivers (see `SYNC_ENGINE.md`).
+UI action -> validate locally -> write an account-owned outbox item and its blobs atomically, update the user-keyed optimistic cache, then sync for that same signed-in account (see `SYNC_ENGINE.md`).
 
 ## 6. Module summaries
 | Module | Key server endpoints | Key invariants |
@@ -57,4 +57,4 @@ UI action -> validate locally -> write optimistic row + outbox entry in one Dexi
 | Client clocks are unreliable | Server timestamps decide ordering and conflicts |
 
 ## 8. Tech choices
-React + TS + Vite, Tailwind, Framer Motion, Dexie, Workbox, zod, Appwrite, Web Push (VAPID), client-side PDF/DOCX export. Alternatives and reasons are logged in `DECISIONS.md`.
+React + TS + Vite, Tailwind, Dexie, Workbox, zod, Appwrite, Web Push (VAPID), client-side PDF/DOCX export. Alternatives and reasons are logged in `DECISIONS.md`.

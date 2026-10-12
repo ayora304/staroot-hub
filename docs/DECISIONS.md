@@ -23,3 +23,5 @@ Format: ID, decision, reason, consequence. Add new entries at the bottom. Never 
 | D17 | Service worker via vite-plugin-pwa `injectManifest` + Workbox; `/api/*` is NetworkOnly | Full control of the SW for Phase 2 sync; offline writes belong to the outbox, not an HTTP cache | API responses are cached by app code in Dexie, not by the SW |
 | D18 | Cache the last session payload in IndexedDB so the app opens offline | Field staff must reach the Hub with no signal | Session is re-verified on the `online` event; 401/403 wipes local data |
 | D19 | `src/core/rbac/permissions.ts` is shared by browser and API | One rule set, one test suite; the UI cannot drift from the server | File must stay free of runtime imports (types only) |
+
+| D20 | Both themes use neutral large surfaces; the official blues are restricted to accents, icons, links, status indicators, and selected elevated dark surfaces | Preserve legibility and avoid blue-tinted cards throughout the app while retaining the approved palette | Shared CSS variables enforce near-black/white surfaces; light mode uses #052659 accent, dark mode uses #5482B4; #C2E8FF is reserved for subtle light backgrounds |

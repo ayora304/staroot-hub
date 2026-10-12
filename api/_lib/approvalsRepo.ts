@@ -1,9 +1,10 @@
 // All Appwrite access for approvals and notifications lives here, so an SDK signature change is a
 // one-file fix. Call style matches api/_lib/appwrite.ts (positional arguments).
-import { Databases, ID, Query } from 'node-appwrite'
+import { Databases, ID, Query, Storage } from 'node-appwrite'
 import type { Profile } from '../../src/core/rbac/roles'
 import type { Approval, ApprovalEvent, ApprovalRule } from '../../src/modules/approvals/types'
 import { adminClient, DB_ID } from './appwrite'
+import { HttpError } from './http'
 
 const db = () => new Databases(adminClient())
 const codeOf = (e: unknown) => (e as { code?: number } | null)?.code
@@ -31,6 +32,23 @@ export async function createApproval(data: Record<string, unknown>): Promise<App
 
 export async function updateApproval(id: string, data: Record<string, unknown>): Promise<Approval> {
   return as<Approval>(await db().updateDocument(DB_ID(), 'approvals', id, data))
+}
+
+export async function assertAttachmentsOwned(userId: string, fileIds: string[]): Promise<void> {
+  if (!fileIds.length) return
+  const bucket = process.env.APPWRITE_BUCKET_ATTACHMENTS
+  if (!bucket) throw new HttpError(500, 'Attachment storage is not configured', 'misconfigured')
+  const storage = new Storage(adminClient())
+  for (const id of fileIds) {
+    try {
+      const file = await storage.getFile(bucket, id)
+      if (!String(file.name).startsWith(`${userId}--`)) throw new HttpError(404, 'Attachment not found', 'not_found')
+    } catch (e) {
+      if (e instanceof HttpError) throw e
+      if ((e as { code?: number })?.code === 404) throw new HttpError(404, 'Attachment not found', 'not_found')
+      throw e
+    }
+  }
 }
 
 export async function listApprovals(queries: string[]): Promise<Approval[]> {
@@ -73,6 +91,22 @@ export async function listRules(): Promise<ApprovalRule[]> {
 export async function listProfilesByRole(role: string): Promise<Profile[]> {
   const res = await db().listDocuments(DB_ID(), 'users_profiles', [Query.equal('role', [role]), Query.limit(100)])
   return res.documents.map((d) => as<Profile>(d))
+}
+
+export async function listPushSubscriptions(userIds: string[]): Promise<Array<{ user_id: string; subscriptions: string[] }>> {
+  if (userIds.length === 0) return []
+  const res = await db().listDocuments(DB_ID(), 'users_profiles', [Query.equal('user_id', userIds), Query.limit(100)])
+  return res.documents.map((d) => ({
+    user_id: String(d.user_id),
+    subscriptions: Array.isArray(d.push_subscriptions) ? d.push_subscriptions.filter((s): s is string => typeof s === 'string') : [],
+  }))
+}
+
+export async function updatePushSubscriptions(userId: string, subscriptions: string[]): Promise<void> {
+  const res = await db().listDocuments(DB_ID(), 'users_profiles', [Query.equal('user_id', [userId]), Query.limit(1)])
+  const profile = res.documents[0]
+  if (!profile) return
+  await db().updateDocument(DB_ID(), 'users_profiles', profile.$id, { push_subscriptions: subscriptions })
 }
 
 // ---- notifications ----

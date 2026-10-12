@@ -17,6 +17,7 @@ function setup(over: { maxAttempts?: number } = {}) {
     autoDrain: false,
     maxAttempts: over.maxAttempts,
   });
+  engine.setUserId('test-user');
   return {
     store,
     engine,
@@ -49,10 +50,29 @@ describe('classifyError', () => {
 });
 
 describe('sync engine', () => {
+  it('only drains queued writes for the active account', async () => {
+    const { engine, store } = setup();
+    const sent: unknown[] = [];
+    engine.registerHandler('t', async (item) => { sent.push(item.payload); });
+    await engine.enqueue({ id: 'owned-a', userId: 'user-a', type: 't', payload: 'A' });
+    await engine.enqueue({ id: 'owned-b', userId: 'user-b', type: 't', payload: 'B' });
+
+    engine.setUserId('user-b');
+    await engine.drain();
+    expect(sent).toEqual(['B']);
+    expect(await store.get('owned-a')).toBeDefined();
+    expect(await engine.listItems()).toHaveLength(0);
+
+    engine.setUserId('user-a');
+    await engine.drain();
+    expect(sent).toEqual(['B', 'A']);
+    expect(await engine.listItems()).toHaveLength(0);
+  });
+
   it('is idempotent on enqueue with the same id', async () => {
     const { engine } = setup();
-    await engine.enqueue({ id: 'a', type: 't', payload: 1 });
-    await engine.enqueue({ id: 'a', type: 't', payload: 2 });
+    await engine.enqueue({ id: 'a', userId: 'test-user', type: 't', payload: 1 });
+    await engine.enqueue({ id: 'a', userId: 'test-user', type: 't', payload: 2 });
     expect(engine.getSnapshot().pending).toBe(1);
   });
 
@@ -60,8 +80,8 @@ describe('sync engine', () => {
     const { engine } = setup();
     const order: unknown[] = [];
     engine.registerHandler('t', async (i) => { order.push(i.payload); });
-    await engine.enqueue({ type: 't', payload: 'first' });
-    await engine.enqueue({ type: 't', payload: 'second' });
+    await engine.enqueue({ userId: 'test-user', type: 't', payload: 'first' });
+    await engine.enqueue({ userId: 'test-user', type: 't', payload: 'second' });
     await engine.drain();
     expect(order).toEqual(['first', 'second']);
     expect(engine.getSnapshot().pending).toBe(0);
@@ -75,7 +95,7 @@ describe('sync engine', () => {
       calls++;
       if (calls === 1) throw new TypeError('fetch failed');
     });
-    const item = await engine.enqueue({ id: 'x', type: 't', payload: 0 });
+    const item = await engine.enqueue({ id: 'x', userId: 'test-user', type: 't', payload: 0 });
     await engine.drain();
     expect(calls).toBe(1);
     const after = await store.get(item.id);
@@ -98,8 +118,8 @@ describe('sync engine', () => {
       if (i.payload === 'bad') throw httpError(400);
       sent.push(i.payload);
     });
-    await engine.enqueue({ id: 'bad', type: 't', payload: 'bad' });
-    await engine.enqueue({ id: 'ok', type: 't', payload: 'ok' });
+    await engine.enqueue({ id: 'bad', userId: 'test-user', type: 't', payload: 'bad' });
+    await engine.enqueue({ id: 'ok', userId: 'test-user', type: 't', payload: 'ok' });
     await engine.drain();
     expect((await store.get('bad'))?.status).toBe('failed');
     expect(sent).toEqual(['ok']);
@@ -108,7 +128,7 @@ describe('sync engine', () => {
   it('sends 409 to needs_review', async () => {
     const { engine, store } = setup();
     engine.registerHandler('t', async () => { throw httpError(409); });
-    await engine.enqueue({ id: 'c', type: 't', payload: 0 });
+    await engine.enqueue({ id: 'c', userId: 'test-user', type: 't', payload: 0 });
     await engine.drain();
     expect((await store.get('c'))?.status).toBe('needs_review');
     expect(engine.getSnapshot().needsReview).toBe(1);
@@ -117,7 +137,7 @@ describe('sync engine', () => {
   it('honours SyncError kinds thrown by a handler', async () => {
     const { engine, store } = setup();
     engine.registerHandler('t', async () => { throw new SyncError('fatal', 'nope'); });
-    await engine.enqueue({ id: 's', type: 't', payload: 0 });
+    await engine.enqueue({ id: 's', userId: 'test-user', type: 't', payload: 0 });
     await engine.drain();
     expect((await store.get('s'))?.lastError).toBe('nope');
     expect((await store.get('s'))?.status).toBe('failed');
@@ -130,8 +150,8 @@ describe('sync engine', () => {
       called.push(i.payload);
       if (i.payload === 'A') throw httpError(401);
     });
-    await engine.enqueue({ id: 'A', type: 't', payload: 'A' });
-    await engine.enqueue({ id: 'B', type: 't', payload: 'B' });
+    await engine.enqueue({ id: 'A', userId: 'test-user', type: 't', payload: 'A' });
+    await engine.enqueue({ id: 'B', userId: 'test-user', type: 't', payload: 'B' });
     await engine.drain();
     expect(called).toEqual(['A']);
     const a = await store.get('A');
@@ -143,7 +163,7 @@ describe('sync engine', () => {
   it('fails an item after maxAttempts', async () => {
     const { engine, store, advance } = setup({ maxAttempts: 2 });
     engine.registerHandler('t', async () => { throw httpError(500); });
-    await engine.enqueue({ id: 'm', type: 't', payload: 0 });
+    await engine.enqueue({ id: 'm', userId: 'test-user', type: 't', payload: 0 });
     await engine.drain();
     expect((await store.get('m'))?.status).toBe('pending');
     advance(BACKOFF_CAP_MS);
@@ -155,7 +175,7 @@ describe('sync engine', () => {
     const { engine, setOnline } = setup();
     let calls = 0;
     engine.registerHandler('t', async () => { calls++; });
-    await engine.enqueue({ type: 't', payload: 0 });
+    await engine.enqueue({ userId: 'test-user', type: 't', payload: 0 });
     setOnline(false);
     await engine.drain();
     expect(calls).toBe(0);
@@ -166,7 +186,7 @@ describe('sync engine', () => {
     const { engine, store } = setup();
     let calls = 0;
     engine.registerHandler('t', async () => { calls++; });
-    await engine.enqueue({ id: 'r', type: 't', payload: 0 });
+    await engine.enqueue({ id: 'r', userId: 'test-user', type: 't', payload: 0 });
     await store.patch('r', { status: 'syncing' });
     await engine.drain();
     expect(calls).toBe(1);
@@ -179,7 +199,7 @@ describe('sync engine', () => {
       calls++;
       await new Promise((r) => setTimeout(r, 10));
     });
-    await engine.enqueue({ type: 't', payload: 0 });
+    await engine.enqueue({ userId: 'test-user', type: 't', payload: 0 });
     await Promise.all([engine.drain(), engine.drain()]);
     expect(calls).toBe(1);
   });
@@ -190,7 +210,7 @@ describe('sync engine', () => {
     engine.registerHandler('t', async (item, ctx) => {
       size = (await ctx.getBlob(item.blobIds[0]))?.size ?? -1;
     });
-    await engine.enqueue({ type: 't', payload: 0, blobs: [{ id: 'p1', blob: new Blob(['hello']) }] });
+    await engine.enqueue({ userId: 'test-user', type: 't', payload: 0, blobs: [{ id: 'p1', blob: new Blob(['hello']) }] });
     await engine.drain();
     expect(size).toBe(5);
     expect(await store.getBlob('p1')).toBeUndefined();
@@ -198,7 +218,7 @@ describe('sync engine', () => {
 
   it('fails items with no registered handler instead of looping forever', async () => {
     const { engine, store } = setup();
-    await engine.enqueue({ id: 'u', type: 'unknown', payload: 0 });
+    await engine.enqueue({ id: 'u', userId: 'test-user', type: 'unknown', payload: 0 });
     await engine.drain();
     expect((await store.get('u'))?.status).toBe('failed');
   });
@@ -207,7 +227,7 @@ describe('sync engine', () => {
     const { engine, store } = setup();
     let ok = false;
     engine.registerHandler('t', async () => { if (!ok) throw httpError(400); });
-    await engine.enqueue({ id: 'f', type: 't', payload: 0 });
+    await engine.enqueue({ id: 'f', userId: 'test-user', type: 't', payload: 0 });
     await engine.drain();
     expect((await store.get('f'))?.status).toBe('failed');
     ok = true;

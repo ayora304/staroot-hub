@@ -873,3 +873,142 @@ Once you fix the two errors, I’ll update it with the results. I’ll also need
 ###end of claude code 111026 1950
 
 ###
+
+## Update log — 12 October 2026
+
+- `npm install` completed successfully. npm reported 5 vulnerabilities (3 moderate, 2 critical); inspect with `npm audit` before choosing remediation.
+- `npm test` passed: 6 test files passed, 5 skipped; 62 tests passed and 5 are TODO/skipped.
+- The initial `npm run typecheck` and `npm run build` both stopped on two TypeScript errors. Fixed the unused `actorOf` import in `api/approvals/resubmit.ts` and changed the approval service to call `syncEngine.enqueue(...)`, matching the actual sync-engine API.
+- **Still to verify:** rerun `npm run typecheck` and `npm run build` after these fixes. Do not treat the previous `dist/` output as current until the build passes.
+- **Next agent:** first run those two verification commands and append their results here. Then continue the open Phase 3a/Phase 2 closeout items above; review the audit findings separately. Preserve this append-only update log.
+
+## Update log — 12 October 2026 (continued)
+
+- **Phase 2 closeout:** `src/main.tsx` now registers approval sync handlers before calling `syncEngine.start()`. The outbox is a separate Dexie database; confirmed sign-out warns and explicitly clears it, while the auth cache wipe does not delete it. Approval lists now include local queued submissions/resubmissions with their queue status.
+- **Phase 3a apply:** `PHASE3_APPLY.md` was not present in the workspace. Ran the idempotent `npm run setup:appwrite` path described by this handoff; the approvals collections and indexes reported as already existing. No Phase 3a schema migration was needed.
+- **Phase 3b code added:** private approval attachment upload/download endpoints and offline file blobs; Web Push subscribe/unsubscribe and public-key endpoints, server delivery, and a post-login prompt; per-user cached approval list/detail reads; live pending-approval badge. Added `web-push` and its TypeScript types. The setup script now defines a private attachments bucket, and `.env.example` documents required configuration.
+- **Local configuration:** generated a VAPID key pair in ignored `.env` without writing secret values into tracked files. `APPWRITE_BUCKET_ATTACHMENTS` is set locally to `attachments`.
+- **External setup blocker:** the follow-up request to create the Appwrite attachments bucket was rejected, so that bucket has **not** been created or verified. Attachment upload/download will not work against Appwrite until the private bucket exists. Do not claim attachments are runtime-ready yet.
+- **Verification:** `npm run typecheck` passes; `npm test` passes (62 tests, 5 TODO/skipped). A production build passed before the final attachment and bucket setup edits; the latest build attempt was interrupted, so rerun `npm run build` before treating the current tree as build-verified. The earlier build showed only the existing large-chunk warning.
+- **Security/config follow-up:** npm reports 5 vulnerabilities (3 moderate, 2 critical); review `npm audit` without blindly applying force fixes. Configure the VAPID keys in the deployment environment as well as local `.env`.
+- **Next agent:** obtain authorization to create/verify the private `attachments` bucket, run `npm run setup:appwrite`, then rerun build and browser-test offline attachment submission and push subscription/delivery. Finish Phase 3b runtime verification before starting Phase 4 (CRM). Keep appending new progress at the bottom.
+
+## Phase 3 closeout — 12 October 2026
+
+- The private Appwrite `attachments` bucket was created successfully with `fileSecurity`, no public permissions, a 10 MiB limit, PDF/JPEG/PNG extensions, encryption and antivirus enabled. The full `npm run setup:appwrite` run exited successfully; approvals schema/indexes were already present and the seed collections were checked.
+- Latest `npm run typecheck` and `npm run build` pass. The production bundle still emits the known >500 kB chunk warning. `npm test`: 62 passed, 5 TODO/skipped.
+- Phase 3 code is complete: approval file blobs queue offline and upload before idempotent submission, files are served only after approval visibility checks, Web Push subscription delivery is wired, approval reads cache per user, queued requests are shown, and Hub pending count is live.
+- Browser/API-host end-to-end verification is still pending. The repository does not currently provide a configured API development host; run that check when the chosen host is available. VAPID keys are generated only in local ignored `.env`; configure deployment secrets before production.
+- **Phase 4 is now next:** CRM. Build server-authorized lead CRUD/list, stage changes with required notes, activity timeline, offline outbox handling, stale lead state and manager reporting/filtering. At the Phase 4 boundary, append results to both handoff files and CHANGELOG.md before starting Phase 5.
+
+## Update log — 12 October 2026 (CRM deferred)
+
+- CRM work is **pending by user direction**. Stop implementation here and do not proceed into CRM or later phases until the user resumes that work.
+- A partial CRM foundation was started in this worktree: lead/activity types, stale/stage domain helpers, Appwrite repo/schema helpers, and initial `leads` and `move-stage` API changes. These files are incomplete and unverified; do not treat Phase 4 as delivered.
+- Phase 3 remains the last completed phase. Its outstanding item is live browser/API-host end-to-end validation; VAPID deployment secrets also need configuring before production.
+- On resuming, first inspect the partial CRM diff and current handoff/PRD requirements, then finish or adjust Phase 4. Continue appending handoff and changelog updates at the end of each completed phase.
+
+## Update log — 12 October 2026 (Phase 3 verification recheck)
+
+- Rechecked the current tree after CRM was deferred. `npm run typecheck` fails on four errors in the partial Phase 4 CRM files (`api/crm/detail.ts` and `api/crm/leads.ts`: unused imports and `queryParams` is not exported by `api/_lib/http`). These are incomplete CRM work and remain pending; do not claim the current full tree is typecheck/build verified until Phase 4 is resumed and repaired or cleanly excluded.
+- Local end-to-end API verification is not currently available: Vite proxies `/api` to `localhost:3001`, and the Vercel CLI is not installed. No API host/browser flow was run in this recheck.
+- The required Appwrite/VAPID environment variables are present in ignored local `.env` (values intentionally not recorded here). VAPID deployment configuration remains a production follow-up.
+- CRM and later phases remain pending by user direction. Phase 3 implementation and Appwrite bucket setup remain recorded as completed, with runtime verification limited by the missing API host and current unrelated CRM type errors.
+
+## Correction — Phase 3 API smoke check (12 October 2026)
+
+- A Vercel development server was already running on `http://localhost:3000` even though the Vercel CLI is not installed in this shell. The Staroot Hub root returned HTTP 200 and contained the app title; unauthenticated `/api/auth/session`, `/api/approvals/list`, and `/api/push/public-key` requests returned HTTP 401, confirming the live routes enforce session authentication.
+- This is only an unauthenticated smoke check. It does not verify signed-in approval flows, file upload/download, offline replay, push subscription/delivery, or Appwrite-backed data access. Those checks still need an authenticated browser session.
+
+## Phase 5 closeout — 12 October 2026
+
+- Delivered Site Progress: active projects and contractors are loaded from Appwrite; the site dashboard shows contractor progress and recent daily logs; engineers can queue logs offline and edit their own synced entry within 24 hours. Server APIs enforce site read/write scope and idempotency.
+- Added camera-only photo evidence capture, JPEG compression to 1024px at 0.65 quality, visible time/GPS stamp, up to three photos per log/report section, a 3 MB server upload limit, and server-side timestamp/GPS verification with explicit unverified reasons. Photos upload before parent records; `photo_records` are created once with their final parent, preserving append-only behavior.
+- Added the three-step report builder, searchable archive and document viewer, immutable report snapshots, and branded PDF/DOCX export. Export libraries load on demand. Queued reports and logs remain visible with outbox state.
+- Appwrite denied a new `proofs` bucket because the project plan has reached its bucket quota. Reused the existing private `attachments` bucket for photos (`APPWRITE_BUCKET_PROOFS=attachments`); `npm run setup:proofs` verified private file security, encryption, antivirus, JPEG support and sufficient bucket size. The API independently enforces its 3 MB JPEG limit and record-level authorization.
+- Added the `setup:proofs` command and documented the shared-bucket configuration. Project/contractor records remain Appwrite-managed data; no sample contractor records were invented.
+- **Verification:** `npm run typecheck` passes; `npm run build` passes and generates the PWA service worker. Build still warns that the main chunk is about 601 kB and the precache is about 1.8 MB; address this in Phase 7. No Phase 5 authenticated browser/offline replay test or new unit test was run. The existing Appwrite photo bucket verification succeeded.
+- CRM is **Coming Soon** in the Hub and remains unimplemented. The earlier partial CRM files were removed/restored to their original TODO stubs so they no longer break typecheck. Phase 3 remains **pending by user direction**; no Phase 3 implementation or authenticated verification was continued.
+- **Next priority: Phase 6 — Inventory & Logistics.** Continue appending each phase closeout here and to `docs/HANDOFF.md`, plus `CHANGELOG.md`.
+
+## Phase 6 closeout — 12 October 2026
+
+- Implemented the inventory catalogue and administrator-only item creation, stock cards with reorder-level flags, and inventory movement APIs with role-scoped searchable movement history.
+- Added dispatch, receipt, return, and positive inbound adjustment flows. Server validation rejects stale item versions and insufficient stock. Item stock changes and append-only movement creation share an Appwrite DocumentsDB transaction. Returns are limited to recorded dispatch balance per item/custodian; only returnable items can be returned. Adjustment is inbound-only and administrator-only.
+- Added camera photo evidence for movements using the private shared attachments bucket, 3 MB JPEG/API limit, and append-only `photo_records` after parent creation. Authenticated movement photo reads check the caller’s inventory scope.
+- Added offline movement queueing with local stock/movement visibility, queue status, custody aggregation, searchable movement history, and a shareable dispatch summary.
+- **Verification:** `npm run typecheck` passed and `npm run build` passed. The build still reports a 619 kB main bundle and about 1.8 MB of precache. No authenticated Appwrite movement transaction, camera upload, offline replay, or browser flow was run; no tests were added/run. Appwrite runtime support and schema access remain to be confirmed in an authenticated environment.
+- CRM remains **Coming Soon**. Phase 3 remains pending by your direction. Phase 2 end-of-sequence verification remains deferred.
+- **Next priority: Phase 7 — hardening, performance, offline/device checks, PWA review, and deployment guide.**
+
+## Phase 7 closeout — 12 October 2026
+
+- Hardened offline writes by storing the creating account ID on every new outbox item. The sync engine drains and exposes only rows for the active account. Dexie migration moves legacy ownerless queue rows to Needs review instead of sending them under whichever account signs in next. Sign-out clears session/read caches while preserving each owner’s queued rows/blobs for later resume.
+- Added common API response security headers and changed login rate-limit identity selection to prefer hosting-edge client IP headers. The login limiter remains process-local; a shared provider is still required for reliable limits across serverless instances.
+- Moved shared camera capture and photo evidence into `src/core/evidence/`, preserving the module boundary. Lazy-loaded feature routes, removed unused Framer Motion runtime usage, excluded large PDF/DOCX renderers from install precache, and added cache-after-first-use behavior for lazy JS chunks. Main bundle reduced from about 619 kB to 433 kB; precache reduced from about 1.8 MB to 691 kB.
+- Added persistent-storage request on app startup, `docs/TEST_MATRIX.md`, and a production deployment guide in `docs/DEPLOYMENT.md`. Added query indexes for inventory item listing and movement/custody searches, and applied them to the configured Appwrite project with the idempotent setup script. Script exited successfully; indexes created: `inventory_items.ix_active_name`, `movements.ix_item_custodian`, and `movements.ix_type_time`. Existing CRM schema was only checked by that setup script; no CRM implementation was changed.
+- **Verification:** `npm test` passes: 63 passed, 5 skipped, 5 todo. This includes sync-engine account isolation. `npm run build` passes; no >500 kB chunk warning remains. PWA precache is 691.32 KiB. `npm audit` and `npm audit --omit=dev` both report zero vulnerabilities. Local unauthenticated smoke checks returned 200 for the app shell and 401 for auth session, inventory items, inventory movements, and inventory photo routes, confirming authentication gates.
+- The device/offline matrix, authenticated Appwrite movement/photo flow, and actual Lighthouse PWA audit have not been run. Production platform/domain, VAPID environment values, and a shared rate-limit provider remain deployment-owner actions. The deployment guide records these gates.
+- Phase 2 unit-level sync verification now passes; its end-to-end/device closeout remains pending alongside the offline matrix. Phase 3 stays pending by user direction. CRM stays **Coming Soon** and was not coded. No Phase 3 or CRM work was resumed.
+- **Phase 7 implementation is complete; release validation remains pending** as listed above. Continue to leave Phase 3 and CRM untouched unless the user reprioritizes them.
+
+### Phase 7 runtime verification follow-up — 12 October 2026
+
+- The local development server on port 3000 returns Vite fallback HTML for `/service-worker.js` (PWA dev mode is disabled); do not count that route as worker verification.
+- Started Vite’s production preview on port 4173. `/manifest.webmanifest` and `/service-worker.js` returned 200; the worker response was `text/javascript`, 26,650 bytes, and its SHA-256 matched `dist/service-worker.js`. The preview server was stopped after verification.
+- Computer-use inspection of the open Firefox window was rejected with “Computer Use was not approved to use Firefox.” No authenticated browser inspection or account workflow was attempted. The authenticated device/offline matrix and Lighthouse audit remain open release checks.
+
+### Phase 7 release validation follow-up — 12 October 2026
+
+- Rechecked the current workspace after the user approved opening the authenticated app. Firefox was open to Staroot Hub, but Computer Use stopped because URL policy enforcement is unsupported for this Windows browser. No authenticated workflow was inspected or changed.
+- Current `npm run typecheck` passes. Current `npm run build` passes and generates the production service worker; the main application chunk is 433.10 kB and the precache is 691.32 KiB.
+- Phase 7 implementation remains complete; release validation is still pending for the authenticated browser/device/offline matrix, Appwrite-backed movement/photo flows, and Lighthouse PWA audit. Phase 2 end-to-end/device closeout remains part of that matrix.
+- Continue to keep Phase 3 on hold and CRM marked Coming Soon per user direction. Production deployment configuration (domain/platform, VAPID secrets, shared rate-limit provider) remains an owner action.
+
+### Phase 2 sync verification follow-up — 12 October 2026
+
+- Reran the current Vitest suite after the Phase 5–7 implementation. `npm test` passes: 63 passed, 5 skipped, 5 TODO; the sync engine suite now has 18 passing tests, including account isolation.
+- The first sandboxed attempt failed before tests started (`spawn EPERM` from esbuild); rerunning with approved elevated execution completed successfully. This verifies unit-level sync behavior only; the two-account offline/device replay matrix is still outstanding and requires an authenticated browser/device environment.
+- Phase 3 remains on hold per user direction. CRM remains Coming Soon and untouched.
+
+### Phase 7 static response headers — 12 October 2026
+
+- Runtime recheck found the static app shell lacked security headers even though API handlers set them. Added Vercel `vercel.json` headers for `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, and `Referrer-Policy: no-referrer`; documented the hosting requirement.
+- Verified locally against the running Vercel host: `/` returns 200 with all three headers; `/api/inventory/items` remains 401 and retains `Permissions-Policy: camera=(), microphone=(), geolocation=()`. The static header rule intentionally does not set Permissions-Policy, preserving camera/location evidence capture.
+- This closes the static-response header gap for Vercel. Recheck headers on the selected production host during deployment; if it is not Vercel, configure equivalent static response headers there.
+
+### Phase 7 dependency audit follow-up — 12 October 2026
+
+- Reran `npm audit` and `npm audit --omit=dev` against the current lockfile. Both report zero vulnerabilities.
+
+## UI foundation update — 12 October 2026
+
+- Applied the user’s current official palette rules to shared CSS tokens: dark backgrounds and card surfaces remain neutral near-black; light backgrounds and surfaces remain neutral white; blue shades are reserved for accents and selected elevated dark surfaces. Status colors remain independent.
+- Updated the light theme status-bar color to white and aligned the DOCX report’s hard-coded brand/text colors with the shared report palette.
+- Updated `uiscope.md` so the latest palette rules supersede earlier appended palette notes. The viewport retains pinch zoom and `viewport-fit=cover`; safe-area helpers cover page edges, fixed banners, and modals.
+- **Verification:** `npm run build` passes, including both TypeScript projects and the Vite production build. Authenticated iOS/Android safe-area checks remain pending; no device matrix or Lighthouse audit was run in this UI pass.
+- Phase 3 remains on hold by user direction. CRM remains Coming Soon and was not changed. Continue with Site Progress, Inventory, then Phase 7 UI review per the current scope.
+
+### UI viewport behavior follow-up — 12 October 2026
+
+- Disabled page pinch scaling in the viewport meta (`maximum-scale=1`, `user-scalable=no`) to give the installed PWA a stable app-like interaction. `viewport-fit=cover` remains enabled for safe areas.
+- Set input, select, and textarea text to 16px to prevent iOS focus-triggered zoom.
+- Updated `uiscope.md`; this supersedes the prior instruction to preserve page zoom. No feature workflow changed. Build/device verification was not run for this metadata and CSS-only update.
+
+### Module screen top inset follow-up — 12 October 2026
+
+- Updated `.pt-safe` so module screens and nested screens begin at least 15px below the top safe-area/status-bar inset, while retaining a 16px minimum on screens without an inset. Applied the same rule to `.safe-modal` top padding.
+- Updated `uiscope.md` to document the shared top-spacing requirement. Existing module and nested-screen wrappers already use `.pt-safe`.
+- No feature behavior changed. Build/device validation was not run for this CSS-only adjustment.
+
+### Module screen spacing adjustment — 12 October 2026
+
+- Increased the top gap after the safe-area/status-bar inset from 5px to 15px in `.pt-safe` and `.safe-modal`.
+- Updated the current UI scope wording and snippets. This adjustment supersedes the preceding 5px spacing note.
+- No build or device check was run for this CSS-only adjustment.
+
+### Module screen spacing adjustment — 12 October 2026
+
+- Added 10px to the top gap, increasing it from 15px to 25px beyond the safe-area/status-bar inset in `.pt-safe` and `.safe-modal`.
+- Updated the current UI scope and code snippets. This supersedes the preceding 15px spacing note.
+- No build or device check was run for this CSS-only adjustment.

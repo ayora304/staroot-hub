@@ -3,7 +3,7 @@ import { Icon } from '../ui/Icons'
 
 export function ThemeToggle() {
   const { theme, toggle } = useTheme()
-  const next = theme === 'light' ? 'dark gold' : 'light'
+  const next = theme === 'light' ? 'dark' : 'light'
   return (
     <button
       type="button"

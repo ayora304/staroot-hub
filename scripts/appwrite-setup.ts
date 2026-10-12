@@ -1,7 +1,7 @@
 // Creates the database, collections, attributes, indexes and seed rows from appwrite/.
 // Idempotent: existing items are skipped. Usage: npm run setup:appwrite
 import { readdirSync, readFileSync } from 'node:fs';
-import { Client, Databases, ID, DatabasesIndexType } from 'node-appwrite';
+import { Client, Databases, ID, DatabasesIndexType, Storage, Compression } from 'node-appwrite';
 
 interface AttrDef { key: string; type: string; required: boolean }
 interface IndexDef { key: string; type: string; attributes: string[] }
@@ -19,6 +19,8 @@ const client = new Client()
   .setKey(need('APPWRITE_API_KEY'));
 const db = new Databases(client);
 const DB = need('APPWRITE_DATABASE_ID');
+const ATTACHMENTS_BUCKET = process.env.APPWRITE_BUCKET_ATTACHMENTS || 'attachments';
+const PROOFS_BUCKET = process.env.APPWRITE_BUCKET_PROOFS || 'attachments';
 const DOC_SECURITY = new Set(['notifications', 'users_profiles']);
 
 const codeOf = (e: unknown): number | undefined => (e as { code?: number } | null)?.code;
@@ -70,6 +72,56 @@ async function seed(collection: string, file: string, key: string): Promise<void
   console.log('seeding', collection, rows.length);
 }
 
+async function ensureAttachmentsBucket(): Promise<void> {
+  const storage = new Storage(client);
+  try {
+    const bucket = await storage.getBucket(ATTACHMENTS_BUCKET);
+    if (bucket.$permissions.length > 0) throw new Error(`Storage bucket ${ATTACHMENTS_BUCKET} has public/user permissions; remove them before use.`);
+    console.log('exists  storage bucket', ATTACHMENTS_BUCKET);
+  } catch (e) {
+    if (codeOf(e) !== 404) throw e;
+    await storage.createBucket({
+      bucketId: ATTACHMENTS_BUCKET,
+      name: 'Staroot Approval Attachments',
+      permissions: [],
+      fileSecurity: true,
+      enabled: true,
+      maximumFileSize: 10 * 1024 * 1024,
+      allowedFileExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
+      compression: Compression.None,
+      encryption: true,
+      antivirus: true,
+      transformations: false,
+    });
+    console.log('created storage bucket', ATTACHMENTS_BUCKET);
+  }
+}
+
+async function ensureProofsBucket(): Promise<void> {
+  const storage = new Storage(client);
+  try {
+    const bucket = await storage.getBucket(PROOFS_BUCKET);
+    if (bucket.$permissions.length > 0) throw new Error(`Storage bucket ${PROOFS_BUCKET} has public/user permissions; remove them before use.`);
+    console.log('exists  storage bucket', PROOFS_BUCKET);
+  } catch (e) {
+    if (codeOf(e) !== 404) throw e;
+    await storage.createBucket({
+      bucketId: PROOFS_BUCKET,
+      name: 'Staroot Site Photo Evidence',
+      permissions: [],
+      fileSecurity: true,
+      enabled: true,
+      maximumFileSize: 3 * 1024 * 1024,
+      allowedFileExtensions: ['jpg', 'jpeg'],
+      compression: Compression.None,
+      encryption: true,
+      antivirus: true,
+      transformations: false,
+    });
+    console.log('created storage bucket', PROOFS_BUCKET);
+  }
+}
+
 async function main(): Promise<void> {
   // Check first: on plans with a database limit, create() fails with 403 instead of 409.
   try {
@@ -79,6 +131,9 @@ async function main(): Promise<void> {
     if (codeOf(e) !== 404) throw e;
     await tryCreate(`database ${DB}`, () => db.create(DB, DB));
   }
+
+  await ensureAttachmentsBucket();
+  await ensureProofsBucket();
 
   for (const f of readdirSync('appwrite/collections').filter((n) => n.endsWith('.json'))) {
     const col = JSON.parse(readFileSync(`appwrite/collections/${f}`, 'utf8')) as CollectionDef;

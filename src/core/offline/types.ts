@@ -8,6 +8,8 @@ export interface OutboxItem {
   seq?: number;
   /** Client UUID. This is the idempotency key sent to the server as `client_id`. */
   id: string;
+  /** Account that created the local write; the sync engine only drains it for this account. */
+  userId: string;
   type: string;
   payload: unknown;
   /** IDs of blobs (photos) held in the blob store for this item. */
@@ -28,6 +30,7 @@ export interface BlobInput {
 export interface NewOutboxItem {
   /** Optional: pass your own UUID so a re-submit of the same form is deduplicated. */
   id?: string;
+  userId: string;
   type: string;
   payload: unknown;
   blobs?: BlobInput[];
@@ -44,18 +47,19 @@ export interface OutboxStore {
   /** Idempotent: if an item with the same id exists, it is returned and nothing is written. */
   add(item: OutboxItem, blobs: BlobInput[]): Promise<OutboxItem>;
   get(id: string): Promise<OutboxItem | undefined>;
-  /** Oldest pending item whose nextAttemptAt <= now. */
-  nextDue(now: number): Promise<OutboxItem | undefined>;
+  list(): Promise<OutboxItem[]>;
+  /** Oldest pending item for this account whose nextAttemptAt <= now. */
+  nextDue(now: number, userId: string): Promise<OutboxItem | undefined>;
   /** Earliest nextAttemptAt among pending items, or null. */
-  nextDueAt(): Promise<number | null>;
+  nextDueAt(userId: string): Promise<number | null>;
   patch(id: string, patch: Partial<OutboxItem>): Promise<void>;
   /** Deletes the item and its blobs. */
   remove(id: string): Promise<void>;
   /** Items left in 'syncing' by a crash or closed tab go back to 'pending'. */
-  recoverStuck(): Promise<void>;
+  recoverStuck(userId: string): Promise<void>;
   /** failed -> pending (attempts reset). Returns how many were reset. */
-  resetFailed(now: number): Promise<number>;
-  counts(): Promise<OutboxCounts>;
+  resetFailed(now: number, userId: string): Promise<number>;
+  counts(userId: string): Promise<OutboxCounts>;
   getBlob(id: string): Promise<Blob | undefined>;
   /** Removes everything. Only for a deliberate wipe. */
   clear(): Promise<void>;

@@ -62,6 +62,12 @@ export async function readJson(req: Req): Promise<unknown> {
 }
 
 export function getIp(req: Req): string {
+  // Prefer headers written by the hosting edge before the client-facing forwarding chain.
+  for (const name of ['x-vercel-forwarded-for', 'x-real-ip', 'cf-connecting-ip']) {
+    const value = req.headers[name]
+    const first = (Array.isArray(value) ? value[0] : value)?.split(',')[0]?.trim()
+    if (first) return first
+  }
   const fwd = req.headers['x-forwarded-for']
   const first = (Array.isArray(fwd) ? fwd[0] : fwd)?.split(',')[0]?.trim()
   return first || req.socket.remoteAddress || 'unknown'
@@ -70,6 +76,10 @@ export function getIp(req: Req): string {
 /** Wraps an endpoint so thrown HttpError / ZodError become clean JSON responses. */
 export function handler(fn: (req: Req, res: Res) => Promise<void>) {
   return async (req: Req, res: Res) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff')
+    res.setHeader('X-Frame-Options', 'DENY')
+    res.setHeader('Referrer-Policy', 'no-referrer')
+    res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()')
     try {
       await fn(req, res)
     } catch (e) {

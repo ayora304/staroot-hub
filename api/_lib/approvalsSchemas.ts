@@ -12,6 +12,7 @@ export const submitSchema = z
     details: z.string().trim().min(1).max(2000),
     amount: money.optional(),
     currency: currency.optional(),
+    attachment_ids: z.array(z.string().min(1).max(36)).max(5).optional(),
   })
   .strict()
   .superRefine((v, ctx) => {

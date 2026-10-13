@@ -1,8 +1,10 @@
 node_modules
 dist
-.env
-.env.local
-.env.example
+# Never commit environment files, including examples, local variants, or nested copies.
+.env*
+**/.env*
+*.env
+*.env.*
 
 
 .vercel

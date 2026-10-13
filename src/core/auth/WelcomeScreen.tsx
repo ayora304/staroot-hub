@@ -13,9 +13,8 @@ export function WelcomeScreen() {
           <li>Experience</li>
           <li>Trust</li>
         </ul>
-        <nav className="welcome-switch" aria-label="Preview sign-in screens">
-          <Link to="/login">Sign in</Link>
-          <Link to="/signup">Sign up</Link>
+        <nav className="welcome-switch" aria-label="Continue to sign in">
+          <Link to="/login">Get started</Link>
         </nav>
       </section>
     </main>

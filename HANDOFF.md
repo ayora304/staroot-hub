@@ -1056,3 +1056,51 @@ Once you fix the two errors, I’ll update it with the results. I’ll also need
 
 - Removed the top and bottom Welcome safe-area backdrop-blur pseudo-elements. Welcome image positioning and all content styles remain unchanged.
 - **Verification:** `git diff --check` passed; no device test run.
+
+### Welcome bottom photo bleed fix — 13 October 2026
+
+- Changed the fixed mobile Welcome wrapper from `overflow: hidden` to `overflow: visible`. This avoids clipping the fixed photo layer at the viewport wrapper's bottom; the photo layer still extends 40px past the viewport.
+- The wrapper remains fixed with `touch-action: none` and overscroll disabled. Status-bar metadata and text styles are unchanged.
+- **Verification:** `git diff --check` passed; confirm the bottom edge on the installed iPhone app.
+
+### Welcome viewport locked to screen — 13 October 2026
+
+- Fixed the mobile Welcome wrapper to the viewport (`100dvh`) and prevented scroll/overscroll. The existing fixed image layer remains full-bleed through the bottom safe area.
+- Status-bar metadata and text styles were left unchanged.
+- **Verification:** `git diff --check` passed; no device test run.
+
+### Ignore dotenv files — 13 October 2026
+
+- `.gitignore` now ignores dotenv names (`.env*`, `*.env`, `*.env.*`) at root and in nested directories, including examples and local variants.
+- Removed tracked `.env.example` from the index without deleting the developer's local copy. No other dotenv files were tracked.
+- **Verification:** Confirmed ignore matching and no remaining tracked dotenv files; `git diff --check` passed (line-ending warning only).
+
+### Welcome photo anchored to bottom edge — 13 October 2026
+
+- Extended the fixed mobile Welcome artwork layer 200px below the viewport and bottom-anchored the facade image. `background-size: cover` preserves its aspect ratio; status-bar and text styling are unchanged.
+- **Verification:** `git diff --check` passed; installed-phone confirmation remains needed.
+
+### Welcome image extension reverted — 13 October 2026
+
+- Reverted the attempted 200px mobile artwork extension and restored the original `inset: -40px` layer and centered vertical framing. The Welcome continues to use `facade-building.jpg`; no image asset was modified or generated into the project. Status-bar and text styles are unchanged.
+- **Verification:** `git diff --check` passed; no device test run.
+
+### Welcome Get started action — 13 October 2026
+
+- Replaced the split Sign in/Sign up tabs with a centered black pill button labeled “Get started” that navigates to `/login`.
+- Anchored the button above the bottom safe area and clipped horizontal overflow on the mobile Welcome screen.
+- **Verification:** `git diff --check` passed; no automated tests run.
+
+### Welcome photo overscan and root canvas — 13 October 2026
+
+- Oversized the mobile Welcome photo layer to `inset: -200px` and set its facade background to `88% center / cover`.
+- Added a Welcome-scoped `html:has(...)` background using the same facade photo with `#4569c5` fallback; the matching `body` background is transparent only while Welcome is mounted.
+- Kept status-bar settings and text block rules unchanged. Existing mobile horizontal overflow clipping remains in place.
+- **Verification:** `git diff --check` passed; native-device validation remains needed.
+
+### Welcome photo reaches the screen bottom — 13 October 2026
+
+- Returned the mobile Welcome photo to an absolute image layer filling the Welcome screen container (`inset: 0`), with the screen fixed to the viewport and clipped against overscroll.
+- Removed the separate Welcome-scoped `html:has(...)` photo canvas and blue fallback, which could show as a band when its painted area did not match the installed app viewport.
+- Kept the facade photo, image framing (`88% center`, `cover`), status-bar metadata, text blocks, and Get started button styling unchanged.
+- **Verification:** Live `/welcome` page still renders the expected content and navigation; `git diff --check` passed. Physical-device confirmation remains necessary.

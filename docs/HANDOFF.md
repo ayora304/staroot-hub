@@ -492,3 +492,52 @@ Key points:
 
 - Removed the top and bottom Welcome safe-area backdrop-blur pseudo-elements. Welcome image positioning and all content styles remain unchanged.
 - **Verification:** `git diff --check` passed; no device test run.
+
+### Welcome bottom photo bleed fix — 13 October 2026
+
+- Changed the fixed mobile Welcome wrapper from `overflow: hidden` to `overflow: visible`. This avoids clipping the fixed photo layer at the viewport wrapper's bottom; the photo layer still extends 40px past the viewport.
+- The wrapper remains fixed with `touch-action: none` and overscroll disabled. Status-bar metadata and text styles are unchanged.
+- **Verification:** `git diff --check` passed; confirm the bottom edge on the installed iPhone app.
+
+### Welcome viewport locked to screen — 13 October 2026
+
+- Fixed the mobile Welcome wrapper to the viewport (`100dvh`) and prevented scroll/overscroll. The existing fixed image layer remains full-bleed through the bottom safe area.
+- Status-bar metadata and text styles were left unchanged.
+- **Verification:** `git diff --check` passed; no device test run.
+
+### Ignore dotenv files — 13 October 2026
+
+- `.gitignore` now ignores dotenv names (`.env*`, `*.env`, `*.env.*`) at root and in nested directories, including examples and local variants.
+- Removed tracked `.env.example` from the index without deleting the developer's local copy. No other dotenv files were tracked.
+- **Verification:** Confirmed ignore matching and no remaining tracked dotenv files; `git diff --check` passed (line-ending warning only).
+
+### Welcome photo anchored to bottom edge — 13 October 2026
+
+- Extended the fixed mobile Welcome artwork layer 200px below the viewport and set the facade image to bottom alignment, so the image reaches past the lower safe-area edge.
+- Kept `background-size: cover` to preserve the image's aspect ratio. The mobile status bar and Welcome text styles were not changed.
+- **Verification:** `git diff --check` passed; verify on the installed phone to confirm the platform's bottom viewport edge.
+
+### Welcome image extension reverted — 13 October 2026
+
+- Reverted the attempted mobile image-layer extension and returned to the prior `inset: -40px` and centered vertical framing. The facade image asset remains unchanged; the attempted image generation did not produce a project asset. Status-bar and text styling are unchanged.
+- **Verification:** `git diff --check` passed; no device test run.
+
+### Welcome Get started button — 13 October 2026
+
+- Replaced Welcome's Sign in/Sign up split navigation with a centered black pill-style “Get started” link to `/login`.
+- Placed it at the bottom safe-area edge and clipped horizontal overflow for the mobile Welcome view.
+- **Verification:** `git diff --check` passed; no automated tests run.
+
+### Welcome background overscan — 13 October 2026
+
+- Enlarged the fixed mobile Welcome artwork layer to overshoot the viewport by 200px on each side and kept the image at `88% center / cover`.
+- Added the same facade image to the Welcome-scoped root canvas with the existing blue as a load fallback; the page body is transparent only while Welcome is active.
+- Left status-bar settings and text styling unchanged; retained horizontal overflow clipping.
+- **Verification:** `git diff --check` passed; native-device validation remains needed.
+
+### Welcome photo reaches the screen bottom — 13 October 2026
+
+- Returned the mobile Welcome photo to an absolute image layer filling the Welcome screen container (`inset: 0`), with the screen fixed to the viewport and clipped against overscroll.
+- Removed the separate Welcome-scoped `html:has(...)` photo canvas and blue fallback, which could show as a band when its painted area did not match the installed app viewport.
+- Kept the facade photo, image framing (`88% center`, `cover`), status-bar metadata, text blocks, and Get started button styling unchanged.
+- **Verification:** Live `/welcome` page still renders the expected content and navigation; `git diff --check` passed. Physical-device confirmation remains necessary.

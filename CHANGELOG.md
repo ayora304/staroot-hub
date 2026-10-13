@@ -303,7 +303,61 @@ Add entries with: .\scripts\add-changelog.ps1 -Agent "name" -Phase "n" -Type Add
 - **Files:** `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
 
 ## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Changed
+- **Summary:** Bound the Welcome facade photo to a full-viewport screen layer and removed the separate blue page-canvas fallback layer. Photo framing, status-bar metadata, Welcome text, and button styling were preserved.
+- **Verification:** Live `/welcome` content and navigation were inspected; `git diff --check` passed. Physical-device confirmation remains needed.
+- **Files:** `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Fixed
+- **Summary:** Removed clipping from the fixed mobile Welcome wrapper so the fixed background photo can paint through the bottom safe area. The wrapper remains fixed and non-scrollable; status-bar and text styles are unchanged.
+- **Verification:** `git diff --check` passed; physical-device verification remains needed.
+- **Files:** `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Changed
+- **Summary:** Locked the mobile Welcome screen wrapper to the full dynamic viewport and disabled scrolling/overscroll so the fixed background photo continues to the bottom safe area. Status-bar metadata and text styles were not changed.
+- **Verification:** `git diff --check` passed; no device test run.
+- **Files:** `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Security
+- **Summary:** Expanded `.gitignore` to exclude dotenv files in all folders, including `.env*`, `*.env`, and `*.env.*`. Removed the tracked `.env.example` from Git's index while keeping the local copy on disk.
+- **Verification:** Confirmed dotenv patterns match root, nested, example, local, and `*.env` names; no dotenv files remain tracked; `git diff --check` passed (line-ending warning only).
+- **Files:** `.gitignore`, `.env.example`, `CHANGELOG.md`, `HANDOFF.md`, `docs/HANDOFF.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
 - **Type:** Reverted
 - **Summary:** Removed the Welcome safe-area backdrop-blur strips. The existing Welcome photo and text styling are unchanged.
 - **Verification:** `git diff --check` passed; no device test run.
+- **Files:** `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Fixed
+- **Summary:** Removed clipping from the fixed mobile Welcome wrapper so the fixed background photo can paint through the bottom safe area. The wrapper remains fixed and non-scrollable; status-bar and text styles are unchanged.
+- **Verification:** `git diff --check` passed; physical-device verification remains needed.
+- **Files:** `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Fixed
+- **Summary:** Extended the fixed mobile Welcome photo layer 200px below the viewport and bottom-anchored the facade image. The image keeps its proportions through `background-size: cover`; status-bar and text styling are unchanged.
+- **Verification:** `git diff --check` passed; installed-phone confirmation remains needed.
+- **Files:** `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Reverted
+- **Summary:** Reverted the attempted 200px mobile Welcome image-layer extension; restored `inset: -40px` and centered vertical framing. The existing facade photo and status-bar/text styles are unchanged, and no generated image asset was added.
+- **Verification:** `git diff --check` passed; no device test run.
+- **Files:** `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Changed
+- **Summary:** Replaced the Welcome Sign in/Sign up split buttons with a centered black pill “Get started” button that links to `/login`, anchored above the device bottom safe area. Disabled horizontal overflow on the mobile Welcome screen.
+- **Verification:** `git diff --check` passed; no automated tests run.
+- **Files:** `src/core/auth/WelcomeScreen.tsx`, `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Changed
+- **Summary:** Applied the two-layer Welcome background approach: mobile artwork overscans by 200px, while the Welcome-scoped root canvas paints the same facade image with a blue loading fallback. Text and status-bar settings remain untouched; horizontal overflow clipping remains enabled.
+- **Verification:** `git diff --check` passed; native-device validation remains needed.
 - **Files:** `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`

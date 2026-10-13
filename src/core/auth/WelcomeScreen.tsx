@@ -1,6 +1,13 @@
-import { Link } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Link, useBlocker } from 'react-router-dom'
 
 export function WelcomeScreen() {
+  const blocker = useBlocker(({ historyAction }) => historyAction === 'POP')
+
+  useEffect(() => {
+    if (blocker.state === 'blocked') blocker.reset()
+  }, [blocker.state, blocker.reset])
+
   return (
     <main className="auth-screen-wrap auth-screen-wrap-welcome">
       <section className="auth-phone auth-phone-welcome" aria-label="Staroot Hub welcome">
@@ -13,7 +20,7 @@ export function WelcomeScreen() {
           </ul>
         </div>
         <nav className="welcome-switch" aria-label="Continue to sign in">
-          <Link to="/login">Get started</Link>
+          <Link to="/login">Get Started</Link>
         </nav>
       </section>
     </main>

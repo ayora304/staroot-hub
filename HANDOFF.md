@@ -1188,3 +1188,76 @@ Once you fix the two errors, I’ll update it with the results. I’ll also need
 - **Verification:** `git diff --check` passed.
 - Increased the Get started button's gold fill opacity from 38% to 49% (30% less transparency); left its border, blur, dimensions, position, and text unchanged.
 - **Verification:** `git diff --check` passed.
+
+### Welcome swipe navigation blocked — 13 October 2026
+
+- Blocked browser history `POP` navigation while Welcome is open and immediately reset the blocker, preventing an edge-swipe/back gesture from navigating to another screen. The Get Started link still navigates to `/login`.
+- Changed the button label casing to “Get Started”. Existing Welcome touch-action rules remain in place.
+- **Verification:** `git diff --check` passed; typecheck not yet run.
+
+### Welcome and Login swipe gestures — 13 October 2026
+
+- Added a history `POP` blocker to Login as well as Welcome. Back and edge-swipe gestures no longer navigate away while either screen is open; explicit links and buttons remain available.
+- **Verification:** `git diff --check` passed; typecheck not run.
+
+### Welcome and Login horizontal swipe suppression — 13 October 2026
+
+- Set Welcome and Login containers to `touch-action: pan-y` with horizontal overscroll disabled, suppressing horizontal swipe navigation while preserving vertical movement such as scrolling the Login form. Existing history blockers prevent browser back/edge gestures from changing routes.
+- **Verification:** `git diff --check` passed; no automated tests run.
+
+### Auth edge-swipe root suppression — 13 October 2026
+
+- Extended horizontal overscroll suppression and `pan-y` touch behavior to `html` and `body` while Welcome or Login is mounted. This addresses the browser's edge-swipe preview, which was visible even when the React Router history blocker prevented the route change.
+- **Verification:** `git diff --check` passed; device verification remains pending.
+
+### Sign Up content offset — 13 October 2026
+
+- Increased only the Sign Up white panel's top padding from 28px to 38px, moving its form content 10px downward without moving the panel, artwork, header, or other screens.
+- **Verification:** `git diff --check` passed.
+
+### Login screen card redesign — 13 October 2026
+
+- Replaced the abstract Login artwork with the Welcome courtyard image alone behind a floating white card; removed the separate Staroot brand header from Login and changed the card title to “Login to Proceed.” Existing email/password input types, placeholders, remember-me, forgot-password, and Sign up link remain.
+- Anchored the Sign in button at the same centered bottom position and safe-area offset as Welcome's Get Started button, matching its translucent gold styling and 247×60px dimensions. Added a Google G mark just below it.
+- The Sign in and Google controls remain visual mockups; no authentication provider is wired to them in this screen yet. Actual email/password authentication logic is in `src/core/auth/AuthProvider.tsx`.
+- **Verification:** `git diff --check` passed; no tests run.
+
+### Sign Up screen restored — 13 October 2026
+
+- Reverted the requested account-creation removal: restored the `/signup` route, Sign Up screen, Login-to-sign-up link, and supporting visual styles. Login retains its admin access copy is no longer displayed; the original sign-up prompt is back.
+- **Verification:** `git diff --check` passed.
+
+### Login card height reduced — 13 October 2026
+
+- Kept the Login card's bottom edge fixed and moved its top from 32% to 59.2%, reducing its height by 40% relative to the prior viewport height. The card remains internally scrollable; the Sign in button retains its screen position.
+- **Verification:** `git diff --check` passed.
+
+### Login card shifted upward — 13 October 2026
+
+- Shifted the Login card and its anchored Sign in and Google mark upward by 50px, preserving their relative placement and card height.
+- **Verification:** `git diff --check` passed.
+
+### Sign Up flow removed — 13 October 2026
+
+- Removed the `/signup` route and Sign Up screen, its Login link, and signup-only artwork helpers and styles. The Login screen now states that access is managed by the organization. Email/password sign-in remains.
+- **Verification:** `git diff --check` passed.
+
+### Login actions layered above card — 13 October 2026
+
+- Raised the anchored Sign in button and Google mark above the Login card's stacking layer so they render visibly over the card.
+- **Verification:** `git diff --check` passed.
+
+### Login actions integrated into card — 13 October 2026
+
+- Moved the Sign in button and Google mark inside the Login card. Put the form fields and organization access note in a separate scroll area so the actions stay attached to the card as it moves.
+- **Verification:** `git diff --check` passed.
+
+### Login card height increased — 13 October 2026
+
+- Increased the Login card height by 30% while keeping its bottom edge fixed, moving its top from 59.2% to 47% of the viewport. Button and Google mark remain in the card.
+- **Verification:** `git diff --check` passed.
+
+### Login scrolling and swipe disabled — 13 October 2026
+
+- Disabled page and card scrolling and all touch panning on Login, including horizontal gestures. Kept the existing history POP guard so browser back gestures cannot change screens; visible navigation controls remain tappable.
+- **Verification:** `git diff --check` passed.

@@ -449,3 +449,75 @@ Add entries with: .\scripts\add-changelog.ps1 -Agent "name" -Phase "n" -Type Add
 - **Summary:** Reduced Get started button transparency by 30% by raising the translucent gold fill opacity from 0.38 to 0.49. No other button properties changed.
 - **Verification:** `git diff --check` passed; no automated tests run.
 - **Files:** `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Changed
+- **Summary:** Blocked history POP navigation while the Welcome screen is active so browser edge-swipe/back gestures keep the user on Welcome. Kept Get Started as the screen's navigation action and corrected its title casing.
+- **Verification:** `git diff --check` passed; no automated tests run.
+- **Files:** `src/core/auth/WelcomeScreen.tsx`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Changed
+- **Summary:** Added a history POP blocker to both Welcome and Login so back and edge-swipe gestures cannot navigate away from these screens. Explicit links and buttons remain usable.
+- **Verification:** `git diff --check` passed; no automated tests run.
+- **Files:** `src/core/auth/WelcomeScreen.tsx`, `src/core/auth/SignInScreen.tsx`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Changed
+- **Summary:** Suppressed horizontal touch swipes on Welcome and Login with `touch-action: pan-y` and disabled horizontal overscroll. Vertical movement remains available for Login form scrolling; existing POP blockers guard edge/back navigation.
+- **Verification:** `git diff --check` passed; no automated tests run.
+- **Files:** `src/core/auth/SignInScreen.tsx`, `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Fixed
+- **Summary:** Extended horizontal gesture suppression to the document and body while Welcome or Login is mounted, addressing the edge-swipe preview that appeared despite the router guard.
+- **Verification:** `git diff --check` passed; physical-device verification remains pending.
+- **Files:** `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Changed
+- **Summary:** Moved only the Sign Up form content down 10px by increasing the form panel's top padding; artwork, panel position, header, and other screens stay put.
+- **Verification:** `git diff --check` passed; no automated tests run.
+- **Files:** `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Reverted
+- **Summary:** Restored the user-facing Sign Up screen and route, the Login sign-up link, and its form and social sign-up presentation after reverting account-creation removal.
+- **Verification:** `git diff --check` passed; no automated tests run.
+- **Files:** `src/app/router.tsx`, `src/core/auth/AuthArtwork.tsx`, `src/core/auth/SignInScreen.tsx`, `src/core/auth/SignUpScreen.tsx`, `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Changed
+- **Summary:** Reduced the Login card's vertical height by 40% by moving only its top edge down; kept the bottom edge and Sign in button position fixed. Card content remains scrollable.
+- **Verification:** `git diff --check` passed; no automated tests run.
+- **Files:** `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Changed
+- **Summary:** Moved the entire Login card assembly upward by 50px, including the card panel, Sign in button, and Google mark, without changing card height.
+- **Verification:** `git diff --check` passed; no automated tests run.
+- **Files:** `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Removed
+- **Summary:** Removed the Sign Up page and route, Login sign-up link, and signup-only visual helpers/styles because accounts are provisioned by organization administrators. Login now says access is managed by the organization; email/password sign-in remains.
+- **Verification:** `git diff --check` passed; no automated tests run.
+- **Files:** `src/app/router.tsx`, `src/core/auth/AuthArtwork.tsx`, `src/core/auth/SignInScreen.tsx`, `src/core/auth/SignUpScreen.tsx`, `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Fixed
+- **Summary:** Raised the Login Sign in button and Google mark above the transformed white card so the card no longer covers them.
+- **Verification:** `git diff --check` passed; no automated tests run.
+- **Files:** `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Changed
+- **Summary:** Moved the Sign in button and Google mark into the Login card and gave the form its own scroll area, keeping the controls visually attached to the card.
+- **Verification:** `git diff --check` passed; no automated tests run.
+- **Files:** `src/core/auth/SignInScreen.tsx`, `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Changed
+- **Summary:** Increased the Login card height by 30%, holding its bottom edge and contents in place while raising its top edge.
+- **Verification:** `git diff --check` passed; no automated tests run.
+- **Files:** `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`

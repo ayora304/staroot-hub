@@ -2,7 +2,6 @@ import { lazy } from 'react'
 import { createBrowserRouter, Navigate, type RouteObject } from 'react-router-dom'
 import { RequireAuth } from '../core/auth/RequireAuth'
 import { SignInScreen } from '../core/auth/SignInScreen'
-import { SignUpScreen } from '../core/auth/SignUpScreen'
 import { SplashScreen } from '../core/auth/SplashScreen'
 import { WelcomeScreen } from '../core/auth/WelcomeScreen'
 import { RequireRole } from '../core/rbac/RequireRole'
@@ -38,7 +37,6 @@ const moduleRoutes: RouteObject[] = HUB_MODULES.map((m) => ({
 export const router = createBrowserRouter([
   { path: '/welcome', element: <WelcomeScreen /> },
   { path: '/login', element: <SignInScreen /> },
-  { path: '/signup', element: <SignUpScreen /> },
   { path: '/splash', element: <SplashScreen /> },
   { element: <RequireAuth />, children: [{ path: '/', element: <HubScreen /> }, ...moduleRoutes] },
   { path: '*', element: <Navigate to="/welcome" replace /> },

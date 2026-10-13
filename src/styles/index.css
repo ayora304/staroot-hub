@@ -122,6 +122,31 @@ button, a, input, select, textarea, summary { scroll-margin-block: 1rem; }
   color: #172b56;
   font-family: Arial, sans-serif;
 }
+.auth-screen-wrap-welcome,
+.auth-screen-wrap-login {
+  overscroll-behavior-x: none;
+  touch-action: pan-y;
+}
+html:has(.auth-screen-wrap-welcome),
+body:has(.auth-screen-wrap-welcome),
+html:has(.auth-screen-wrap-login),
+body:has(.auth-screen-wrap-login) {
+  overscroll-behavior-x: none;
+  touch-action: pan-y;
+}
+html:has(.auth-screen-wrap-login),
+body:has(.auth-screen-wrap-login) {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
+}
+.auth-screen-wrap-login {
+  height: 100vh;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
+}
 .auth-phone {
   position: relative;
   isolation: isolate;
@@ -256,7 +281,18 @@ button, a, input, select, textarea, summary { scroll-margin-block: 1rem; }
   background: #fff;
   color: #1d3569;
 }
-.auth-white-panel-login { top: 25%; }
+.auth-white-panel-login {
+  inset: 47% 16px 0;
+  overflow: hidden;
+  border-radius: 28px;
+  transform: translateY(-50px);
+}
+.auth-login-content {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  padding: 28px 24px 100px;
+}
 .auth-white-panel h1 { margin: 0 0 22px; color: #3765c5; text-align: center; font-size: 1.65rem; line-height: 1.2; font-weight: 750; }
 .auth-fields { display: grid; gap: 16px; }
 .auth-field {
@@ -275,8 +311,8 @@ button, a, input, select, textarea, summary { scroll-margin-block: 1rem; }
 .auth-field input { width: 100%; min-height: 28px; border: 0; outline: 0; background: transparent; color: #1c2f55; font: inherit; font-size: 0.84rem; }
 .auth-field input::placeholder { color: #aeb4bf; }
 .auth-options { min-height: 50px; display: flex; justify-content: space-between; align-items: center; gap: 8px; color: #8a92a0; font-size: 0.76rem; }
-.auth-remember,.auth-consent { display: inline-flex; align-items: center; gap: 8px; }
-.auth-remember input,.auth-consent input { width: 18px; height: 18px; accent-color: #3f6fd1; }
+.auth-remember { display: inline-flex; align-items: center; gap: 8px; }
+.auth-remember input { width: 18px; height: 18px; accent-color: #3f6fd1; }
 .auth-text-button { border: 0; padding: 8px 0; background: transparent; color: #3868ca; font: inherit; font-weight: 700; }
 .auth-primary-button {
   width: 100%;
@@ -290,18 +326,40 @@ button, a, input, select, textarea, summary { scroll-margin-block: 1rem; }
   font-size: 0.95rem;
   font-weight: 700;
 }
-.auth-consent { min-height: 44px; margin: 8px 0 0; color: #8991a0; font-size: 0.75rem; }
-.auth-consent strong { color: #3968c8; }
-.auth-divider { display: flex; align-items: center; gap: 10px; margin: 28px 0 18px; color: #9ba2ae; font-size: 0.75rem; white-space: nowrap; }
-.auth-divider span { height: 1px; flex: 1; background: #e8eaf0; }
-.auth-social-row { display: flex; justify-content: center; align-items: center; gap: 28px; min-height: 32px; }
-.auth-social { width: 24px; height: 24px; display: grid; place-items: center; font-size: 1.2rem; font-weight: 800; }
-.auth-social-facebook { border-radius: 50%; background: #1877f2; color: white; font-family: Arial,sans-serif; }
-.auth-social-twitter { color: #29a8e0; }
-.auth-social-twitter svg { width: 20px; height: 20px; fill: currentColor; }
-.auth-social-google { color: #4285f4; }
-.auth-social-apple { color: #111; }
-.auth-social-apple svg { width: 20px; height: 20px; fill: currentColor; }
+.auth-login-button {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  width: min(247px, 100%);
+  min-height: 60px;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  bottom: max(12px, env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  border: 1px solid rgba(232, 195, 116, 0.65);
+  border-radius: 999px;
+  background: rgba(232, 195, 116, 0.49);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.42), inset 0 1px 2px rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  color: #fff;
+  font-size: 1.12rem;
+}
+.auth-google-mark {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  bottom: max(0px, calc(env(safe-area-inset-bottom, 0px) - 26px));
+  transform: translateX(-50%);
+  width: 20px;
+  height: 14px;
+  display: grid;
+  place-items: center;
+  color: #4285f4;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
 .auth-switch-copy { margin: 22px 0 0; color: #8a92a0; text-align: center; font-size: 0.76rem; }
 .auth-switch-copy a { color: #3767c6; font-weight: 700; text-decoration: none; }
 .auth-phone-splash { display: grid; place-items: center; color: #fff; }

@@ -553,3 +553,75 @@ Key points:
 - Removed the remaining `100dvh` declarations from the mobile Welcome wrapper and phone sizing; those elements now use `100vh`, matching the sizing used by the other auth screens.
 - Kept the current status-bar metadata, text layout, photo crop, and button placement unchanged. Preserved the Welcome no-swipe and horizontal-overflow protections.
 - **Verification:** `git diff --check` passed; installed iOS PWA confirmation remains pending.
+
+### Welcome background asset swap — 13 October 2026
+
+- Added the supplied full-resolution `Gemini rooftop (7).png` to `src/assets/library/rooftop-pool-evening.png` and generated `public/assets/rooftop-pool-evening.jpg` for delivery (2048px wide, quality 86; 1.98 MB).
+- Changed only the Welcome background image URL to the new asset. Existing crop, sizing, position, status bar, text, button, and viewport rules were left unchanged.
+- **Verification:** Confirmed the optimized file is below 2 MB and `git diff --check` passed. Device visual confirmation remains pending.
+
+### Welcome Get started button size — 13 October 2026
+
+- Increased only the Get started button dimensions by 30%: width cap from 190px to 247px and minimum height from 46px to 60px. Label size and button placement are unchanged.
+- **Verification:** `git diff --check` passed; no physical-device visual check performed.
+
+### Welcome image framing adjustment — 13 October 2026
+
+- Updated only the Welcome background image's horizontal crop from 88% right-shifted to left-aligned, retaining `background-size: cover` and vertical centering to match the user's portrait crop reference.
+- No text, button, status-bar, viewport, or other screen styling changed.
+- **Verification:** `git diff --check` passed; compare the live and installed phone crop against the supplied reference.
+
+### Welcome values text color — 13 October 2026
+
+- Changed only the Innovation / Experience / Trust text color to `#e8c374`. Position, sizing, shadow, and all other screen styling remain unchanged.
+- **Verification:** `git diff --check` passed.
+
+### Welcome values spacing and position — 13 October 2026
+
+- Moved the Innovation / Experience / Trust text block down 30 CSS px by reducing its bottom offset from 210px to 180px (safe-area offset retained).
+- Increased the vertical gap between the words to `0.15em` (15% of their font size). Text color, size, and horizontal centering are unchanged.
+- **Verification:** `git diff --check` passed.
+
+### Welcome values brush backdrop — 13 October 2026
+
+- Added a curved, translucent deep-navy brush-smudge SVG behind the Innovation / Experience / Trust block using a non-interactive pseudo-element.
+- The mark sits behind the text only; text color, position, size, spacing, and the rest of the Welcome layout are unchanged.
+- **Asset:** `public/assets/welcome-text-brush.svg`.
+- **Verification:** `git diff --check` passed; visual review on device remains pending.
+
+### Welcome brush backdrop removed — 13 October 2026
+
+- Removed the translucent brush pseudo-element and its SVG asset from behind the Welcome values text. Text color, position, size, and spacing remain as before the brush was added.
+- **Verification:** `git diff --check` passed.
+
+### Welcome facade image restored — 13 October 2026
+
+- Switched the Welcome background image URL to the existing `facade-building.jpg` asset and changed only its crop alignment to `88% center` to match the supplied portrait crop reference.
+- Retained `background-size: cover` and all other Welcome styling and layout.
+- **Verification:** Confirmed the referenced facade asset exists; `git diff --check` passed.
+
+### Welcome courtyard image and crop — 13 October 2026
+
+- Added the supplied `Gemini Courtyard (5).png` to `src/assets/library/courtyard-five.png` and generated `public/assets/courtyard-five.jpg` (2048×1500, quality 86).
+- Changed the Welcome background to this asset and set its cover crop to `56% center` to match the supplied portrait reference. Other Welcome styling is unchanged.
+- **Verification:** Optimized asset is 692 KB; `git diff --check` passed.
+
+### Welcome values moved below brand line — 13 October 2026
+
+- Grouped the Innovation / Experience / Trust list beneath the STAROOT HUB eyebrow with a 20px top gap, and left-aligned the values.
+- Added a solid gold (`#e8c374`) rectangular block before each value. Text color, type size, line spacing, and all background/button/status-bar styling remain unchanged.
+- **Verification:** `git diff --check` passed.
+
+### Welcome values left alignment and scale — 13 October 2026
+
+- Set the Welcome copy container's left and right inset to 5px, keeping the STAROOT HUB eyebrow centered while aligning the values list and its markers 5px from the screen edge.
+- Reduced only the values list font size by 25%; marker dimensions and line gap scale with the text via `em` units.
+- **Verification:** `git diff --check` passed.
+
+### Welcome brand line removed and button restyled — 13 October 2026
+
+- Removed the STAROOT HUB eyebrow line from the Welcome screen and removed the now-unused 20px spacing above the values list.
+- Restyled Get started with a translucent `#e8c374` fill and a subtle backdrop blur so the photo shows through; increased its font size 40% (0.8rem to 1.12rem). Button size and position remain unchanged.
+- **Verification:** `git diff --check` passed.
+- Increased the Get started button's gold fill opacity from 38% to 49% (30% less transparency); left its border, blur, dimensions, position, and text unchanged.
+- **Verification:** `git diff --check` passed.

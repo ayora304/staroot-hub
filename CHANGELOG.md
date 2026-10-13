@@ -279,6 +279,18 @@ Add entries with: .\scripts\add-changelog.ps1 -Agent "name" -Phase "n" -Type Add
 
 ## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
 - **Type:** Changed
+- **Summary:** Aligned the Welcome values list and markers 5px from the left screen edge and reduced the values text size by 25%. The STAROOT HUB line remains centered.
+- **Verification:** `git diff --check` passed.
+- **Files:** `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Changed
+- **Summary:** Removed the Welcome STAROOT HUB line; changed Get started to translucent gold and increased its label font size by 40%, leaving button dimensions and position unchanged.
+- **Verification:** `git diff --check` passed.
+- **Files:** `src/core/auth/WelcomeScreen.tsx`, `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Changed
 - **Summary:** Added the five supplied PNGs to `public/assets` with descriptive filenames and replaced the Welcome screen's abstract SVG background with the fourth supplied image, `Gemini Courtyard (8).png`. Shifted the cover crop right to feature the building and courtyard structure.
 - **Verification:** `npm run build` passed; build was run before the final CSS-only crop-position adjustment from mobile-only to all Welcome sizes.
 - **Files:** `public/assets/welcome-rooftop.png`, `public/assets/creative-nebula.png`, `public/assets/rooftop-swimmer.png`, `public/assets/courtyard-pool.png`, `public/assets/facade-building.png`, `src/core/auth/WelcomeScreen.tsx`, `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
@@ -300,6 +312,66 @@ Add entries with: .\scripts\add-changelog.ps1 -Agent "name" -Phase "n" -Type Add
 - **Summary:** Added transparent backdrop blur to the Welcome screen's top and bottom safe-area strips, with no color overlay. Left the background image and all text styles unchanged.
 - **Verification:** `git diff --check` passed (line-ending warnings only); no device build/test run.
 - **Platform note:** The existing Android WebAPK shell may still color the native status bar from its theme; page CSS cannot blur pixels in a native bar that does not display the page beneath it.
+- **Files:** `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Changed
+- **Summary:** Added the supplied Courtyard (5) image to the asset library and switched Welcome to its optimized copy, using a 56% centered cover crop matching the supplied reference.
+- **Verification:** Optimized image is 692 KB; `git diff --check` passed.
+- **Files:** `src/assets/library/courtyard-five.png`, `public/assets/courtyard-five.jpg`, `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Changed
+- **Summary:** Moved the Welcome values list to 20px below the STAROOT HUB line, left-aligned each word, and added a solid gold block before each one.
+- **Verification:** `git diff --check` passed.
+- **Files:** `src/core/auth/WelcomeScreen.tsx`, `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Changed
+- **Summary:** Added a translucent curved brush-smudge behind the Welcome values text to improve contrast, without changing the text or other screen elements.
+- **Verification:** `git diff --check` passed; device visual review remains pending.
+- **Files:** `public/assets/welcome-text-brush.svg`, `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Changed
+- **Summary:** Set Welcome's background to the existing facade image with right-shifted `88% center` cover framing to match the supplied crop reference. Other screen styling was left unchanged.
+- **Verification:** Confirmed the facade asset exists; `git diff --check` passed.
+- **Files:** `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Reverted
+- **Summary:** Removed the Welcome values brush backdrop and its SVG asset; restored the prior clean background behind the unchanged text block.
+- **Verification:** `git diff --check` passed.
+- **Files:** `public/assets/welcome-text-brush.svg`, `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Changed
+- **Summary:** Moved the Welcome values text block down 30 CSS px and added 0.15em vertical spacing between its lines; retained existing text color, size, and alignment.
+- **Verification:** `git diff --check` passed.
+- **Files:** `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Changed
+- **Summary:** Set the Welcome Innovation / Experience / Trust text color to `#e8c374`; made no other visual changes.
+- **Verification:** `git diff --check` passed.
+- **Files:** `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Changed
+- **Summary:** Reframed only the Welcome background photo to the left side of its source image to match the supplied portrait reference; retained cover sizing and vertical centering.
+- **Verification:** `git diff --check` passed; visual comparison on the installed phone remains pending.
+- **Files:** `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Changed
+- **Summary:** Swapped only the Welcome background asset to the supplied rooftop pool image. Kept existing crop, sizing, framing, status-bar, text, button, and viewport styling unchanged.
+- **Verification:** Optimized delivery image is 1.98 MB, below the 2 MB asset limit; `git diff --check` passed. Device visual confirmation remains pending.
+- **Files:** `src/assets/library/rooftop-pool-evening.png`, `public/assets/rooftop-pool-evening.jpg`, `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Changed
+- **Summary:** Increased only the Welcome Get started button dimensions by 30%; preserved its label size and position and left other screen elements unchanged.
+- **Verification:** `git diff --check` passed; no physical-device visual check performed.
 - **Files:** `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
 
 ## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
@@ -372,4 +444,8 @@ Add entries with: .\scripts\add-changelog.ps1 -Agent "name" -Phase "n" -Type Add
 - **Type:** Changed
 - **Summary:** Applied the two-layer Welcome background approach: mobile artwork overscans by 200px, while the Welcome-scoped root canvas paints the same facade image with a blue loading fallback. Text and status-bar settings remain untouched; horizontal overflow clipping remains enabled.
 - **Verification:** `git diff --check` passed; native-device validation remains needed.
+- **Files:** `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+- **Type:** Changed
+- **Summary:** Reduced Get started button transparency by 30% by raising the translucent gold fill opacity from 0.38 to 0.49. No other button properties changed.
+- **Verification:** `git diff --check` passed; no automated tests run.
 - **Files:** `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`

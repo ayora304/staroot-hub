@@ -1261,3 +1261,81 @@ Once you fix the two errors, I’ll update it with the results. I’ll also need
 
 - Disabled page and card scrolling and all touch panning on Login, including horizontal gestures. Kept the existing history POP guard so browser back gestures cannot change screens; visible navigation controls remain tappable.
 - **Verification:** `git diff --check` passed.
+
+### Login bottom safe-area background — 13 October 2026
+
+- Matched the mobile Login wrapper and phone minimum heights to `100vh`, including overriding the base 600px phone minimum. The artwork remains fixed and extends 48px below the viewport outside the phone wrapper, covering the bottom safe-area strip.
+- Kept the artwork's top edge, status-bar treatment, Login content positions, and scroll/swipe blocking unchanged.
+- **Verification:** `git diff --check` passed; Android device validation was unavailable because `adb` is not installed in this shell.
+
+### Login card scrolling and action placement — 13 October 2026
+
+- Restored vertical scrolling inside the Login card by enabling scrolling on `.auth-login-content` and removing the page-level `touch-action: none` / overflow locks. The POP history guard remains so navigation can still use the explicit Back link.
+- Removed the Google mark. Placed the Sign in button in the card flow below Remember me / Forgot password, so it scrolls with the form content.
+- **Verification:** `git diff --check` passed; no automated tests run.
+
+### Login card glass surface — 13 October 2026
+
+- Applied the scoped `.glass3d` layered treatment to `.auth-white-panel-login`: a tinted 2px backdrop blur, specular inner edge, and layered shadow. The external noise image is omitted so the effect remains self-contained. Card layout and content remain unchanged.
+- **Verification:** `git diff --check` passed; no automated tests run.
+
+### Login field glass surface — 13 October 2026
+
+- Applied a lighter translucent glass treatment to the email and password fields, with a subtle backdrop blur and specular edge. Labels, inputs, and field layout are unchanged.
+- **Verification:** `git diff --check` passed; no automated tests run.
+
+### Login text color — 13 October 2026
+
+- Set the Login heading, email/password labels and input text, placeholders, and Forgot password control to white. Remember me and the organization note retain their prior colors.
+- **Verification:** `git diff --check` passed; no automated tests run.
+
+### Login organization note color — 13 October 2026
+
+- Changed the organization-managed access note to white.
+- **Verification:** `git diff --check` passed; no automated tests run.
+
+### Login fields and remember option — 13 October 2026
+
+- Restyled email/password as horizontal glass input rows with envelope and lock icons; kept accessible input names and existing input types/autocomplete. Changed the remember label to “Keep me signed in” and used the gold theme accent. Forgot password remains.
+- **Verification:** `git diff --check` passed; no automated tests run.
+
+### Login organization note size — 13 October 2026
+
+- Increased the organization-access note from `0.76rem` to `0.95rem` (25%). Color and placement are unchanged.
+- **Verification:** `git diff --check` passed; no automated tests run.
+
+### Login options alignment — 13 October 2026
+
+- Made the “Keep me signed in” checkbox circular and aligned its left edge with the email/password icons. Inset the options row so Forgot password aligns with the input fields.
+- **Verification:** `git diff --check` passed; no automated tests run.
+
+### Login options text size — 13 October 2026
+
+- Set “Keep me signed in” and “Forgot password?” to `0.9rem`; checkbox size and alignment are unchanged.
+- **Verification:** `git diff --check` passed; no automated tests run.
+
+### Login access note spacing — 13 October 2026
+
+- Added 10px to the access note's bottom margin, making its gap above the Login fields 26px.
+- **Verification:** `git diff --check` passed; no automated tests run.
+
+### Login field spacing and icons — 13 October 2026
+
+- Increased the field gap from 16px to 24px and scaled the envelope/lock icons from 20px to 25px.
+- **Verification:** `git diff --check` passed; no automated tests run.
+
+### Welcome button position — 13 October 2026
+
+- Raised the Get Started button by 15px through its bottom offset. Size and styling are unchanged.
+- **Verification:** `git diff --check` passed; no automated tests run.
+
+### Login button spacing — 13 October 2026
+
+- Added 24px between the options row and Sign in button, moving the button down by the same amount.
+- **Verification:** `git diff --check` passed; no automated tests run.
+
+### Login Staroot mark — 13 October 2026
+
+- Added the supplied white Staroot SVG as `public/assets/staroot-logo-white.svg` and extracted its star plus gold strike-through into `public/assets/staroot-mark-white.svg`.
+- Placed the extracted mark centered on the Login screen, 55px below the top safe-area inset. It is independent of the card and page copy.
+- **Verification:** `git diff --check` passed; no automated tests run.

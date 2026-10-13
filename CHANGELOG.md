@@ -521,3 +521,99 @@ Add entries with: .\scripts\add-changelog.ps1 -Agent "name" -Phase "n" -Type Add
 - **Summary:** Increased the Login card height by 30%, holding its bottom edge and contents in place while raising its top edge.
 - **Verification:** `git diff --check` passed; no automated tests run.
 - **Files:** `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Fixed
+- **Summary:** Matched the mobile Login wrapper and phone minimum heights to `100vh`, removing the inherited 600px phone minimum as a source of a viewport gap. Kept the Login artwork extended 48px below the viewport. The status-bar edge, card, text, controls, and scroll/swipe blocking rules are unchanged.
+- **Verification:** `git diff --check` passed; Android device validation was unavailable because `adb` is not installed in this shell; no automated tests run.
+- **Files:** `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Changed
+- **Summary:** Restored vertical scrolling inside the Login card and removed page-level touch/overflow locks. Removed the Google mark and placed the Sign in button in the card's scrolling content below the account options.
+- **Verification:** `git diff --check` passed; no automated tests run.
+- **Files:** `src/core/auth/SignInScreen.tsx`, `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Changed
+- **Summary:** Changed only the Login card surface to translucent white with a 14px backdrop blur and a subtle glass edge, revealing the existing background through the card.
+- **Verification:** `git diff --check` passed; no automated tests run.
+- **Files:** `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Changed
+- **Summary:** Replaced the Login card's simple translucent surface with its scoped layered glass treatment: tinted backdrop blur, specular inner edge, and layered shadow. Preserved the card's existing layout and kept the treatment self-contained without its remote noise image.
+- **Verification:** `git diff --check` passed; no automated tests run.
+- **Files:** `src/core/auth/SignInScreen.tsx`, `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Changed
+- **Summary:** Applied a lighter, translucent glass surface with a subtle blur and inner edge to the Login email and password fields. Input text, labels, and field layout are unchanged.
+- **Verification:** `git diff --check` passed; no automated tests run.
+- **Files:** `src/core/auth/SignInScreen.tsx`, `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Changed
+- **Summary:** Set the Login heading, email/password labels and input text, placeholders, and Forgot password control to white. Remember me and the organization note are unchanged.
+- **Verification:** `git diff --check` passed; no automated tests run.
+- **Files:** `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Changed
+- **Summary:** Changed the Login organization-managed access note to white.
+- **Verification:** `git diff --check` passed; no automated tests run.
+- **Files:** `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Changed
+- **Summary:** Restyled Login email and password inputs as horizontal glass rows with envelope/lock icons, and changed the remember option to “Keep me signed in” with the gold theme accent. Forgot password remains in place.
+- **Verification:** `git diff --check` passed; no automated tests run.
+- **Files:** `src/core/auth/SignInScreen.tsx`, `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Changed
+- **Summary:** Increased the Login organization-access note font size by 25%, from 0.76rem to 0.95rem, without changing its color or placement.
+- **Verification:** `git diff --check` passed; no automated tests run.
+- **Files:** `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Changed
+- **Summary:** Made the Login “Keep me signed in” checkbox circular and aligned it with the email/password icons; inset the options row to align Forgot password with the fields.
+- **Verification:** `git diff --check` passed; no automated tests run.
+- **Files:** `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Changed
+- **Summary:** Set the Login “Keep me signed in” and “Forgot password?” text to 0.9rem after adjusting the oversized option text.
+- **Verification:** `git diff --check` passed; no automated tests run.
+- **Files:** `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Changed
+- **Summary:** Increased the spacing below the Login organization-access note by 10px, bringing its gap above the fields to 26px.
+- **Verification:** `git diff --check` passed; no automated tests run.
+- **Files:** `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Changed
+- **Summary:** Increased the Login email/password field gap by 8px to 24px and the envelope/lock icon dimensions by 25% to 25px.
+- **Verification:** `git diff --check` passed; no automated tests run.
+- **Files:** `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Changed
+- **Summary:** Raised the Welcome Get Started button by 15px by increasing its bottom offset; button size and styling are unchanged.
+- **Verification:** `git diff --check` passed; no automated tests run.
+- **Files:** `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Changed
+- **Summary:** Added 24px between the Login options row and Sign in button by increasing its top margin; the button moves down accordingly.
+- **Verification:** `git diff --check` passed; no automated tests run.
+- **Files:** `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+### Login Staroot mark — 13 October 2026
+
+- Added the supplied white Staroot SVG as `public/assets/staroot-logo-white.svg` and extracted its star plus gold strike-through into `public/assets/staroot-mark-white.svg`.
+- Placed the extracted mark centered on the Login screen, 55px below the top safe-area inset. It is independent of the card and page copy.
+- **Verification:** `git diff --check` passed; no automated tests run.

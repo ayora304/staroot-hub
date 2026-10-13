@@ -14,6 +14,6 @@ export function RequireAuth() {
       </div>
     )
   }
-  if (status === 'anon') return <Navigate to="/login" replace state={{ from: location.pathname }} />
+  if (status === 'anon') return <Navigate to="/welcome" replace state={{ from: location.pathname }} />
   return <Outlet />
 }

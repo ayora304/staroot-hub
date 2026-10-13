@@ -262,3 +262,48 @@ Add entries with: .\scripts\add-changelog.ps1 -Agent "name" -Phase "n" -Type Add
 - **Summary:** Added 10px to the module and nested-screen top gap, increasing it from 15px to 25px beyond the safe-area inset; modal top padding matches.
 - **Verification:** Not run; CSS-only adjustment.
 - **Files:** `src/styles/index.css`, `uiscope.md`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Changed
+- **Summary:** Restored the template-based Welcome, sign-up, and sign-in visual screens plus a static Staroot splash preview route. Added local navigation between preview screens; form submission, password recovery, social sign-in, and splash timing/auth transitions are intentionally not wired, per request.
+- **Verification:** Pending typecheck and production build.
+- **Files:** `src/core/auth/AuthArtwork.tsx`, `src/core/auth/WelcomeScreen.tsx`, `src/core/auth/SignUpScreen.tsx`, `src/core/auth/SignInScreen.tsx`, `src/core/auth/SplashScreen.tsx`, `src/core/auth/RequireAuth.tsx`, `src/app/router.tsx`, `src/styles/index.css`, `uiscope.md`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+- **Post-change verification:** `npm run build` passed, including TypeScript, Vite production output, and service-worker generation.
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Changed
+- **Summary:** Extended the Welcome screen artwork behind the mobile status-bar/safe-area region by making its background viewport-fixed and full-bleed on small screens. Welcome content remains layered above it; desktop preview framing is unchanged.
+- **Verification:** `npm run build` passed; `git diff --check` passed (Git reported line-ending conversion warnings only).
+- **Platform note:** On iOS this relies on the existing `viewport-fit=cover` and `black-translucent` PWA metadata and should be checked from the installed Home Screen app. Android status-bar drawing is ultimately controlled by the installed WebAPK/native shell.
+- **Files:** `src/core/auth/WelcomeScreen.tsx`, `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Changed
+- **Summary:** Added the five supplied PNGs to `public/assets` with descriptive filenames and replaced the Welcome screen's abstract SVG background with the fourth supplied image, `Gemini Courtyard (8).png`. Shifted the cover crop right to feature the building and courtyard structure.
+- **Verification:** `npm run build` passed; build was run before the final CSS-only crop-position adjustment from mobile-only to all Welcome sizes.
+- **Files:** `public/assets/welcome-rooftop.png`, `public/assets/creative-nebula.png`, `public/assets/rooftop-swimmer.png`, `public/assets/courtyard-pool.png`, `public/assets/facade-building.png`, `src/core/auth/WelcomeScreen.tsx`, `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Fixed
+- **Summary:** Preserved the original five PNGs under `src/assets/library/` and generated JPEG delivery copies under `public/assets/` (quality 86) to keep each served image below the PWA precache limit. Updated Welcome to use `courtyard-pool.jpg`.
+- **Verification:** `npm run build` passed, including TypeScript, Vite, and service-worker precache generation (17 entries; 700.16 KiB total).
+- **Files:** `src/assets/library/*.png`, `public/assets/*.jpg`, `src/styles/index.css`, `CHANGELOG.md`, `HANDOFF.md`, `docs/HANDOFF.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Changed
+- **Summary:** Updated the Welcome screen per the supplied layout: removed the welcome headline/body copy, retained the eyebrow, added the Innovation/Experience/Trust values list, and applied the requested positioning, typography, spacing, and stacking styles. Background image and sign-in/sign-up switch styling remain unchanged.
+- **Verification:** Not run; checked the patch for whitespace errors.
+- **Files:** `src/core/auth/WelcomeScreen.tsx`, `src/styles/index.css`, `CHANGELOG.md`, `HANDOFF.md`, `docs/HANDOFF.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Changed
+- **Summary:** Added transparent backdrop blur to the Welcome screen's top and bottom safe-area strips, with no color overlay. Left the background image and all text styles unchanged.
+- **Verification:** `git diff --check` passed (line-ending warnings only); no device build/test run.
+- **Platform note:** The existing Android WebAPK shell may still color the native status bar from its theme; page CSS cannot blur pixels in a native bar that does not display the page beneath it.
+- **Files:** `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Reverted
+- **Summary:** Removed the Welcome safe-area backdrop-blur strips. The existing Welcome photo and text styling are unchanged.
+- **Verification:** `git diff --check` passed; no device test run.
+- **Files:** `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`

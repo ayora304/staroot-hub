@@ -448,3 +448,47 @@ Key points:
 - Added 10px to the top gap, increasing it from 15px to 25px beyond the safe-area/status-bar inset in `.pt-safe` and `.safe-modal`.
 - Updated the current UI scope and code snippets. This supersedes the preceding 15px spacing note.
 - No build or device check was run for this CSS-only adjustment.
+
+### Template auth screens restored — 13 October 2026
+
+- Added the supplied blue abstract Welcome panel, static sign-up screen, static sign-in screen, and a brand splash preview. Used a local inline SVG background illustration and the committed app icon for the Staroot mark; no remote visual assets were added.
+- Added preview routes `/welcome`, `/signup`, `/login`, and `/splash`; unauthenticated protected routes now redirect to `/welcome`. Welcome/sign-up/sign-in links allow screen preview navigation.
+- Per request, form submit buttons, password recovery, social providers, and splash timer/auth transitions are not wired. The existing auth provider remains in the app but the new login UI does not invoke it; re-enable auth behavior in a later implementation pass.
+- Updated `uiscope.md` to reflect the visual-only auth screens.
+- **Verification:** Pending typecheck and production build.
+- **Post-change verification:** `npm run build` passed, including TypeScript, Vite production output, and service-worker generation.
+
+### Welcome background under the status bar — 13 October 2026
+
+- Added a mobile-only full-viewport fixed artwork layer for Welcome, with the Welcome text/navigation layered above it. Removed the mobile device-frame background treatment so the art reaches the viewport's top edge.
+- Existing `index.html` configuration includes `viewport-fit=cover` and iOS `black-translucent` status-bar metadata. Validate on an installed iOS Home Screen app; browser tabs and Android WebAPK status-bar behavior remain platform-controlled.
+- **Verification:** `npm run build` passed; `git diff --check` passed (only Git line-ending warnings).
+
+### Welcome background image assets — 13 October 2026
+
+- Copied five supplied images to `public/assets`: `welcome-rooftop.png`, `creative-nebula.png`, `rooftop-swimmer.png`, `courtyard-pool.png`, and `facade-building.png`.
+- Welcome now uses the fourth supplied image (`Gemini Courtyard (8).png`) with a right-shifted cover crop to keep the building/courtyard architecture prominent.
+- **Verification:** `npm run build` passed. It ran before the final CSS-only change that applies the right-shifted crop at all viewport sizes; rerun if a final build check is desired.
+
+### Image precache size follow-up — 13 October 2026
+
+- Original full-resolution PNGs are retained under `src/assets/library/`; optimized JPEG delivery copies are under `public/assets/` and each is below 2 MB. Welcome uses `public/assets/courtyard-pool.jpg` with right-shifted cover positioning.
+- This resolves the initial service-worker build failure caused by public PNGs exceeding Workbox's 2 MiB precache limit.
+- **Verification:** `npm run build` passed after the final crop and asset updates, including service-worker precaching (17 entries; 700.16 KiB total).
+
+### Welcome copy and values layout — 13 October 2026
+
+- Replaced the Welcome heading/body with the supplied STAROOT HUB eyebrow and an accessible values list (Innovation, Experience, Trust). Applied the requested eyebrow position, values-list sizing/bottom placement, and mobile stacking order.
+- Kept `welcome-art` and the existing `welcome-switch` styling unchanged.
+- **Verification:** Not run; `git diff --check` passed (line-ending warnings only).
+
+### Welcome safe-area blur without tint — 13 October 2026
+
+- Added transparent `backdrop-filter: blur(12px)` strips for the top and bottom safe-area insets on the Welcome artwork layer. No tint/background color is applied; photo sizing/position and text block rules remain unchanged.
+- Android WebAPK status-bar color remains shell-controlled when its viewport does not extend behind the native bar; CSS can only blur the page safe area that is actually rendered by the web view.
+- **Verification:** `git diff --check` passed (line-ending warnings only); no physical-device check was run.
+
+### Safe-area blur reverted — 13 October 2026
+
+- Removed the top and bottom Welcome safe-area backdrop-blur pseudo-elements. Welcome image positioning and all content styles remain unchanged.
+- **Verification:** `git diff --check` passed; no device test run.

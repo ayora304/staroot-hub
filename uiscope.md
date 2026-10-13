@@ -23,7 +23,7 @@ Staroot Hub is an internal, installable, offline-first PWA for Staroot Real Esta
 
 | Area | UI scope | Current implementation status |
 |---|---|---|
-| Sign-in | Company email/password sign-in, busy and error states, account-provisioning guidance | Implemented. No self-sign-up or password-reset screen is in scope today. |
+| Welcome / sign-up / sign-in / splash | Blue abstract welcome panel, static sign-up and sign-in forms, and a static brand splash preview | Visual-only screens restored from the supplied template. Links switch between preview routes; form, forgot-password, social, and splash timing/auth actions are not wired. |
 | Hub / app shell | Greeting and role, permission-filtered module cards, approval and unsynced badges, offline notice, retry, theme toggle, sign-out warning, install/update prompts, push pre-prompt | Implemented. This is the main navigation and global status surface. |
 | Approvals and Inbox | Approval tabs, request form/detail/timeline, decision actions, attachments, queued request visibility, notification list/read state | Existing UI is implemented. **Phase 3 is on hold by user direction; do not extend or redesign it as part of the current UI pass.** |
 | Site Progress (Phase 5) | Project selector, contractor progress, recent daily logs, add/edit log, camera evidence, report builder, reports archive/viewer, PDF/DOCX export | Implemented. First UI review priority, following the user’s phase order. |

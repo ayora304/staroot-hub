@@ -304,6 +304,18 @@ Add entries with: .\scripts\add-changelog.ps1 -Agent "name" -Phase "n" -Type Add
 
 ## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
 - **Type:** Changed
+- **Summary:** Added the supplied courtyard image to the asset library and switched the Welcome background to its optimized JPEG copy. No Welcome layout or styling changed.
+- **Verification:** Optimized delivery image is 1.28 MB; `git diff --check` passed. Device visual check remains pending.
+- **Files:** `src/assets/library/courtyard-evening.png`, `public/assets/courtyard-evening.jpg`, `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Fixed
+- **Summary:** Removed the remaining `100dvh` sizing overrides from the mobile Welcome screen so its wrapper and phone use `100vh`, matching the auth sizing used elsewhere. Preserved no-swipe and horizontal-overflow behavior, status-bar metadata, image framing, text, and button placement.
+- **Verification:** `git diff --check` passed; installed-device visual confirmation remains pending.
+- **Files:** `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`
+
+## [2026-10-13] Tuesday | UTC+3 | Agent: Codex
+- **Type:** Changed
 - **Summary:** Bound the Welcome facade photo to a full-viewport screen layer and removed the separate blue page-canvas fallback layer. Photo framing, status-bar metadata, Welcome text, and button styling were preserved.
 - **Verification:** Live `/welcome` content and navigation were inspected; `git diff --check` passed. Physical-device confirmation remains needed.
 - **Files:** `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`

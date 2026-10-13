@@ -1104,3 +1104,15 @@ Once you fix the two errors, I’ll update it with the results. I’ll also need
 - Removed the separate Welcome-scoped `html:has(...)` photo canvas and blue fallback, which could show as a band when its painted area did not match the installed app viewport.
 - Kept the facade photo, image framing (`88% center`, `cover`), status-bar metadata, text blocks, and Get started button styling unchanged.
 - **Verification:** Live `/welcome` page still renders the expected content and navigation; `git diff --check` passed. Physical-device confirmation remains necessary.
+
+### Welcome courtyard image — 13 October 2026
+
+- Added the supplied `Gemini Courtyard (4).png` to `src/assets/library/courtyard-evening.png` and generated an optimized JPEG for app delivery at `public/assets/courtyard-evening.jpg` (2048px wide, quality 86).
+- Switched only the Welcome background image URL to the new courtyard asset. Existing image sizing/position, status-bar treatment, text, and button layout are unchanged.
+- **Verification:** Confirmed optimized asset size is 1.28 MB and `git diff --check` passed. Visual and installed-device review remains pending.
+
+### Welcome mobile viewport sizing — 13 October 2026
+
+- Removed the remaining `100dvh` declarations from the mobile Welcome wrapper and phone sizing; those elements now use `100vh`, matching the sizing used by the other auth screens.
+- Kept the current status-bar metadata, text layout, photo crop, and button placement unchanged. Preserved the Welcome no-swipe and horizontal-overflow protections.
+- **Verification:** `git diff --check` passed; installed iOS PWA confirmation remains pending.

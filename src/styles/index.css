@@ -143,7 +143,7 @@ button, a, input, select, textarea, summary { scroll-margin-block: 1rem; }
 .auth-art svg { width: 100%; height: 100%; display: block; }
 .auth-phone-welcome { color: #fff; }
 .welcome-art {
-  background-image: url('/assets/facade-building.jpg');
+  background-image: url('/assets/courtyard-evening.jpg');
   background-position: 88% center;
   background-size: cover;
   background-repeat: no-repeat;
@@ -313,11 +313,9 @@ button, a, input, select, textarea, summary { scroll-margin-block: 1rem; }
     overflow-x: clip;
   }
   .auth-screen-wrap-welcome {
-    position: fixed;
-    inset: 0;
+    position: relative;
     display: block;
-    width: 100%;
-    min-height: 0;
+    min-height: 100vh;
     overflow: hidden;
     overscroll-behavior: none;
     touch-action: none;
@@ -325,21 +323,18 @@ button, a, input, select, textarea, summary { scroll-margin-block: 1rem; }
   }
   .auth-screen-wrap-welcome .auth-phone-welcome {
     width: 100%;
-    height: 100%;
-    min-height: 0;
-    overflow: hidden;
+    height: 100vh;
+    min-height: 100vh;
+    overflow: visible;
     background: transparent;
     box-shadow: none;
   }
   .auth-phone-welcome .auth-art {
-    position: absolute;
-    inset: 0;
+    position: fixed;
+    inset: -40px;
     z-index: 0;
   }
-  .auth-phone-welcome .welcome-art {
-    background-position: 88% center;
-    background-size: cover;
-  }
+  .auth-phone-welcome .welcome-art { background-position: 88% center; }
   .auth-phone-welcome .welcome-copy,
   .auth-phone-welcome .welcome-values,
   .auth-phone-welcome .welcome-switch {

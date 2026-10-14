@@ -6,6 +6,54 @@ Add entries with: .\scripts\add-changelog.ps1 -Agent "name" -Phase "n" -Type Add
 
 <!-- ENTRIES -->
 
+## [2026-10-14 174500] Wednesday | UTC+3 | Agent: Codex
+- **Phase:** Approvals and Site Progress UI replacement
+- **Type:** Changed
+- **Status:** Done
+- **Summary:** Replaced the legacy Approvals request screens with the supplied Permits workflow as the direct landing screen. Reworked Site Progress navigation and dashboard around the supplied workflow while retaining the existing offline daily-log/photo queue, report publishing, and exports.
+- **Files:**
+  - `src/modules/approvals/components/ApprovalsApp.tsx`
+  - `src/modules/approvals/components/ApprovalList.tsx` (removed)
+  - `src/modules/approvals/components/ApprovalTimeline.tsx` (removed)
+  - `src/modules/approvals/components/RequestDetail.tsx` (removed)
+  - `src/modules/approvals/components/RequestForm.tsx` (removed)
+  - `src/modules/approvals/components/format.ts` (removed)
+  - `src/app/router.tsx`
+  - `src/modules/site-progress/components/SiteProgressApp.tsx`
+  - `src/modules/site-progress/components/SiteDashboard.tsx`
+  - `src/modules/site-progress/components/ContractorGrid.tsx`
+  - `src/modules/site-progress/components/ProgressEntry.tsx`
+  - `HANDOFF.md`
+  - `docs/HANDOFF.md`
+  - `CHANGELOG.md`
+
+## [2026-10-14 174000] Wednesday | UTC+3 | Agent: Codex
+- **Phase:** Site Progress workflow UI
+- **Type:** Changed
+- **Status:** Done
+- **Summary:** Reworked the Site Progress dashboard toward the supplied workflow with an overall progress ring, project metrics, expandable trade sections, blocker look-ahead, and recent photo timeline. Progress entry now uses a percentage slider while keeping daily logs and photo evidence in the existing offline queue. Made Permits the default Approvals view so the supplied permits workflow is the landing screen; Requests remains available.
+- **Files:**
+  - `src/modules/site-progress/components/SiteDashboard.tsx`
+  - `src/modules/site-progress/components/ContractorGrid.tsx`
+  - `src/modules/site-progress/components/ProgressEntry.tsx`
+  - `src/modules/approvals/components/ApprovalsApp.tsx`
+  - `HANDOFF.md`
+  - `docs/HANDOFF.md`
+  - `CHANGELOG.md`
+
+## [2026-10-14 173500] Wednesday | UTC+3 | Agent: Codex
+- **Phase:** Approvals permits module
+- **Type:** Added
+- **Status:** Done
+- **Summary:** Added a Permits area alongside the existing Approvals request workflow, including expiry dashboard, permit filters/list, application-stage tracking, expiry calendar, permit detail/edit/create, renewal, and copyable share summary. Permit data currently persists locally in this browser because no permits API is defined.
+- **Files:**
+  - `src/modules/approvals/components/ApprovalsApp.tsx`
+  - `src/modules/approvals/components/PermitManager.tsx`
+  - `src/core/auth/accessCode.ts`
+  - `HANDOFF.md`
+  - `docs/HANDOFF.md`
+  - `CHANGELOG.md`
+
 ## [2026-10-14 165000] Wednesday | UTC+3 | Agent: Codex
 - **Phase:** Light wallpaper and module description typography
 - **Type:** Changed

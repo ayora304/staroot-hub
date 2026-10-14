@@ -21,7 +21,7 @@ export function ProgressEntry({ projectId, contractors, existing, onSaved, onCan
   const [materials, setMaterials] = useState(existing?.materials_used ?? '')
   const [blockers, setBlockers] = useState(existing?.blockers ?? '')
   const [status, setStatus] = useState<SiteStatus>(existing?.status ?? 'on_track')
-  const [progress, setProgress] = useState(existing?.progress_pct == null ? '' : String(existing.progress_pct))
+  const [progress, setProgress] = useState(existing?.progress_pct == null ? '0' : String(existing.progress_pct))
   const [photos, setPhotos] = useState<CapturedPhoto[]>([])
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -56,7 +56,7 @@ export function ProgressEntry({ projectId, contractors, existing, onSaved, onCan
       <label className="block space-y-1 text-sm"><span className="text-muted">Blockers</span><textarea maxLength={2000} rows={2} value={blockers} onChange={(e) => setBlockers(e.target.value)} className="w-full rounded-xl border border-border bg-bg p-3 text-text" placeholder="None" /></label>
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="block space-y-1 text-sm"><span className="text-muted">Status</span><select value={status} onChange={(e) => setStatus(e.target.value as SiteStatus)} className="min-h-12 w-full rounded-xl border border-border bg-bg px-3 text-text"><option value="on_track">On track</option><option value="delayed">Delayed</option><option value="blocked">Blocked</option></select></label>
-        <label className="block space-y-1 text-sm"><span className="text-muted">Contractor progress % (optional)</span><input type="number" min="0" max="100" value={progress} onChange={(e) => setProgress(e.target.value)} className="min-h-12 w-full rounded-xl border border-border bg-bg px-3 text-text" /></label>
+        <label className="block space-y-2 text-sm"><span className="flex items-center justify-between text-muted"><span>Contractor progress</span><b className="text-text">{progress}%</b></span><input aria-label="Contractor progress percent" type="range" min="0" max="100" value={progress} onChange={(e) => setProgress(e.target.value)} className="w-full accent-accent" /></label>
       </div>
     </Card>
     {!existing && <CameraCapture photos={photos} onChange={setPhotos} max={3} owner="site_logs" />}

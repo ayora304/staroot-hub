@@ -76,7 +76,7 @@ export async function accessModeForExistingSession(userId: string): Promise<Gate
   return credential ? 'locked' : 'setup'
 }
 
-export async function accessModeAfterPasswordSignIn(userId: string): Promise<GateMode> {
+export async function accessModeAfterPasswordSignIn(userId: string): Promise<Exclude<GateMode, 'expired'>> {
   const credential = await getCredential(userId)
   await deviceAuthDB.records.put({ key: 'password-auth', value: { userId, at: Date.now() } satisfies AuthTimestamp })
   return credential ? 'unlocked' : 'setup'

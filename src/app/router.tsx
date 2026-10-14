@@ -16,7 +16,7 @@ const SiteProgressApp = lazy(() => import('../modules/site-progress').then((modu
 function childrenFor(m: HubModule): RouteObject[] {
   switch (m.id) {
     case 'approvals':
-      return [{ index: true, element: <ApprovalsApp /> }, { path: ':id', element: <ApprovalsApp /> }]
+      return [{ index: true, element: <ApprovalsApp /> }]
     case 'notifications':
       return [{ index: true, element: <InboxScreen /> }]
     case 'site':

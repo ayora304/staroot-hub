@@ -6,6 +6,25 @@ Add entries with: .\scripts\add-changelog.ps1 -Agent "name" -Phase "n" -Type Add
 
 <!-- ENTRIES -->
 
+## [2026-10-14 120528] Wednesday | UTC+3 | Agent: Codex
+- **Phase:** Hub refresh
+- **Type:** Changed
+- **Status:** Done
+- **Summary:** Added the fixed, subtly blurred stone wallpaper and charcoal dark palette; fixed the safe-area header above scrolling Hub content. RadialHub now shows labels only in the active module panel, uses enlarged but reduced sizing with a 20px left inset and 28px rightward adjustment, and has wider visible gaps between segments. Preserved center-slot alignment and drag coordinate mapping.
+- **Files:**
+  - `src/components/RadialHub.tsx`
+  - `src/modules/hub/components/HubScreen.tsx`
+  - `src/styles/index.css`
+  - `src/core/theme/themes.ts`
+  - `index.html`
+  - `public/manifest.webmanifest`
+  - `public/favicon.svg`
+  - `public/assets/hub-stone-wallpaper.png`
+  - `HANDOFF.md`
+  - `docs/HANDOFF.md`
+  - `CHANGELOG.md`
+
+
 ## [2026-10-12 112407] Monday | UTC+3 | Agent: Codex
 - **Phase:** 3
 - **Type:** Added

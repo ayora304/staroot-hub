@@ -1339,3 +1339,18 @@ Once you fix the two errors, I’ll update it with the results. I’ll also need
 - Added the supplied white Staroot SVG as `public/assets/staroot-logo-white.svg` and extracted its star plus gold strike-through into `public/assets/staroot-mark-white.svg`.
 - Placed the extracted mark centered on the Login screen, 55px below the top safe-area inset. It is independent of the card and page copy.
 - **Verification:** `git diff --check` passed; no automated tests run.
+
+### Hub wallpaper, theme, and radial wheel — 14 October 2026
+
+- Added the stone wallpaper to the Hub as a fixed full-screen layer, with a subtle 1px blur; the fixed safe-area header stays above it while the page content scrolls underneath.
+- Replaced the dark navy theme surfaces with a charcoal palette centered on `#3e3e45`; updated the PWA theme/background colors and favicon background. Blue accents remain unchanged.
+- Removed the labels around the radial wheel while retaining the active module title and detail block. Enlarged the wheel for a 20px left inset, then reduced that enlargement by 20% and shifted the wheel 28px right from the initial enlarged position. Widened the wedge gap to compensate for the segment stroke so adjacent modules remain visibly separated.
+- Kept the wheel's center slot aligned and adjusted pointer coordinate mapping to preserve drag interaction after scaling.
+- **Verification:** `git diff --check` passed; no automated tests run.
+
+### Hub wallpaper image and crop — 14 October 2026
+
+- Replaced `public/assets/hub-stone-wallpaper.png` with the supplied rooftop photo at `public/assets/hub-rooftop-wallpaper.png`; the old stone image file was removed.
+- Matched the portrait reference crop with the photo background layer at `background-size: auto 156%` and `background-position: 77% 100%`. The gradient layer remains full-screen.
+- Removed the temporary 1px blur and its 1% overscale after the follow-up request. The final photo renders sharp with no blur.
+- **Verification:** `git diff --check` passed; no automated tests run.

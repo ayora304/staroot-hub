@@ -26,15 +26,15 @@
 :root,
 [data-theme="dark"] {
   color-scheme: dark;
-  --c-bg: #011025;
-  --c-surface: #07111F;
-  --c-surface-2: #0D1725;
-  --c-surface-elevated: #052659;
-  --c-border: color-mix(in srgb, #7EA0C5 30%, transparent);
+  --c-bg: #3e3e45;
+  --c-surface: #34343B;
+  --c-surface-2: #3A3A42;
+  --c-surface-elevated: #4A4A52;
+  --c-border: color-mix(in srgb, #A6A6B0 30%, transparent);
   --c-text: #F5F7FA;
   --c-muted: #7EA0C5;
   --c-accent: #5482B4;
-  --c-accent-contrast: #011025;
+  --c-accent-contrast: #28282E;
   --c-success: #5fc77a;
   --c-warning: #f0b84a;
   --c-danger: #ff7b72;
@@ -47,7 +47,7 @@
   --c-surface-2: #F7F8FA;
   --c-surface-elevated: #ffffff;
   --c-border: color-mix(in srgb, #5482B4 36%, transparent);
-  --c-text: #011025;
+  --c-text: #3e3e45;
   --c-muted: #052659;
   --c-accent: #052659;
   --c-accent-contrast: #ffffff;
@@ -72,6 +72,23 @@ body {
   padding-right: env(safe-area-inset-right, 0px);
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior-y: none;
+}
+
+.hub-wallpaper {
+  background-image:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--c-bg) 18%, transparent),
+      color-mix(in srgb, var(--c-bg) 28%, transparent)
+    ),
+    url('/assets/hub-rooftop-wallpaper.png');
+  background-position: center, 77% 100%;
+  background-size: 100% 100%, auto 156%;
+  background-repeat: no-repeat;
+}
+
+.hub-fixed-header-spacer {
+  height: calc(max(1rem, calc(env(safe-area-inset-top, 0px) + 25px)) + 62px);
 }
 
 .pt-safe { padding-top: max(1rem, calc(env(safe-area-inset-top, 0px) + 25px)); }

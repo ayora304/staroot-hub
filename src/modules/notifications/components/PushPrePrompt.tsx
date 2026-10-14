@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Button } from '../../../core/ui/Button'
+import { Icon } from '../../../core/ui/Icons'
 import { usePushPermission } from '../../../core/push/usePushPermission'
 
 export function PushPrePrompt() {
@@ -13,13 +14,18 @@ export function PushPrePrompt() {
   }
 
   return (
-    <section className="space-y-2 rounded-2xl border border-border bg-surface p-4" aria-label="Notifications">
-      <h2 className="font-semibold text-text">Stay up to date</h2>
-      <p className="text-sm text-muted">Get a notification when an approval needs your attention. You can change this in browser settings later.</p>
-      {push.error && <p role="alert" className="text-sm text-danger">{push.error}</p>}
-      <div className="flex gap-2">
-        <Button loading={push.busy} onClick={() => void push.enable()}>Enable notifications</Button>
-        <Button variant="secondary" disabled={push.busy} onClick={dismiss}>Not now</Button>
+    <section className="flex items-start gap-3 rounded-2xl border border-border bg-surface p-4 sm:items-center" aria-label="Notifications">
+      <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-accent/10 text-accent">
+        <Icon name="bell" className="size-5" />
+      </span>
+      <div className="min-w-0 flex-1 space-y-1">
+        <h2 className="font-semibold text-text">Stay up to date</h2>
+        <p className="text-sm text-muted">Get a notification when an approval needs your attention. You can change this in browser settings later.</p>
+        {push.error && <p role="alert" className="text-sm text-danger">{push.error}</p>}
+        <div className="flex flex-wrap gap-2 pt-2">
+          <Button className="min-h-10 rounded-lg px-3 text-sm" loading={push.busy} onClick={() => void push.enable()}>Enable notifications</Button>
+          <Button variant="secondary" className="min-h-10 rounded-lg px-3 text-sm" disabled={push.busy} onClick={dismiss}>Not now</Button>
+        </div>
       </div>
     </section>
   )

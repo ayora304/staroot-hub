@@ -83,7 +83,16 @@ body {
   background: transparent;
 }
 
+.hub-screen {
+  width: min(100%, 430px);
+  margin-inline: auto;
+}
+
 .hub-fixed-header {
+  left: 50%;
+  right: auto;
+  width: min(100%, 430px);
+  transform: translateX(-50%);
   isolation: isolate;
   background: transparent;
 }

@@ -6,11 +6,25 @@ Add entries with: .\scripts\add-changelog.ps1 -Agent "name" -Phase "n" -Type Add
 
 <!-- ENTRIES -->
 
-## [2026-10-14 174500] Wednesday | UTC+3 | Agent: Codex
+## [2026-10-14 180600] Wednesday | UTC+3 | Agent: Codex
+- **Phase:** Render deployment preparation
+- **Type:** Added
+- **Status:** Done
+- **Summary:** Added a same-origin Node server for Render that serves the Vite PWA, handles SPA routes, and dispatches authenticated API paths to the existing TypeScript handlers. Added the npm start command, documented Render setup, and matched the local Vite VAPID public key to the existing server key without recording secrets.
+- **Files:**
+  - `server.ts`
+  - `package.json`
+  - `tsconfig.json`
+  - `docs/DEPLOYMENT.md`
+  - `CHANGELOG.md`
+  - `HANDOFF.md`
+  - `docs/HANDOFF.md`
+
+## [2026-10-14 175300] Wednesday | UTC+3 | Agent: Codex
 - **Phase:** Approvals and Site Progress UI replacement
 - **Type:** Changed
 - **Status:** Done
-- **Summary:** Replaced the legacy Approvals request screens with the supplied Permits workflow as the direct landing screen. Reworked Site Progress navigation and dashboard around the supplied workflow while retaining the existing offline daily-log/photo queue, report publishing, and exports.
+- **Summary:** Replaced the legacy Approvals request screens with the supplied Permits workflow as the direct landing screen. Matched Site Progress to the reference’s 480px mobile layout, theme palette, sticky header/menu, project chips, progress ring/tiles, trade chart, grouped sections, look-ahead, photo strip, and slider-driven updates while retaining the offline daily-log/photo queue, reports, and exports.
 - **Files:**
   - `src/modules/approvals/components/ApprovalsApp.tsx`
   - `src/modules/approvals/components/ApprovalList.tsx` (removed)
@@ -23,6 +37,8 @@ Add entries with: .\scripts\add-changelog.ps1 -Agent "name" -Phase "n" -Type Add
   - `src/modules/site-progress/components/SiteDashboard.tsx`
   - `src/modules/site-progress/components/ContractorGrid.tsx`
   - `src/modules/site-progress/components/ProgressEntry.tsx`
+  - `src/modules/site-progress/site-progress.css`
+  - `src/core/evidence/PhotoEvidence.tsx`
   - `HANDOFF.md`
   - `docs/HANDOFF.md`
   - `CHANGELOG.md`

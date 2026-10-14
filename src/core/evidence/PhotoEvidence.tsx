@@ -3,12 +3,12 @@ import { outboxStore } from '../offline'
 import { StatusPill } from '../ui/StatusPill'
 import type { PhotoRecord } from './types'
 
-export function PhotoEvidence({ photos, ownerId, owner }: { photos: PhotoRecord[]; ownerId: string; owner: 'site_logs' | 'reports' | 'movements' }) {
+export function PhotoEvidence({ photos, ownerId, owner, layout = 'grid' }: { photos: PhotoRecord[]; ownerId: string; owner: 'site_logs' | 'reports' | 'movements'; layout?: 'grid' | 'strip' }) {
   if (!photos.length) return null
-  return <ul className="grid gap-3 sm:grid-cols-2">{photos.map((photo) => <EvidenceTile key={photo.file_id} photo={photo} ownerId={ownerId} owner={owner} />)}</ul>
+  return <ul className={layout === 'strip' ? 'flex gap-2 overflow-x-auto' : 'grid gap-3 sm:grid-cols-2'}>{photos.map((photo) => <EvidenceTile key={photo.file_id} photo={photo} ownerId={ownerId} owner={owner} layout={layout} />)}</ul>
 }
 
-function EvidenceTile({ photo, ownerId, owner }: { photo: PhotoRecord; ownerId: string; owner: 'site_logs' | 'reports' | 'movements' }) {
+function EvidenceTile({ photo, ownerId, owner, layout }: { photo: PhotoRecord; ownerId: string; owner: 'site_logs' | 'reports' | 'movements'; layout: 'grid' | 'strip' }) {
   const [url, setUrl] = useState('')
   const local = photo.owner_id !== ownerId
   useEffect(() => {
@@ -25,5 +25,5 @@ function EvidenceTile({ photo, ownerId, owner }: { photo: PhotoRecord; ownerId: 
   }, [local, owner, ownerId, photo.file_id])
   const tone = local || photo.verification !== 'verified' ? 'warning' : 'success'
   const label = local ? 'Verification pending' : photo.verification === 'verified' ? 'Verified' : `Unverified${photo.reasons.length ? ` · ${photo.reasons.join(', ')}` : ''}`
-  return <li className="space-y-1">{url ? <img src={url} alt="Site photo evidence" loading="lazy" className="max-h-80 w-full rounded-xl border border-border object-contain" /> : <div className="grid aspect-video place-items-center rounded-xl bg-surface-2 text-sm text-muted">Photo is stored in the sync queue</div>}<StatusPill tone={tone}>{label}</StatusPill></li>
+  return <li className={layout === 'strip' ? 'w-24 shrink-0 space-y-1' : 'space-y-1'}>{url ? <img src={url} alt="Site photo evidence" loading="lazy" className={layout === 'strip' ? 'size-24 rounded-2xl border border-border object-cover' : 'max-h-80 w-full rounded-xl border border-border object-contain'} /> : <div className={`grid place-items-center rounded-xl bg-surface-2 text-xs text-muted ${layout === 'strip' ? 'size-24' : 'aspect-video text-sm'}`}>Photo is stored in the sync queue</div>}<StatusPill tone={tone}>{label}</StatusPill></li>
 }

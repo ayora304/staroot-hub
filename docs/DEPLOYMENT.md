@@ -2,7 +2,18 @@
 
 ## Runtime layout
 
-The repository is structured for a same-origin Node serverless deployment: Vite serves the static PWA and the `api/` directory exposes authenticated API handlers under `/api`. Same-origin hosting keeps the session and CSRF cookies available to both the PWA and API. The API requires Node.js 20.12 or newer. HTTPS is required for camera capture, service workers, and push.
+The repository supports same-origin deployments: Vite builds the static PWA and the `api/` directory exposes authenticated API handlers under `/api`. Same-origin hosting keeps the session and CSRF cookies available to both the PWA and API. The API requires Node.js 20.12 or newer. HTTPS is required for camera capture, service workers, and push.
+
+### Render Web Service
+
+Use a Node **Web Service**, not a Static Site, so the frontend and authenticated `/api/*` endpoints share one origin. `server.ts` serves `dist/`, applies SPA history fallback, and dispatches `/api/*` requests to the existing TypeScript handlers.
+
+- Build Command: `npm ci --include=dev && npm run build`
+- Start Command: `npm start`
+- Health Check Path: `/`
+- Set `NODE_ENV=production` so session cookies use the `Secure` attribute.
+
+Set the environment variables below in Render. Keep server secrets (`APPWRITE_API_KEY`, `VAPID_PRIVATE_KEY`) out of build-time `VITE_` variables. The frontend uses the default same-origin `/api` base. Render must install development dependencies during build because the start script uses `tsx` to run the existing TypeScript API handlers.
 
 The API uses Appwrite as its only server-side data store. The browser receives no Appwrite API key. Do not put server secrets in variables prefixed with `VITE_`.
 

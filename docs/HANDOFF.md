@@ -8,7 +8,7 @@
 - The radial hub has no text labels inside its wedges; module names remain available from the active detail panel and accessible option labels. The active details render in place without a fade-and-rise transition, in a 340-unit panel at y=215. The active title is 36.4px and module descriptions are 25.2px (50% above their former 16.8px size). The Open button shows “Open” and a chevron, with 18.72px label text. Coming Soon starts 65px after the radial hub component. On hover-capable fine pointers, the arrow/hint controls use 90px top spacing; touch-first devices retain the original 16px spacing. The drag hint sits 55px below the arrow row without changing the arrows’ position.
 - Icon centers sit 12dp farther outward than the radial midpoint. The wheel has an additional 10px rightward offset at mobile and desktop sizes; preserve the icon radial offset, alignment, wedge geometry, and size when changing labels or the module detail panel.
 - Approvals now opens directly into the supplied Permits workflow. It includes dashboard, active permits, application tracking, expiry calendar, details, local create/edit, renewals, and a clipboard summary. Permit records use browser `localStorage` and the initial records are reference/demo data; connect this to a server collection before treating it as shared production data. The former request screens/routes were removed; legacy request service code remains for migration/reuse only.
-- Site Progress follows the supplied dashboard workflow using live project/contractor data: overall progress ring and counts, expandable trade sections, blocker look-ahead, and recent photo evidence. Progress changes remain daily site logs queued offline with the existing photo-evidence pipeline. The current schema has trade/contractor progress, not floor-by-floor measurements; reports remain immutable published snapshots with PDF/Word export.
+- Site Progress is styled to the supplied 480px mobile prototype: sticky three-column header and menu, project chips, gold progress ring/summary tiles, trade chart and expandable sections, look-ahead, and a horizontal photo strip. It uses live project/contractor/log data. Progress changes remain daily site logs queued offline with the existing photo-evidence pipeline. The current schema has trade/contractor progress, not floor-by-floor measurements; reports remain immutable published snapshots with PDF/Word export.
 
 ---
 
@@ -903,3 +903,11 @@ Key points:
 - Increased wedge radial thickness by 15% by moving only the outer edge, preserving the inner opening and icon placement; extended the SVG viewBox for the new lower edge.
 - Added a gold Open action and module pager dots; increased wheel-to-controls spacing, hide the arrows on touch devices, and dismiss the animated swipe hint after the first drag.
 - Added an 8ms vibration request on snaps where the browser supports it. Extended the SVG viewBox vertically so the wheel no longer crowds the navigation row.
+
+### Render deployment prep — 14 October 2026
+
+- Added `server.ts` to serve the built PWA on Render and route `/api/*` to the repository's TypeScript API handlers on the same origin.
+- Render Web Service build command: `npm ci --include=dev && npm run build`; start command: `npm start`; health check: `/`.
+- Configure `NODE_ENV=production`, Appwrite server variables, allowed email domain/currency, and matching VAPID server/public values in Render. Never set server secrets as `VITE_*` variables.
+- The local ignored `.env` already had a VAPID pair; `VITE_VAPID_PUBLIC_KEY` now matches its public key. `.env` is not deployed by Git, so copy the needed values into Render's Environment settings.
+- `npm run build` (including both TypeScript checks) passed after the VAPID update. Vite reports the existing large-chunk advisory; the build completes successfully.

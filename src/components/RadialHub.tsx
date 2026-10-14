@@ -288,7 +288,6 @@ export function RadialHub({ items, centerSlot }: { items: RadialHubItem[]; cente
   const handlePointerDown = (event: ReactPointerEvent<SVGSVGElement>) => {
     const point = pointInSvg(event)
     if (!point || Math.hypot(point.x - CX, point.y - CY) < 24) return
-    event.currentTarget.setPointerCapture(event.pointerId)
     dragRef.current = {
       pointerId: event.pointerId,
       angle: Math.atan2(point.y - CY, point.x - CX) * 180 / Math.PI,
@@ -306,7 +305,10 @@ export function RadialHub({ items, centerSlot }: { items: RadialHubItem[]; cente
     if (!drag || drag.pointerId !== event.pointerId || !point || Math.hypot(point.x - CX, point.y - CY) < 24) return
     const distance = Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY)
     if (distance < 6 && !drag.dragged) return
-    if (!drag.dragged) setHasDragged(true)
+    if (!drag.dragged) {
+      setHasDragged(true)
+      event.currentTarget.setPointerCapture(event.pointerId)
+    }
     drag.dragged = true
     let nextAngle = Math.atan2(point.y - CY, point.x - CX) * 180 / Math.PI
     let delta = nextAngle - drag.angle

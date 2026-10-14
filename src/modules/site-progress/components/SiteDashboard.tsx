@@ -1,17 +1,10 @@
-import { Link } from 'react-router-dom'
 import { Button } from '../../../core/ui/Button'
 import { PhotoEvidence } from '../../../core/evidence/PhotoEvidence'
 import { Card } from '../../../core/ui/Card'
-import { StatusPill } from '../../../core/ui/StatusPill'
-import { syncEngine } from '../../../core/offline'
 import type { Contractor, SiteLog, SiteProject } from '../types'
 import { ContractorGrid } from './ContractorGrid'
 
-const STATUS: Record<SiteLog['status'], { label: string; tone: 'success' | 'warning' | 'danger' }> = {
-  on_track: { label: 'On track', tone: 'success' }, delayed: { label: 'Delayed', tone: 'warning' }, blocked: { label: 'Blocked', tone: 'danger' },
-}
-
-export function SiteDashboard({ projects, selectedProject, onSelectProject, contractors, logs, loading, offline, canWrite, userId, onNewLog, onEditLog }: {
+export function SiteDashboard({ projects, selectedProject, onSelectProject, contractors, logs, loading, offline, canWrite, onNewLog }: {
   projects: SiteProject[]
   selectedProject: string
   onSelectProject: (id: string) => void
@@ -20,9 +13,7 @@ export function SiteDashboard({ projects, selectedProject, onSelectProject, cont
   loading: boolean
   offline: boolean
   canWrite: boolean
-  userId: string
   onNewLog: () => void
-  onEditLog: (log: SiteLog) => void
 }) {
   const project = projects.find((p) => p.$id === selectedProject)
   const completeCount = contractors.filter((contractor) => contractor.progress_pct >= 100).length
@@ -33,18 +24,31 @@ export function SiteDashboard({ projects, selectedProject, onSelectProject, cont
   const lookAhead = logs.filter((log) => log.blockers?.trim()).slice(0, 3)
   const photoLogs = logs.filter((log) => log.photos?.length).slice(0, 4)
   const circumference = 2 * Math.PI * 50
+  const priorMonthCutoff = Date.now() - 30 * 86400000
+  const tradeProgress = [...new Set(contractors.map((contractor) => contractor.trade))].slice(0, 3).map((trade) => {
+    const crew = contractors.filter((contractor) => contractor.trade === trade)
+    const priorValues = crew.flatMap((contractor) => {
+      const previous = logs.filter((log) => log.contractor_id === contractor.$id && Date.parse(log.log_date) <= priorMonthCutoff && log.progress_pct != null).sort((a, b) => Date.parse(b.log_date) - Date.parse(a.log_date))[0]
+      return previous?.progress_pct == null ? [] : [previous.progress_pct]
+    })
+    return {
+      trade,
+      current: Math.round(crew.reduce((sum, contractor) => sum + contractor.progress_pct, 0) / crew.length),
+      previous: priorValues.length ? Math.round(priorValues.reduce((sum, value) => sum + value, 0) / priorValues.length) : null,
+    }
+  })
   return <div className="space-y-5">
-    <label className="block space-y-1 text-sm"><span className="text-muted">Project site</span><select value={selectedProject} onChange={(e) => onSelectProject(e.target.value)} className="min-h-12 w-full rounded-xl border border-border bg-surface px-3 text-text">{projects.length ? projects.map((p) => <option key={p.$id} value={p.$id}>{p.name}{p.location ? ` · ${p.location}` : ''}</option>) : <option value="">No active projects</option>}</select></label>
+    <div role="tablist" aria-label="Project sites" className="flex gap-2 overflow-x-auto pb-2">{projects.map((projectOption) => <button key={projectOption.$id} type="button" role="tab" aria-selected={selectedProject === projectOption.$id} onClick={() => onSelectProject(projectOption.$id)} className={`shrink-0 rounded-full border px-4 py-2 text-sm ${selectedProject === projectOption.$id ? 'border-accent bg-accent font-semibold text-accent-contrast' : 'border-border bg-surface text-text'}`}>{projectOption.name}</button>)}</div>
     {offline && <div role="status" className="rounded-xl border border-warning/40 bg-warning/10 p-3 text-sm text-warning">Offline view. Showing the last saved project data; new logs and reports remain on this device until sync.</div>}
     {loading && <p role="status" className="text-sm text-muted">Loading site activity…</p>}
     {!loading && projects.length === 0 && <Card><p className="text-sm text-muted">No active project sites are configured yet.</p></Card>}
     {project && <>
       <section className="space-y-3">
-        <Card className="flex items-center gap-4 bg-surface-2">
+        <Card className="site-progress-app__hero flex items-center gap-4">
           <svg className="size-[118px] shrink-0" viewBox="0 0 120 120" role="img" aria-label={`${overallProgress}% average contractor progress`}>
-            <circle cx="60" cy="60" r="50" fill="none" stroke="var(--c-border)" strokeWidth="12" />
-            <circle cx="60" cy="60" r="50" fill="none" stroke="var(--c-accent)" strokeWidth="12" strokeLinecap="round" strokeDasharray={`${circumference * overallProgress / 100} ${circumference}`} transform="rotate(-90 60 60)" />
-            <text x="60" y="69" textAnchor="middle" fill="var(--c-text)" fontSize="26" fontWeight="700">{overallProgress}%</text>
+            <circle cx="60" cy="60" r="50" fill="none" stroke="var(--sp-line)" strokeWidth="12" />
+            <circle cx="60" cy="60" r="50" fill="none" stroke="var(--sp-accent)" strokeWidth="12" strokeLinecap="round" strokeDasharray={`${circumference * overallProgress / 100} ${circumference}`} transform="rotate(-90 60 60)" />
+            <text x="60" y="69" textAnchor="middle" fill="var(--sp-tile-ink)" fontSize="26" fontWeight="700">{overallProgress}%</text>
           </svg>
           <div className="min-w-0">
             <p className="text-sm text-muted">Project progress</p>
@@ -54,10 +58,21 @@ export function SiteDashboard({ projects, selectedProject, onSelectProject, cont
           </div>
         </Card>
         <div className="grid grid-cols-3 gap-2">
-          <Card className="bg-surface-2 p-3"><b className="block text-2xl text-text">{completeCount}</b><span className="text-xs text-muted">contractors complete</span></Card>
-          <Card className="bg-surface-2 p-3"><b className="block text-2xl text-text">{contractors.length - completeCount}</b><span className="text-xs text-muted">in progress</span></Card>
-          <Card className="bg-surface-2 p-3"><b className="block text-2xl text-text">{new Set(contractors.map((contractor) => contractor.trade)).size}</b><span className="text-xs text-muted">trade sections</span></Card>
+          <Card className="site-progress-app__stat p-3"><b className="block text-2xl">{completeCount}</b><span className="text-xs">contractors complete</span></Card>
+          <Card className="site-progress-app__stat p-3"><b className="block text-2xl">{contractors.length - completeCount}</b><span className="text-xs">in progress</span></Card>
+          <Card className="site-progress-app__stat p-3"><b className="block text-2xl">{new Set(contractors.map((contractor) => contractor.trade)).size}</b><span className="text-xs">trade sections</span></Card>
         </div>
+        {tradeProgress.length > 0 && <section className="space-y-2"><h2 className="text-lg font-semibold text-text">Trade progress</h2><Card className="p-3">
+          <div className="grid h-[230px] gap-2" style={{ gridTemplateColumns: `24px repeat(${tradeProgress.length}, minmax(0, 1fr))` }}>
+            <div className="relative text-[10px] text-muted">{[0,25,50,75,100].map((value)=><span key={value} className="absolute right-0 -translate-y-1/2" style={{ bottom: `${value}%` }}>{value}</span>)}</div>
+            {tradeProgress.map((entry) => <div key={entry.trade} className="relative overflow-hidden rounded-xl bg-surface-2">
+              <span className="absolute inset-x-0 bottom-0 rounded-xl bg-accent" style={{ height: `${entry.current}%`, opacity: .78 }} />
+              {entry.previous !== null && <span className="absolute inset-x-0 h-[2px] bg-text/70" style={{ bottom: `${entry.previous}%` }} />}
+            </div>)}
+          </div>
+          <div className="mt-2 grid gap-2 text-center text-[11px] text-muted" style={{ gridTemplateColumns: `24px repeat(${tradeProgress.length}, minmax(0, 1fr))` }}><span />{tradeProgress.map((entry)=><span key={entry.trade} className="line-clamp-2"><b className="block text-text">{entry.trade}</b>{entry.current}%</span>)}</div>
+          <p className="mt-2 text-xs text-muted">Bars show current contractor progress. Markers show the last recorded progress at least 30 days ago.</p>
+        </Card></section>}
         <div><h2 className="text-lg font-semibold text-text">Phases &amp; items</h2><p className="mb-3 text-sm text-muted">Progress sections grouped by trade</p><ContractorGrid contractors={contractors} /></div>
       </section>
       <section className="space-y-3">
@@ -67,18 +82,8 @@ export function SiteDashboard({ projects, selectedProject, onSelectProject, cont
           return <Card key={log.$id}><p className="text-sm font-medium text-text">{contractor?.name ?? 'Site team'} · {new Date(log.log_date).toLocaleDateString()}</p><p className="mt-1 whitespace-pre-wrap text-sm text-muted">{log.blockers}</p></Card>
         }) : <Card><p className="text-sm text-muted">No blockers have been reported.</p></Card>}
       </section>
-      {photoLogs.length > 0 && <section className="space-y-3"><div><h2 className="text-lg font-semibold text-text">Photo timeline</h2><p className="text-sm text-muted">Recent evidence attached to daily logs</p></div>{photoLogs.map((log) => <Card key={log.$id} className="space-y-2"><p className="text-xs text-muted">{new Date(log.log_date).toLocaleDateString()}</p><PhotoEvidence photos={log.photos ?? []} ownerId={log.$id} owner="site_logs" /></Card>)}</section>}
+      {photoLogs.length > 0 && <section className="space-y-3"><div><h2 className="text-lg font-semibold text-text">Photo timeline</h2><p className="text-sm text-muted">Recent evidence attached to daily logs</p></div><div className="flex gap-2 overflow-x-auto">{photoLogs.map((log) => <div key={log.$id} className="min-w-24 space-y-1"><p className="text-[11px] text-muted">{new Date(log.log_date).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</p><PhotoEvidence layout="strip" photos={log.photos ?? []} ownerId={log.$id} owner="site_logs" /></div>)}</div></section>}
       {canWrite && <Button type="button" className="w-full" onClick={onNewLog}>Update progress</Button>}
-      <section className="space-y-3"><div className="flex items-end justify-between gap-2"><div><h2 className="text-lg font-semibold text-text">Recent daily logs</h2><p className="text-sm text-muted">Latest activity at this site</p></div><span className="text-xs text-muted">{logs.length} entries</span></div>
-        {logs.some((log) => log.local_status === 'failed') && <Button type="button" variant="secondary" onClick={() => void syncEngine.retryAllFailed()}>Retry failed site sync</Button>}
-        {logs.length === 0 ? <Card><p className="text-sm text-muted">No site logs yet.</p>{canWrite && <Button type="button" className="mt-3" onClick={onNewLog}>Record today’s progress</Button>}</Card> : <ul className="space-y-3">{logs.slice(0, 12).map((log) => {
-          const contractor = contractors.find((c) => c.$id === log.contractor_id)
-          const canEdit = canWrite && log.engineer_id === userId && !log.local_status && Date.now() - Date.parse(log.$createdAt) <= 24 * 60 * 60 * 1000
-          const queueLabel = log.local_status === 'syncing' ? 'Syncing' : log.local_status === 'failed' ? 'Error' : log.local_status === 'needs_review' ? 'Needs review' : 'Local'
-          return <li key={log.$id}><Card className="space-y-2"><div className="flex flex-wrap items-center justify-between gap-2"><p className="text-sm font-medium text-text">{contractor?.name ?? 'Contractor'} · {new Date(log.log_date).toLocaleDateString()}</p><div className="flex items-center gap-2"><StatusPill tone={STATUS[log.status].tone}>{STATUS[log.status].label}</StatusPill>{log.local_status && <StatusPill tone={log.local_status === 'failed' || log.local_status === 'needs_review' ? 'danger' : 'warning'}>{queueLabel}</StatusPill>}{canEdit && <Button type="button" variant="ghost" className="min-h-9 px-2" onClick={() => onEditLog(log)}>Edit</Button>}</div></div><p className="whitespace-pre-wrap text-sm text-text">{log.work_done}</p>{log.blockers && <p className="text-sm text-warning">Blocker: {log.blockers}</p>}<PhotoEvidence photos={log.photos ?? []} ownerId={log.$id} owner="site_logs" /></Card></li>
-        })}</ul>}
-      </section>
     </>}
-    <Link to="/" className="inline-flex min-h-11 items-center text-sm text-muted">Back to Hub</Link>
   </div>
 }

@@ -6,6 +6,435 @@ Add entries with: .\scripts\add-changelog.ps1 -Agent "name" -Phase "n" -Type Add
 
 <!-- ENTRIES -->
 
+## [2026-10-14 165000] Wednesday | UTC+3 | Agent: Codex
+- **Phase:** Light wallpaper and module description typography
+- **Type:** Changed
+- **Status:** Done
+- **Summary:** Added a generated soft ivory and gold wallpaper throughout authenticated light mode, visible behind the header and safe area. Increased all active module descriptions by 50% and expanded the detail area to fit the larger text.
+- **Files:**
+  - `public/assets/staroot-light-flow.png`
+  - `src/styles/index.css`
+  - `src/components/RadialHub.tsx`
+  - `HANDOFF.md`
+  - `docs/HANDOFF.md`
+  - `CHANGELOG.md`
+
+## [2026-10-14 164900] Wednesday | UTC+3 | Agent: Codex
+- **Phase:** Active module details placement and transition
+- **Type:** Changed
+- **Status:** Done
+- **Summary:** Moved the active details block down 20dp and removed its fade-and-rise animation so content changes in place.
+- **Files:**
+  - `src/components/RadialHub.tsx`
+  - `HANDOFF.md`
+  - `docs/HANDOFF.md`
+  - `CHANGELOG.md`
+
+## [2026-10-14 164800] Wednesday | UTC+3 | Agent: Codex
+- **Phase:** Radial hub segment labels
+- **Type:** Changed
+- **Status:** Done
+- **Summary:** Removed all visible text labels from wheel wedges; kept module names in the active details panel and accessible option names. Other wheel styling and layout remain unchanged.
+- **Files:**
+  - `src/components/RadialHub.tsx`
+  - `HANDOFF.md`
+  - `docs/HANDOFF.md`
+  - `CHANGELOG.md`
+
+## [2026-10-14 164700] Wednesday | UTC+3 | Agent: Codex
+- **Phase:** Active module action button
+- **Type:** Changed
+- **Status:** Done
+- **Summary:** Simplified the action to “Open” plus a chevron, and enlarged only its label text by 20%.
+- **Files:**
+  - `src/components/RadialHub.tsx`
+  - `HANDOFF.md`
+  - `docs/HANDOFF.md`
+  - `CHANGELOG.md`
+
+## [2026-10-14 164600] Wednesday | UTC+3 | Agent: Codex
+- **Phase:** Active module detail typography correction
+- **Type:** Changed
+- **Status:** Done
+- **Summary:** Restored the active module title to its original size; enlarged only the blue-marked description and Open button label text by 20%.
+- **Files:**
+  - `src/components/RadialHub.tsx`
+  - `HANDOFF.md`
+  - `docs/HANDOFF.md`
+  - `CHANGELOG.md`
+
+## [2026-10-14 164500] Wednesday | UTC+3 | Agent: Codex
+- **Phase:** Active module typography
+- **Type:** Changed
+- **Status:** Done
+- **Summary:** Increased the active module title and Open button label text by 20%, keeping the other labels and button dimensions unchanged.
+- **Files:**
+  - `src/components/RadialHub.tsx`
+  - `HANDOFF.md`
+  - `docs/HANDOFF.md`
+  - `CHANGELOG.md`
+
+## [2026-10-14 164400] Wednesday | UTC+3 | Agent: Codex
+- **Phase:** Hub hint and Coming Soon spacing
+- **Type:** Changed
+- **Status:** Done
+- **Summary:** Moved the drag hint and the full Coming Soon section down by 15px; arrow button positions remain unchanged.
+- **Files:**
+  - `src/components/RadialHub.tsx`
+  - `src/modules/hub/components/HubScreen.tsx`
+  - `HANDOFF.md`
+  - `docs/HANDOFF.md`
+  - `CHANGELOG.md`
+
+## [2026-10-14 164300] Wednesday | UTC+3 | Agent: Codex
+- **Phase:** Radial hub hint placement
+- **Type:** Changed
+- **Status:** Done
+- **Summary:** Moved only the “Drag around the ring” hint 40px down, keeping the arrow buttons in place.
+- **Files:**
+  - `src/components/RadialHub.tsx`
+  - `HANDOFF.md`
+  - `docs/HANDOFF.md`
+  - `CHANGELOG.md`
+
+## [2026-10-14 164200] Wednesday | UTC+3 | Agent: Codex
+- **Phase:** Radial hub controls placement
+- **Type:** Changed
+- **Status:** Done
+- **Summary:** Moved the arrow and hint row below the marked line on hover-capable fine-pointer devices; touch-first devices keep the existing control spacing.
+- **Files:**
+  - `src/components/RadialHub.tsx`
+  - `HANDOFF.md`
+  - `docs/HANDOFF.md`
+  - `CHANGELOG.md`
+
+## [2026-10-14 164100] Wednesday | UTC+3 | Agent: Codex
+- **Phase:** Coming Soon section placement
+- **Type:** Changed
+- **Status:** Done
+- **Summary:** Moved the full Coming Soon block down by increasing its top spacing to 50px, placing its heading and chips below the marked line.
+- **Files:**
+  - `src/modules/hub/components/HubScreen.tsx`
+  - `HANDOFF.md`
+  - `docs/HANDOFF.md`
+  - `CHANGELOG.md`
+
+## [2026-10-14 164000] Wednesday | UTC+3 | Agent: Codex
+- **Phase:** Radial hub module details placement
+- **Type:** Changed
+- **Status:** Done
+- **Summary:** Moved the active module details down into the green-marked area and widened the text block to match its outline; the wheel and wedge labels are unchanged.
+- **Files:**
+  - `src/components/RadialHub.tsx`
+  - `HANDOFF.md`
+  - `docs/HANDOFF.md`
+  - `CHANGELOG.md`
+
+## [2026-10-14 163800] Wednesday | UTC+3 | Agent: Codex
+- **Phase:** Radial hub placement
+- **Type:** Changed
+- **Status:** Done
+- **Summary:** Shifted the wheel 10px right on mobile and desktop while keeping the text panel in place.
+- **Files:**
+  - `src/components/RadialHub.tsx`
+  - `HANDOFF.md`
+  - `docs/HANDOFF.md`
+  - `CHANGELOG.md`
+
+## [2026-10-14 163700] Wednesday | UTC+3 | Agent: Codex
+- **Phase:** Radial hub icon positioning
+- **Type:** Changed
+- **Status:** Done
+- **Summary:** Shifted only the wedge icons outward by 12dp along their radial direction.
+- **Files:**
+  - `src/components/RadialHub.tsx`
+  - `HANDOFF.md`
+  - `docs/HANDOFF.md`
+  - `CHANGELOG.md`
+
+## [2026-10-14 163500] Wednesday | UTC+3 | Agent: Codex
+- **Phase:** Dark hub wallpaper and wheel detail layout
+- **Type:** Changed
+- **Status:** Done
+- **Summary:** Added the generated flowing graphite wallpaper beneath the translucent black and gold dark-mode gradient with a 1.5px blur. Hid the active wedge label while keeping labels visible on inactive wedges, moved the active module text block down 25 SVG units, and kept Coming Soon 30px below the wheel component.
+- **Files:**
+  - `public/assets/staroot-dark-flow.png`
+  - `src/styles/index.css`
+  - `src/components/RadialHub.tsx`
+  - `src/modules/hub/components/HubScreen.tsx`
+  - `HANDOFF.md`
+  - `docs/HANDOFF.md`
+  - `CHANGELOG.md`
+
+## [2026-10-14 160300] Wednesday | UTC+3 | Agent: Codex
+- **Phase:** Radial wheel label and interaction polish
+- **Type:** Changed
+- **Status:** Done
+- **Summary:** Restored upright labels inside each wedge beneath the icons, wrapped longer labels, returned the center opening to its prior radius, and added 30dp spacing above Coming Soon; retained the left-side module details and recent wheel adjustments.
+- **Files:**
+  - `src/components/RadialHub.tsx`
+  - `src/modules/hub/components/HubScreen.tsx`
+  - `HANDOFF.md`
+  - `docs/HANDOFF.md`
+  - `CHANGELOG.md`
+
+## [2026-10-14 160100] Wednesday | UTC+3 | Agent: Codex
+- **Phase:** Hub wheel and Coming Soon sizing
+- **Type:** Changed
+- **Status:** Done
+- **Summary:** Shifted the radial wheel down 20dp and right 16dp total, then enlarged the Coming Soon heading, chips, and icons by 20%.
+- **Files:**
+  - `src/components/RadialHub.tsx`
+  - `src/modules/hub/components/HubScreen.tsx`
+  - `HANDOFF.md`
+  - `CHANGELOG.md`
+
+## [2026-10-14 160000] Wednesday | UTC+3 | Agent: Codex
+- **Phase:** Dark-mode text contrast
+- **Type:** Changed
+- **Status:** Done
+- **Summary:** Changed dark-mode muted and accent text to `#E5E5E5` to reduce contrast and remove the blue tint, while preserving blue accent surfaces and light-mode colors.
+- **Files:**
+  - `src/styles/index.css`
+  - `HANDOFF.md`
+  - `CHANGELOG.md`
+
+## [2026-10-14 155300] Wednesday | UTC+3 | Agent: Codex
+- **Phase:** Hub profile name casing
+- **Type:** Changed
+- **Status:** Done
+- **Summary:** Applied title-style capitalization to the displayed Hub profile name, preserving spaces.
+- **Files:**
+  - `src/modules/hub/components/HubScreen.tsx`
+  - `HANDOFF.md`
+  - `docs/HANDOFF.md`
+  - `CHANGELOG.md`
+
+## [2026-10-14 155100] Wednesday | UTC+3 | Agent: Codex
+- **Phase:** Hub profile name size
+- **Type:** Changed
+- **Status:** Done
+- **Summary:** Adjusted the Hub profile display name to 27px and retained truncation for narrow screens.
+- **Files:**
+  - `src/modules/hub/components/HubScreen.tsx`
+  - `HANDOFF.md`
+  - `docs/HANDOFF.md`
+  - `CHANGELOG.md`
+
+## [2026-10-14 154900] Wednesday | UTC+3 | Agent: Codex
+- **Phase:** Hub profile name size
+- **Type:** Changed
+- **Status:** Done
+- **Summary:** Doubled the Hub profile display name from 16px to 32px and retained truncation for narrow screens.
+- **Files:**
+  - `src/modules/hub/components/HubScreen.tsx`
+  - `HANDOFF.md`
+  - `docs/HANDOFF.md`
+  - `CHANGELOG.md`
+
+## [2026-10-14 154700] Wednesday | UTC+3 | Agent: Codex
+- **Phase:** Hub profile avatar size
+- **Type:** Changed
+- **Status:** Done
+- **Summary:** Increased the circular profile avatar from 44px to 48px, approximately 10% larger.
+- **Files:**
+  - `src/modules/hub/components/HubScreen.tsx`
+  - `HANDOFF.md`
+  - `docs/HANDOFF.md`
+  - `CHANGELOG.md`
+
+## [2026-10-14 154500] Wednesday | UTC+3 | Agent: Codex
+- **Phase:** Hub header row alignment
+- **Type:** Changed
+- **Status:** Done
+- **Summary:** Returned the profile initials/photo and name to the original vertical position alongside the inbox/menu icons, removing the temporary row offsets while keeping the translucent header layer.
+- **Files:**
+  - `src/modules/hub/components/HubScreen.tsx`
+  - `src/styles/index.css`
+  - `HANDOFF.md`
+  - `docs/HANDOFF.md`
+  - `CHANGELOG.md`
+
+## [2026-10-14 154300] Wednesday | UTC+3 | Agent: Codex
+- **Phase:** Header action icon size
+- **Type:** Changed
+- **Status:** Done
+- **Summary:** Increased the Hub inbox and menu/close icons from 20px to 23px (15%) without changing their controls or positions.
+- **Files:**
+  - `src/modules/hub/components/HubScreen.tsx`
+  - `HANDOFF.md`
+  - `docs/HANDOFF.md`
+  - `CHANGELOG.md`
+
+## [2026-10-14 154100] Wednesday | UTC+3 | Agent: Codex
+- **Phase:** Header action icon position
+- **Type:** Changed
+- **Status:** Done
+- **Summary:** Returned the inbox and menu icons to their original vertical position while keeping the profile row raised and preserving the translucent header layer.
+- **Files:**
+  - `src/modules/hub/components/HubScreen.tsx`
+  - `src/styles/index.css`
+  - `HANDOFF.md`
+  - `docs/HANDOFF.md`
+  - `CHANGELOG.md`
+
+## [2026-10-14 153900] Wednesday | UTC+3 | Agent: Codex
+- **Phase:** Hub header glass layering
+- **Type:** Changed
+- **Status:** Done
+- **Summary:** Added a subtle translucent blurred backdrop behind the fixed header and explicitly layered header content above it so the icons and text remain sharp.
+- **Files:**
+  - `src/modules/hub/components/HubScreen.tsx`
+  - `src/styles/index.css`
+  - `HANDOFF.md`
+  - `docs/HANDOFF.md`
+  - `CHANGELOG.md`
+
+## [2026-10-14 153700] Wednesday | UTC+3 | Agent: Codex
+- **Phase:** Header item rendering clarity
+- **Type:** Fixed
+- **Status:** Done
+- **Summary:** Replaced the translated Hub header row with a relative top offset to retain its position while avoiding mobile compositing that can blur text and icons.
+- **Files:**
+  - `src/styles/index.css`
+  - `HANDOFF.md`
+  - `docs/HANDOFF.md`
+  - `CHANGELOG.md`
+
+## [2026-10-14 153500] Wednesday | UTC+3 | Agent: Codex
+- **Phase:** Hub header item position
+- **Type:** Changed
+- **Status:** Done
+- **Summary:** Moved the Hub avatar, name, inbox, and menu row upward 25px to the bottom of the status-bar safe area without changing the header band or page content spacing.
+- **Files:**
+  - `src/modules/hub/components/HubScreen.tsx`
+  - `src/styles/index.css`
+  - `HANDOFF.md`
+  - `docs/HANDOFF.md`
+  - `CHANGELOG.md`
+
+## [2026-10-14 153200] Wednesday | UTC+3 | Agent: Codex
+- **Phase:** Status-bar gradient continuity
+- **Type:** Changed
+- **Status:** Done
+- **Summary:** Extended the authenticated gold-to-black gradient behind the translucent iOS status bar and through the fixed Hub header for a continuous transition.
+- **Files:**
+  - `src/modules/hub/components/HubScreen.tsx`
+  - `src/styles/index.css`
+  - `HANDOFF.md`
+  - `docs/HANDOFF.md`
+  - `CHANGELOG.md`
+
+## [2026-10-14 153000] Wednesday | UTC+3 | Agent: Codex
+- **Phase:** Hub header gradient
+- **Type:** Changed
+- **Status:** Done
+- **Summary:** Applied a restrained gold-on-black gradient to the fixed Hub header below the safe-area inset, preserving a solid-black iOS status-bar safe area.
+- **Files:**
+  - `src/modules/hub/components/HubScreen.tsx`
+  - `src/styles/index.css`
+  - `HANDOFF.md`
+  - `docs/HANDOFF.md`
+  - `CHANGELOG.md`
+
+## [2026-10-14 152700] Wednesday | UTC+3 | Agent: Codex
+- **Phase:** Authenticated dark gradient
+- **Type:** Changed
+- **Status:** Done
+- **Summary:** Updated the shared post-login dark backdrop to use a stronger Staroot gold glow fading into pure black, while preserving the solid-black Hub safe-area/header band.
+- **Files:**
+  - `src/styles/index.css`
+  - `HANDOFF.md`
+  - `docs/HANDOFF.md`
+  - `CHANGELOG.md`
+
+## [2026-10-14 152500] Wednesday | UTC+3 | Agent: Codex
+- **Phase:** Safe-area troubleshooting note
+- **Type:** Documentation
+- **Status:** Done
+- **Summary:** Recorded the iOS translucent-status-bar cause of the gray/blur-like strip above the authenticated header and the working dark-mode fix: black document background while authenticated, with the shared gradient below the header.
+- **Files:**
+  - `HANDOFF.md`
+  - `docs/HANDOFF.md`
+  - `CHANGELOG.md`
+
+## [2026-10-14 152400] Wednesday | UTC+3 | Agent: Codex
+- **Phase:** Hub safe-area header
+- **Type:** Changed
+- **Status:** Done
+- **Summary:** Made the fixed Home header solid black through its existing height and the dark-mode document background black behind the translucent iOS status bar. The safe area no longer reveals the gray gradient; the shared black-and-gold gradient remains below the header.
+- **Files:**
+  - `src/modules/hub/components/HubScreen.tsx`
+  - `src/styles/index.css`
+  - `HANDOFF.md`
+  - `docs/HANDOFF.md`
+  - `CHANGELOG.md`
+
+## [2026-10-14 150924] Wednesday | UTC+3 | Agent: Codex
+- **Phase:** Radial icon alignment
+- **Type:** Changed
+- **Status:** Done
+- **Summary:** Tilted the radial wheel icons an additional 10 degrees left, for a total 25-degree counterclockwise tilt around each icon's own center; icon centers remain aligned with their wedges.
+- **Files:**
+  - `src/components/RadialHub.tsx`
+  - `HANDOFF.md`
+  - `docs/HANDOFF.md`
+  - `CHANGELOG.md`
+
+
+## [2026-10-14 150137] Wednesday | UTC+3 | Agent: Codex
+- **Phase:** Hub visual refresh
+- **Type:** Changed
+- **Status:** Done
+- **Summary:** Removed the Hub photo wallpaper and asset, replaced it with a gold-accented dark gradient, made the fixed header transparent, removed the search bar, and made radial icons rotate with their wedges without distorting their shape.
+- **Files:**
+  - `src/modules/hub/components/HubScreen.tsx`
+  - `src/components/RadialHub.tsx`
+  - `src/styles/index.css`
+  - `public/assets/hub-rooftop-wallpaper.png`
+  - `HANDOFF.md`
+  - `docs/HANDOFF.md`
+  - `CHANGELOG.md`
+
+
+## [2026-10-14 144158] Wednesday | UTC+3 | Agent: Codex
+- **Phase:** Hub light wallpaper
+- **Type:** Removed
+- **Status:** Done
+- **Summary:** Removed the monochrome network-globe light-mode wallpaper and its CSS override after visual review; deleted the added asset. Light mode again uses the existing rooftop wallpaper.
+- **Files:**
+  - `src/styles/index.css`
+  - `public/assets/hub-light-network-wallpaper.png`
+  - `HANDOFF.md`
+  - `docs/HANDOFF.md`
+  - `CHANGELOG.md`
+
+
+## [2026-10-14 144001] Wednesday | UTC+3 | Agent: Codex
+- **Phase:** Hub light wallpaper
+- **Type:** Changed
+- **Status:** Done
+- **Summary:** Added the supplied monochrome network-globe graphic as the light-mode Hub wallpaper, using a centered cover crop. Dark mode continues to use its rooftop wallpaper; the obsolete stone asset was already removed. No layout or component styling changed.
+- **Files:**
+  - `public/assets/hub-light-network-wallpaper.png`
+  - `src/styles/index.css`
+  - `HANDOFF.md`
+  - `docs/HANDOFF.md`
+  - `CHANGELOG.md`
+
+
+## [2026-10-14 142818] Wednesday | UTC+3 | Agent: Codex
+- **Phase:** Auth image alignment
+- **Type:** Fixed
+- **Status:** Done
+- **Summary:** Unified the mobile Welcome and Login photo layers to use identical fixed viewport bounds (inset: -40px) and the shared crop, preventing the background from shifting when switching screens. Text, card, and status-bar positioning remain unchanged.
+- **Files:**
+  - `src/styles/index.css`
+  - `HANDOFF.md`
+  - `docs/HANDOFF.md`
+  - `CHANGELOG.md`
+
+
 ## [2026-10-14 120528] Wednesday | UTC+3 | Agent: Codex
 - **Phase:** Hub refresh
 - **Type:** Changed
@@ -636,3 +1065,16 @@ Add entries with: .\scripts\add-changelog.ps1 -Agent "name" -Phase "n" -Type Add
 - Added the supplied white Staroot SVG as `public/assets/staroot-logo-white.svg` and extracted its star plus gold strike-through into `public/assets/staroot-mark-white.svg`.
 - Placed the extracted mark centered on the Login screen, 55px below the top safe-area inset. It is independent of the card and page copy.
 - **Verification:** `git diff --check` passed; no automated tests run.
+### Hub header redesign — 14 October 2026
+
+- Reworked the fixed home header into a two-row mobile layout: a circular initials avatar and current user name on the left, Inbox and menu actions on the right, and a module search field below.
+- Moved theme switching and sign-out into the menu, retaining the existing unsynced-work confirmation and queue-clearing behavior. The Inbox icon links to Notifications.
+- Search matches accessible module names and descriptions, offers matching module links, and reports no matches. Increased the header spacer so the page content starts below the expanded fixed header.
+- The current profile schema has no photo URL, so the avatar uses initials from the authenticated user’s display name.
+- **Verification:** `git diff --check` passed; no automated tests run.
+
+## [2026-10-14] Wednesday | UTC+3 | Agent: Codex
+- **Type:** Changed
+- **Summary:** Wrapped all authenticated routes in a shared full-viewport backdrop. Dark mode uses a black-to-charcoal gradient with a subtle #e8c374 glow; Welcome and Login are excluded. Removed Hub-only gold surface overrides and kept the backdrop free of blur filters.
+- **Verification:** `git diff --check` passed; no automated tests run.
+- **Files:** `src/core/auth/RequireAuth.tsx`, `src/styles/index.css`, `HANDOFF.md`, `docs/HANDOFF.md`, `CHANGELOG.md`

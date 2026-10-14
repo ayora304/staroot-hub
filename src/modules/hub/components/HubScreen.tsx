@@ -1,11 +1,12 @@
+import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useSession, usePermissions } from '../../../core/auth/useSession'
 import { outboxStore, syncEngine, unsyncedCount, useSyncStatus } from '../../../core/offline'
-import { ROLE_LABELS } from '../../../core/rbac/roles'
 import { InstallPrompt } from '../../../core/pwa/InstallPrompt'
 import { ThemeToggle } from '../../../core/theme/ThemeToggle'
 import { Icon } from '../../../core/ui/Icons'
 import { RadialHub } from '../../../components/RadialHub'
-import { Bell, Boxes, Building2, ClipboardCheck, SlidersHorizontal, Users } from 'lucide-react'
+import { Bell, ClipboardCheck, Handshake, HardHat, Mail, Menu, Truck, UserCog, X } from 'lucide-react'
 import { PushPrePrompt } from '../../notifications/components/PushPrePrompt'
 import { useApprovalsList } from '../../approvals/hooks/use-approvals'
 import { COMING_SOON, HUB_MODULES } from '../registry'
@@ -23,11 +24,11 @@ function syncMessage(s: ReturnType<typeof useSyncStatus>, total: number): string
 
 const MODULE_ICONS = {
   approvals: ClipboardCheck,
-  notifications: Bell,
-  crm: Users,
-  site: Building2,
-  inventory: Boxes,
-  admin: SlidersHorizontal,
+  notifications: Mail,
+  crm: Handshake,
+  site: HardHat,
+  inventory: Truck,
+  admin: UserCog,
 } as const
 
 export function HubScreen() {
@@ -35,12 +36,14 @@ export function HubScreen() {
   const { can } = usePermissions()
   const sync = useSyncStatus()
   const pendingApprovals = useApprovalsList('pending_mine', can('approvals', 'read'))
+  const [menuOpen, setMenuOpen] = useState(false)
   if (!session) return null
   const { profile } = session
   const visible = HUB_MODULES.filter((module) => can(module.id, 'read'))
   const unsynced = unsyncedCount(sync)
   const badges: HubBadges = { pendingActions: { approvals: pendingApprovals.data?.length ?? 0 }, unsynced }
   async function handleSignOut() {
+    setMenuOpen(false)
     if (await syncEngine.hasUnsynced()) {
       const ok = window.confirm(
         `You have ${unsynced} unsynced ${unsynced === 1 ? 'item' : 'items'}. Signing out will delete ${unsynced === 1 ? 'it' : 'them'} from this device. Sign out anyway?`,
@@ -54,41 +57,58 @@ export function HubScreen() {
   }
 
   return (
-    <div className="relative isolate min-h-screen">
-      <div aria-hidden="true" className="hub-wallpaper pointer-events-none fixed inset-0 z-0" />
+    <div className="hub-screen relative isolate min-h-screen">
+      <div aria-hidden="true" className="hub-background pointer-events-none fixed inset-0 z-0" />
       <div className="relative z-10 mx-auto min-h-screen max-w-5xl pb-safe">
-      <header className="fixed inset-x-0 top-0 z-50 border-b border-border/60 bg-bg/45 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-safe pb-2 pt-safe">
-          <div className="min-w-0 py-2">
-            <p className="truncate text-sm font-medium text-text">Hello, {profile.display_name}</p>
-            <p className="text-xs text-muted">{ROLE_LABELS[profile.role]}</p>
+      <header className="hub-fixed-header fixed inset-x-0 top-0 z-50 border-b border-transparent bg-transparent">
+        <div className="hub-header-content relative mx-auto max-w-5xl px-safe pb-3 pt-safe">
+          <div className="flex min-h-11 items-center justify-between gap-3">
+            <div className="flex min-w-0 items-center gap-3">
+              <span aria-hidden="true" className="grid size-12 shrink-0 place-items-center rounded-full border border-accent/50 bg-surface-2 text-sm font-semibold uppercase text-text shadow-sm">
+                {profile.display_name.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join('') || 'U'}
+              </span>
+              <p className="truncate capitalize text-[27px] font-semibold leading-tight text-[var(--c-text)]">{profile.display_name}</p>
+            </div>
+            <div className="flex shrink-0 items-center gap-1">
+              <Link
+                to="/m/notifications"
+                aria-label="Open inbox"
+                className="grid size-11 place-items-center rounded-full text-[var(--c-text)] transition hover:bg-white/10 hover:text-[var(--c-text)] focus-visible:outline-2 focus-visible:outline-accent"
+              >
+                <Bell className="size-[23px]" aria-hidden="true" />
+              </Link>
+              <button
+                type="button"
+                onClick={() => setMenuOpen((open) => !open)}
+                aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+                aria-expanded={menuOpen}
+                className="grid size-11 place-items-center rounded-full text-[var(--c-text)] transition hover:bg-white/10 hover:text-[var(--c-text)] focus-visible:outline-2 focus-visible:outline-accent"
+              >
+                {menuOpen ? <X className="size-[23px]" aria-hidden="true" /> : <Menu className="size-[23px]" aria-hidden="true" />}
+              </button>
+            </div>
           </div>
-          <div className="flex shrink-0 items-center">
-            <ThemeToggle />
-            <button
-              type="button"
-              onClick={() => void handleSignOut()}
-              aria-label="Sign out"
-              className="grid size-11 place-items-center rounded-xl text-muted transition hover:bg-surface-2 hover:text-text focus-visible:outline-2 focus-visible:outline-accent"
-            >
-              <Icon name="logout" className="size-5" />
-            </button>
-          </div>
+          {menuOpen && (
+            <div className="absolute right-4 top-[calc(100%-0.25rem)] z-20 min-w-48 rounded-2xl border border-border bg-surface-elevated p-2 shadow-xl">
+              <div className="flex items-center justify-between rounded-xl px-2">
+                <span className="text-sm text-text">Appearance</span>
+                <ThemeToggle />
+              </div>
+              <button
+                type="button"
+                onClick={() => void handleSignOut()}
+                className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-sm text-text transition hover:bg-surface-2 focus-visible:outline-2 focus-visible:outline-accent"
+              >
+                <Icon name="logout" className="size-5 text-muted" />
+                Sign out
+              </button>
+            </div>
+          )}
         </div>
       </header>
       <div className="hub-fixed-header-spacer" aria-hidden="true" />
 
       <main className="space-y-6 px-4 pb-8 pt-5 sm:px-6">
-        <section className="flex items-end justify-between gap-4" aria-labelledby="hub-title">
-          <div>
-            <p className="mb-1 text-xs font-semibold uppercase tracking-[0.18em] text-accent">Workspace</p>
-            <h1 id="hub-title" className="text-3xl font-semibold tracking-tight text-text">Staroot Hub</h1>
-          </div>
-          <span className="mb-1 shrink-0 rounded-full border border-border bg-surface px-3 py-1 text-xs text-muted">
-            {visible.length} {visible.length === 1 ? 'module' : 'modules'}
-          </span>
-        </section>
-
         {offline && (
           <div role="status" className="flex items-center gap-3 rounded-2xl border border-warning/40 bg-warning/10 p-3 text-sm text-warning">
             <Icon name="wifiOff" className="size-5 shrink-0" />
@@ -114,7 +134,7 @@ export function HubScreen() {
         <InstallPrompt />
         <PushPrePrompt />
 
-        <section aria-label="Staroot Hub modules" className="space-y-2">
+        <section aria-label="Staroot Hub modules" className="space-y-2 pt-5">
           {visible.length > 0 && <RadialHub
             items={visible.map((module) => ({
               id: module.id,
@@ -127,11 +147,11 @@ export function HubScreen() {
           />}
         </section>
 
-        <section aria-labelledby="coming-soon-title" className="space-y-3 text-center">
-          <h2 id="coming-soon-title" className="text-base font-semibold text-muted">Coming soon</h2>
-          <ul className="flex flex-wrap justify-center gap-2.5">
+        <section aria-labelledby="coming-soon-title" className="space-y-3 text-center" style={{ marginTop: 65 }}>
+          <h2 id="coming-soon-title" className="text-xs font-medium uppercase tracking-[0.12em] text-muted/70">Coming soon</h2>
+          <ul className="mx-auto grid max-w-[420px] grid-cols-2 gap-2.5">
             {COMING_SOON.map((item) => (
-              <li key={item.id} aria-disabled="true" className="inline-flex min-h-11 items-center gap-2 rounded-full border border-dashed border-border px-4 py-2 text-sm text-muted">
+              <li key={item.id} aria-disabled="true" className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-dashed border-muted/45 px-3 py-2 text-sm text-muted/85">
                 <Icon name={item.icon} className="size-4 shrink-0" />
                 <span>{item.label}</span>
               </li>

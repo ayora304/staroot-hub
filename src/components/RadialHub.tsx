@@ -1,6 +1,6 @@
-import { AnimatePresence, animate, motion, useMotionValue, useMotionValueEvent, useReducedMotion, useTransform } from 'framer-motion'
+import { animate, motion, useMotionValue, useMotionValueEvent, useReducedMotion, useTransform } from 'framer-motion'
 import type { MotionStyle } from 'framer-motion'
-import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import type { ComponentType, KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerEvent, ReactNode, SVGProps } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -19,11 +19,13 @@ export type RadialHubItem = {
 type Point = { x: number; y: number }
 const CX = 268
 const CY = 230
-const INNER_RADIUS = 82
+const INNER_RADIUS = 82 * 0.85
 const OUTER_RADIUS = 180
 const SLOT_ANGLE = 45
 const SLOT_ZERO_ANGLE = -112.5
 const MAX_ITEMS = 8
+const ICON_TILT_DEGREES = -25
+const ICON_BASE_CENTER = polar((INNER_RADIUS + OUTER_RADIUS) / 2 + 22, SLOT_ZERO_ANGLE)
 
 function polar(radius: number, angle: number): Point {
   const radians = (angle * Math.PI) / 180
@@ -53,14 +55,16 @@ export function describeSector(
   endAngle: number,
   gapDeg: number,
   cornerRadius: number,
+  outerCornerRadius = cornerRadius,
 ): string {
   const start = startAngle + gapDeg / 2
   const end = endAngle - gapDeg / 2
   const sweep = end - start
   const largeArc = sweep > 180 ? 1 : 0
-  const radius = Math.max(0, Math.min(cornerRadius, (rOuter - rInner) / 2))
-  const outerInset = (radius / Math.max(rOuter, 1) * 180) / Math.PI
-  const innerInset = (radius / Math.max(rInner, 1) * 180) / Math.PI
+  const innerRadius = Math.max(0, Math.min(cornerRadius, (rOuter - rInner) / 2))
+  const outerRadius = Math.max(0, Math.min(outerCornerRadius, (rOuter - rInner) / 2))
+  const outerInset = (outerRadius / Math.max(rOuter, 1) * 180) / Math.PI
+  const innerInset = (innerRadius / Math.max(rInner, 1) * 180) / Math.PI
   const pointAt = (r: number, a: number) => {
     const radians = (a * Math.PI) / 180
     return { x: cx + r * Math.cos(radians), y: cy + r * Math.sin(radians) }
@@ -69,14 +73,20 @@ export function describeSector(
   const outerEnd = pointAt(rOuter, end - outerInset)
   const innerEnd = pointAt(rInner, end - innerInset)
   const innerStart = pointAt(rInner, start + innerInset)
-  const endCorner = pointAt((rInner + rOuter) / 2, end)
-  const startCorner = pointAt((rInner + rOuter) / 2, start)
+  const outerSideEnd = pointAt(rOuter - outerRadius, end)
+  const innerSideEnd = pointAt(rInner + innerRadius, end)
+  const innerSideStart = pointAt(rInner + innerRadius, start)
+  const outerSideStart = pointAt(rOuter - outerRadius, start)
   return [
     `M ${outerStart.x} ${outerStart.y}`,
     `A ${rOuter} ${rOuter} 0 ${largeArc} 1 ${outerEnd.x} ${outerEnd.y}`,
-    `Q ${endCorner.x} ${endCorner.y} ${innerEnd.x} ${innerEnd.y}`,
+    `Q ${pointAt(rOuter, end).x} ${pointAt(rOuter, end).y} ${outerSideEnd.x} ${outerSideEnd.y}`,
+    `L ${innerSideEnd.x} ${innerSideEnd.y}`,
+    `Q ${pointAt(rInner, end).x} ${pointAt(rInner, end).y} ${innerEnd.x} ${innerEnd.y}`,
     `A ${rInner} ${rInner} 0 ${largeArc} 0 ${innerStart.x} ${innerStart.y}`,
-    `Q ${startCorner.x} ${startCorner.y} ${outerStart.x} ${outerStart.y}`,
+    `Q ${pointAt(rInner, start).x} ${pointAt(rInner, start).y} ${innerSideStart.x} ${innerSideStart.y}`,
+    `L ${outerSideStart.x} ${outerSideStart.y}`,
+    `Q ${pointAt(rOuter, start).x} ${pointAt(rOuter, start).y} ${outerStart.x} ${outerStart.y}`,
     'Z',
   ].join(' ')
 }
@@ -135,8 +145,7 @@ function SlotItem({
     if (value > lastSlot - 0.5) return Math.max(0, Math.min(1, (lastSlot + 0.5 - value) / 0.5))
     return 1
   })
-  const iconX = useTransform(angle, (value) => polar((INNER_RADIUS + OUTER_RADIUS) / 2, value).x)
-  const iconY = useTransform(angle, (value) => polar((INNER_RADIUS + OUTER_RADIUS) / 2, value).y)
+  const iconOpacity = useTransform(activeProgress, (value) => 0.75 + 0.25 * value)
   const badgeX = useTransform(angle, (value) => polar(OUTER_RADIUS - 12, value + SLOT_ANGLE * 0.27).x)
   const badgeY = useTransform(angle, (value) => polar(OUTER_RADIUS - 12, value + SLOT_ANGLE * 0.27).y)
   const Icon = item.icon
@@ -173,10 +182,19 @@ function SlotItem({
             transformOrigin: `${CX}px ${CY}px`,
           } as MotionStyle}
         />
-        <motion.g className="radial-hub__icon" style={{ x: iconX, y: iconY, opacity }} aria-hidden="true">
-          <foreignObject x={-16} y={-16} width="32" height="32" overflow="visible">
-            <Icon xmlns="http://www.w3.org/2000/svg" width="30" height="30" strokeWidth={1.75} />
-          </foreignObject>
+        <motion.g
+          className="radial-hub__icon"
+          style={{
+            rotate: rotation,
+            opacity: iconOpacity,
+            transformBox: 'view-box',
+            transformOrigin: `${CX}px ${CY}px`,
+          } as MotionStyle}
+          aria-hidden="true"
+        >
+          <g transform={`rotate(${ICON_TILT_DEGREES} ${ICON_BASE_CENTER.x} ${ICON_BASE_CENTER.y})`}>
+            <Icon x={ICON_BASE_CENTER.x - 19} y={ICON_BASE_CENTER.y - 19} width="38" height="38" strokeWidth={1.75} />
+          </g>
         </motion.g>
         {hasBadge && (
           <motion.g className="radial-hub__badge" style={{ x: badgeX, y: badgeY, opacity }} aria-hidden="true">
@@ -196,13 +214,20 @@ export function RadialHub({ items, centerSlot }: { items: RadialHubItem[]; cente
   const initialPos = initialIndex - 1
   const pos = useMotionValue(initialPos)
   const [activeIndex, setActiveIndex] = useState(initialIndex)
+  const [hasDragged, setHasDragged] = useState(false)
+  const [showSwipeHint, setShowSwipeHint] = useState(false)
   const activeIndexRef = useRef(initialIndex)
   const optionRefs = useRef<Array<SVGGElement | null>>([])
   const svgRef = useRef<SVGSVGElement>(null)
   const wheelRef = useRef<SVGGElement>(null)
   const dragRef = useRef<{ pointerId: number; angle: number; startX: number; startY: number; lastTime: number; velocity: number; dragged: boolean } | null>(null)
   const suppressClickRef = useRef(false)
-  const sectorPath = describeSector(CX, CY, INNER_RADIUS + 9, OUTER_RADIUS - 9, -135, -90, 22 / OUTER_RADIUS * 180 / Math.PI, 9)
+  const wedgeInnerRadius = INNER_RADIUS + 9
+  const wedgeBaseOuterRadius = OUTER_RADIUS - 9
+  const wedgeThickness = wedgeBaseOuterRadius - wedgeInnerRadius
+  const wedgeOuterRadius = wedgeBaseOuterRadius + wedgeThickness * 0.15
+  const wedgeGapUnits = 11 * 0.85 * 0.5
+  const sectorPath = describeSector(CX, CY, wedgeInnerRadius, wedgeOuterRadius, -135, -90, wedgeGapUnits / wedgeOuterRadius * 180 / Math.PI, 9, 18)
 
   const setSettledActive = useCallback((next: number) => {
     const normalized = modulo(next, items.length)
@@ -212,6 +237,7 @@ export function RadialHub({ items, centerSlot }: { items: RadialHubItem[]; cente
   }, [items.length])
 
   const snapTo = useCallback((target: number) => {
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) navigator.vibrate?.(8)
     if (reduceMotion) {
       pos.set(target)
       setSettledActive(nearestItemAtActiveSlot(target, items.length))
@@ -236,6 +262,16 @@ export function RadialHub({ items, centerSlot }: { items: RadialHubItem[]; cente
     const rounded = nearestItemAtActiveSlot(value, items.length)
     if (rounded !== activeIndexRef.current) setSettledActive(rounded)
   })
+
+  useEffect(() => {
+    try {
+      if (localStorage.getItem('staroot-radial-swipe-hint-seen')) return
+      localStorage.setItem('staroot-radial-swipe-hint-seen', '1')
+    } catch {
+      // Keep the first-use hint available when storage is disabled.
+    }
+    setShowSwipeHint(true)
+  }, [])
 
   const pointInSvg = (event: ReactPointerEvent<SVGSVGElement>) => {
     const wheel = wheelRef.current
@@ -270,6 +306,7 @@ export function RadialHub({ items, centerSlot }: { items: RadialHubItem[]; cente
     if (!drag || drag.pointerId !== event.pointerId || !point || Math.hypot(point.x - CX, point.y - CY) < 24) return
     const distance = Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY)
     if (distance < 6 && !drag.dragged) return
+    if (!drag.dragged) setHasDragged(true)
     drag.dragged = true
     let nextAngle = Math.atan2(point.y - CY, point.x - CX) * 180 / Math.PI
     let delta = nextAngle - drag.angle
@@ -330,7 +367,8 @@ export function RadialHub({ items, centerSlot }: { items: RadialHubItem[]; cente
         <svg
           ref={svgRef}
           className="radial-hub__svg block w-full"
-          viewBox="0 0 560 460"
+          viewBox="0 0 560 514"
+          preserveAspectRatio="xMidYMid meet"
           role="group"
           aria-label="Staroot Hub sections"
           onKeyDown={handleKeyDown}
@@ -339,7 +377,7 @@ export function RadialHub({ items, centerSlot }: { items: RadialHubItem[]; cente
           onPointerUp={handlePointerUp}
           onPointerCancel={handlePointerUp}
         >
-          <g ref={wheelRef} className="radial-hub__wheel" transform={`translate(-39 0) translate(${CX} ${CY}) scale(1.44) translate(${-CX} ${-CY})`}>
+          <g ref={wheelRef} className="radial-hub__wheel" transform={`translate(-23 20) translate(${CX} ${CY}) scale(1.296) translate(${-CX} ${-CY})`}>
             {items.map((item, index) => (
               <SlotItem
                 key={item.id}
@@ -362,62 +400,63 @@ export function RadialHub({ items, centerSlot }: { items: RadialHubItem[]; cente
               </foreignObject>
             )}
           </g>
-          <foreignObject x="18" y="145" width="240" height="190" className="radial-hub__active-panel">
+          <foreignObject x="18" y="215" width="340" height="260" className="radial-hub__active-panel">
             <div className="radial-hub__active-inner" aria-live="polite" aria-atomic="true">
-              <AnimatePresence mode="wait" initial={false}>
-                <motion.div
-                  key={activeItem.id}
-                  initial={reduceMotion ? false : { opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={reduceMotion ? undefined : { opacity: 0, y: -5 }}
-                  transition={{ duration: reduceMotion ? 0 : 0.2 }}
-                  className="radial-hub__active-copy"
-                >
-                  <p className="radial-hub__eyebrow">Module {activeIndex + 1} of {items.length}</p>
+              <div key={activeItem.id} className="radial-hub__active-copy">
+                  <div className="radial-hub__pager" aria-label={`Module ${activeIndex + 1} of ${items.length}`} role="img">
+                    {items.map((item, index) => <span key={item.id} className={index === activeIndex ? 'is-active' : undefined} />)}
+                  </div>
                   <h2>{activeItem.label}</h2>
                   <p className="radial-hub__description">{activeItem.description}</p>
                   <button type="button" className="radial-hub__open" onClick={() => navigate(activeItem.to)}>
-                    <span>Open</span><ArrowRight aria-hidden="true" size={15} />
+                    <span>Open</span><ChevronRight aria-hidden="true" size={15} />
                   </button>
-                </motion.div>
-              </AnimatePresence>
+              </div>
             </div>
           </foreignObject>
         </svg>
       </div>
       <div className="radial-hub__controls" aria-label="Module controls">
         <button type="button" aria-label="Previous module" onClick={() => rollTo(modulo(activeIndex - 1, items.length), true)}><ChevronLeft aria-hidden="true" /></button>
-        <p>Drag around the ring, or tap a segment</p>
+        {!hasDragged && <motion.p
+          animate={showSwipeHint && !reduceMotion ? { x: [0, 7, 0] } : { x: 0 }}
+          transition={{ duration: 0.7, ease: 'easeInOut' }}
+        >Drag around the ring, or tap a segment</motion.p>}
         <button type="button" aria-label="Next module" onClick={() => rollTo(modulo(activeIndex + 1, items.length), true)}><ChevronRight aria-hidden="true" /></button>
       </div>
       <style>{`
         .radial-hub { color: var(--c-text); }
-        .radial-hub { --rh-base: #0F6E56; --rh-gold: #E8B02E; --rh-gold-ink: #412402; --rh-badge: #E24B4A; }
+        .radial-hub { --rh-base: #2A261D; --rh-gold: #E8B02E; --rh-gold-ink: #412402; --rh-badge: #E8B02E; }
         .radial-hub__frame { width: 100%; }
         .radial-hub__svg { overflow: visible; touch-action: none; }
         .radial-hub__option { cursor: pointer; outline: none; }
-        .radial-hub__sector { fill: color-mix(in srgb, var(--rh-gold) var(--active-progress, 0%), var(--rh-base)); stroke: color-mix(in srgb, var(--rh-gold) var(--active-progress, 0%), var(--rh-base)); stroke-width: 18px; stroke-linejoin: round; transition: filter 150ms ease; }
+        .radial-hub__sector { fill: color-mix(in srgb, var(--rh-gold) var(--active-progress, 0%), var(--rh-base)); stroke: color-mix(in srgb, var(--rh-gold) var(--active-progress, 0%), var(--rh-base)); stroke-width: 12px; stroke-linejoin: round; transition: filter 150ms ease; }
         .radial-hub__option:hover .radial-hub__sector { filter: brightness(1.12); }
         .radial-hub__option:focus-visible .radial-hub__sector { stroke: var(--c-text); stroke-width: 4; }
-        .radial-hub__icon { color: color-mix(in srgb, var(--rh-gold-ink) var(--active-progress, 0%), #fff); pointer-events: none; }
-        .radial-hub__wheel { transform-box: view-box; }
+        .radial-hub__icon { color: color-mix(in srgb, var(--rh-gold-ink) var(--active-progress, 0%), #E5E5E5); pointer-events: none; }
+        .radial-hub__wheel { transform-box: view-box; translate: -10px 25px; }
         .radial-hub__badge circle { fill: var(--rh-badge); stroke: var(--c-bg); stroke-width: 2; }
-        .radial-hub__badge text { fill: #fff; font: 500 11px var(--font-sans); }
-        .radial-hub__active-inner { width: 240px; height: 190px; display: flex; align-items: center; font-family: var(--font-sans); }
+        .radial-hub__badge text { fill: var(--rh-gold-ink); font: 600 11px var(--font-sans); }
+        .radial-hub__active-inner { box-sizing: border-box; width: 340px; height: 260px; display: flex; align-items: flex-start; padding-top: 8px; font-family: var(--font-sans); }
         .radial-hub__active-copy { width: 100%; }
         .radial-hub__eyebrow { margin: 0 0 6px; color: var(--rh-gold); font-size: 12px; font-weight: 500; }
-        .radial-hub__active-copy h2 { margin: 0 0 7px; color: var(--c-text); font-size: 28px; font-weight: 500; line-height: 1.1; overflow-wrap: anywhere; }
-        .radial-hub__description { margin: 0 0 12px; color: var(--c-muted); font-size: 14px; line-height: 1.5; }
-        .radial-hub__open { min-height: 44px; max-width: 100%; display: inline-flex; align-items: center; gap: 6px; border: 1px solid color-mix(in srgb, var(--rh-gold) 55%, var(--c-border)); border-radius: 10px; padding: 0 14px; background: transparent; color: var(--c-text); font: 600 13px var(--font-sans); cursor: pointer; }
+        .radial-hub__active-copy h2 { margin: 0 0 7px; color: var(--c-text); font-size: 36.4px; font-weight: 500; line-height: 1.1; overflow-wrap: anywhere; }
+        .radial-hub__description { margin: 0 0 12px; color: var(--c-muted); font-size: 25.2px; line-height: 1.5; }
+        .radial-hub__open { min-height: 44px; max-width: 100%; display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--rh-gold); border-radius: 10px; padding: 0 14px; background: var(--rh-gold); color: var(--rh-gold-ink); font: 600 18.72px var(--font-sans); cursor: pointer; }
         .radial-hub__open:hover, .radial-hub__open:focus-visible { background: var(--rh-gold); border-color: var(--rh-gold); color: var(--rh-gold-ink); }
         .radial-hub__open:focus-visible, .radial-hub__controls button:focus-visible { outline: 3px solid var(--rh-gold); outline-offset: 2px; }
         .radial-hub__center-content { display: flex; width: 100%; height: 100%; align-items: center; justify-content: center; text-align: center; }
-        .radial-hub__controls { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 4px 8px 0; }
-        .radial-hub__controls button { width: 56px; height: 56px; flex: 0 0 56px; display: inline-flex; align-items: center; justify-content: center; border: 1.5px solid var(--c-border); border-radius: 14px; padding: 0; background: transparent; color: var(--c-text); cursor: pointer; }
-        .radial-hub__controls button svg { width: 22px; height: 22px; stroke-width: 1.7; }
-        .radial-hub__controls p { flex: 1; margin: 0; color: var(--c-muted); text-align: center; font-size: 14px; line-height: 1.35; }
-        @media (min-width: 600px) { .radial-hub__wheel { transform: translate(16px, 0) translate(268px, 230px) scale(1.04) translate(-268px, -230px); } }
-        @media (prefers-reduced-motion: reduce) { .radial-hub__sector { transition: none; } }
+        .radial-hub__pager { display: flex; align-items: center; gap: 5px; min-height: 12px; margin: 0 0 8px; }
+        .radial-hub__pager span { width: 6px; height: 6px; border-radius: 999px; background: color-mix(in srgb, var(--c-text) 38%, transparent); transition: width 180ms ease, background-color 180ms ease; }
+        .radial-hub__pager span.is-active { width: 18px; background: var(--rh-gold); }
+        .radial-hub__controls { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 16px 8px 0; }
+        .radial-hub__controls button { width: 44px; height: 44px; flex: 0 0 44px; display: inline-flex; align-items: center; justify-content: center; border: 1.5px solid var(--c-border); border-radius: 12px; padding: 0; background: transparent; color: var(--c-text); cursor: pointer; }
+        .radial-hub__controls button svg { width: 22px; height: 22px; stroke-width: 1.75; }
+        .radial-hub__controls p { position: relative; top: 55px; flex: 1; margin: 0; color: var(--c-muted); text-align: center; font-size: 14px; line-height: 1.35; }
+        @media (hover: none) { .radial-hub__controls button { display: none; } .radial-hub__controls { justify-content: center; } }
+        @media (hover: hover) and (pointer: fine) { .radial-hub__controls { margin-top: 90px; } }
+        @media (min-width: 600px) { .radial-hub__wheel { transform: translate(42px, 20px) translate(268px, 230px) scale(0.936) translate(-268px, -230px); } }
+        @media (prefers-reduced-motion: reduce) { .radial-hub__sector, .radial-hub__pager span { transition: none; } }
       `}</style>
     </section>
   )

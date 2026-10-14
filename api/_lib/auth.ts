@@ -7,7 +7,7 @@ import { HttpError, parseCookies, serializeCookie, type Req } from './http'
 export const SESSION_COOKIE = 'staroot_session'
 export const CSRF_COOKIE = 'staroot_csrf'
 export const CSRF_HEADER = 'x-csrf-token'
-const THIRTY_DAYS = 60 * 60 * 24 * 30
+const TWO_DAYS = 60 * 60 * 24 * 2
 
 export interface AuthContext {
   userId: string
@@ -49,8 +49,8 @@ export function assertCsrf(req: Req) {
 
 export function sessionCookies(secret: string): string[] {
   return [
-    serializeCookie(SESSION_COOKIE, secret, { httpOnly: true, secure: secure(), sameSite: 'Lax', maxAge: THIRTY_DAYS }),
-    serializeCookie(CSRF_COOKIE, randomBytes(32).toString('hex'), { secure: secure(), sameSite: 'Lax', maxAge: THIRTY_DAYS }),
+    serializeCookie(SESSION_COOKIE, secret, { httpOnly: true, secure: secure(), sameSite: 'Lax', maxAge: TWO_DAYS }),
+    serializeCookie(CSRF_COOKIE, randomBytes(32).toString('hex'), { secure: secure(), sameSite: 'Lax', maxAge: TWO_DAYS }),
   ]
 }
 

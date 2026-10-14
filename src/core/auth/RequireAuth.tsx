@@ -15,5 +15,12 @@ export function RequireAuth() {
     )
   }
   if (status === 'anon') return <Navigate to="/welcome" replace state={{ from: location.pathname }} />
-  return <Outlet />
+  return (
+    <div className="authenticated-shell">
+      <div aria-hidden="true" className="authenticated-shell__backdrop" />
+      <div className="authenticated-shell__content">
+        <Outlet />
+      </div>
+    </div>
+  )
 }

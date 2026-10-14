@@ -2,6 +2,12 @@
 
 *For any agent picking this up. Last updated Sunday, 11 October 2026 (Phase 1 code written). Location in repo: `docs/HANDOFF.md`.*
 
+## Current UI notes (14 October 2026)
+
+- Dark authenticated screens use `public/assets/staroot-dark-flow.png` beneath the black and gold gradient. Light authenticated screens use `public/assets/staroot-light-flow.png` with soft ivory and gold tones, including behind the header and in the iOS safe area.
+- The radial hub has no text labels inside its wedges; module names remain available from the active detail panel and accessible option labels. The active details render in place without a fade-and-rise transition, in a 340-unit panel at y=215. The active title is 36.4px and module descriptions are 25.2px (50% above their former 16.8px size). The Open button shows “Open” and a chevron, with 18.72px label text. Coming Soon starts 65px after the radial hub component. On hover-capable fine pointers, the arrow/hint controls use 90px top spacing; touch-first devices retain the original 16px spacing. The drag hint sits 55px below the arrow row without changing the arrows’ position.
+- Icon centers sit 12dp farther outward than the radial midpoint. The wheel has an additional 10px rightward offset at mobile and desktop sizes; preserve the icon radial offset, alignment, wedge geometry, and size when changing labels or the module detail panel.
+
 ---
 
 ## 1. Current state
@@ -791,3 +797,107 @@ Key points:
 - Matched the portrait reference crop with the photo background layer at `background-size: auto 156%` and `background-position: 77% 100%`. The gradient layer remains full-screen.
 - Removed the temporary 1px blur and its 1% overscale after the follow-up request. The final photo renders sharp with no blur.
 - **Verification:** `git diff --check` passed; no automated tests run.
+
+### Auth background alignment — 14 October 2026
+
+- Unified the mobile Welcome and Login photo layers to use identical fixed viewport bounds (`inset: -40px`) and the existing shared image crop, preventing the background from shifting when moving between the screens. Text, card, and status-bar positioning are unchanged.
+- **Verification:** `git diff --check` passed; no automated tests run.
+
+### Light-mode Hub wallpaper — 14 October 2026
+
+- Added the supplied monochrome network-globe graphic as `public/assets/hub-light-network-wallpaper.png` and applied it only to `.hub-wallpaper` in light mode, using a centered cover crop. Dark mode continues to use the rooftop wallpaper; the obsolete stone wallpaper asset had already been removed.
+- No Hub layout or component styling was changed.
+- **Verification:** `git diff --check` passed; no automated tests run.
+
+### Reverted light-mode Hub wallpaper — 14 October 2026
+
+- Removed the network-globe light-mode wallpaper and its CSS override after visual review. Deleted `public/assets/hub-light-network-wallpaper.png`; light mode again uses the existing rooftop wallpaper.
+- **Verification:** `git diff --check` passed; no automated tests run.
+### Hub header redesign — 14 October 2026
+
+- The Home header has an initials avatar and current user name on the left, with Inbox and menu actions on the right. Theme switching and sign-out are in the menu; sign-out still checks and handles unsynced work as before. The requested module search row was removed.
+- Profile currently has no avatar/photo field; the circular avatar is initials-based until one exists.
+- **Verification:** `git diff --check` passed; no automated tests run.
+
+### Hub visual update — 14 October 2026
+
+- Removed the Hub photo wallpaper and deleted `public/assets/hub-rooftop-wallpaper.png`. The dark Hub background now uses a gold gradient; scoped dark-mode surface/text tokens keep the Hub readable. Light mode follows the plain theme background.
+- Removed the fixed header's tinted backdrop and border so it blends into the Hub background. Kept its content and the original single-row header spacing after removing search.
+- Radial icons are native SVGs placed at the base wedge's exact geometric center and rotated with the same viewBox origin and slot transform as their wedges. Avoid `foreignObject` for wheel icons: it rendered outside the wedges on mobile.
+- Each icon also has a fixed -25° local rotation around its own center, without changing its position.
+- Removed the “Workspace” and “Staroot Hub” heading block from the home content and added 20px of top spacing before the radial module section.
+- **Verification:** `git diff --check` passed; no automated tests run.
+
+### Authenticated screen backdrop — 14 October 2026
+
+- Added one shared full-viewport background behind all routes protected by `RequireAuth`; Welcome and Login remain outside this wrapper.
+- Dark mode now shows a `#e8c374` gold glow fading into absolute black (`#000`). Light mode continues to use the light theme background.
+- Removed the Hub-only gold fill and dark-mode surface overrides so the Hub can use the same shared backdrop and theme tokens as other authenticated screens.
+- The backdrop has no `backdrop-filter`; it uses `100vh` sizing to avoid the short dynamic viewport issue seen in installed PWAs.
+- **Verification:** `git diff --check` passed; no automated tests run.
+
+### Hub safe-area header — 14 October 2026
+
+- Made the fixed Hub header transparent over the shared backdrop. The dark-mode document background behind the translucent iOS status bar uses the same gradient, so the status area and header blend with the screen.
+- Set the user name and header actions to white for contrast against black.
+- **Verification:** `git diff --check` passed; no automated tests run.
+
+### Troubleshooting: gray or blurred strip above the authenticated header
+
+- On iOS PWAs using `apple-mobile-web-app-status-bar-style=black-translucent`, the status-bar safe area shows the document background behind it. A fixed header can begin below that inset, so a gray or gradient page background appears as a blurred-looking strip above an otherwise black header.
+- For authenticated dark-mode routes, set the `html` and `body` background to `#000` only while `.authenticated-shell` is present, and keep the fixed Hub header itself `bg-black`. This makes the safe area black without changing the header's content offset or removing the black-and-gold gradient below it. If the design calls for the gradient behind the status bar, apply the same gradient to those document backgrounds instead.
+- Avoid adding `backdrop-filter` as a fix: the apparent blur comes from the translucent status bar showing the page background, not from a blur on the header.
+
+### Authenticated dark gradient — 14 October 2026
+
+- The authenticated backdrop uses a gold radial glow at the top over a pure `#000` base, matching the reference’s colored-to-black fade. Keep the Hub safe-area/header band solid black; the glow belongs on the backdrop below it.
+
+### Hub header gradient — 14 October 2026
+
+- The fixed Hub header and iOS status-bar safe area now reveal the same gold-to-black authenticated backdrop, with no separate opaque layer interrupting the gradient.
+
+### Hub header item position — 14 October 2026
+
+- Shifted only the avatar/name/inbox/menu row upward by 25px with relative positioning so its top aligns with the bottom of the status-bar safe area. Avoid a transform here: mobile compositing can soften text and icons. Kept the fixed header band height and content spacer unchanged; the menu remains anchored to the header wrapper.
+
+### Hub header glass layering — 14 October 2026
+
+- The translucent header surface is a `::before` backdrop layer with its own blur. Keep header content in a higher stacking layer (`.hub-header-content`, z-index 1) so the avatar, text, and SVG icons remain sharp above the glass.
+
+### Hub header action icon position — 14 October 2026
+
+- The avatar/name row remains shifted up 25px. The inbox and menu actions have a compensating 25px relative offset so those icons stay at their original vertical position; keep this adjustment if the raised profile row is retained.
+
+### Hub header action icon size — 14 October 2026
+
+- Set the inbox bell and menu/close glyphs to 23px (15% above their former 20px size). Their 44px controls and offsets are unchanged.
+
+### Hub header row alignment — 14 October 2026
+
+- Restored the profile initials/photo and name to the same original vertical row position as the inbox and menu icons. Removed the temporary relative offsets; the header glass layer and its content stacking remain unchanged.
+
+### Hub profile avatar size — 14 October 2026
+
+- Increased the circular profile avatar from 44px to 48px (approximately 10%) while keeping its initials styling and header alignment.
+
+### Hub profile name size — 14 October 2026
+
+- Set the profile display name to 27px, keeping truncation for narrow screens and a tighter line height for the fixed header.
+- Apply title-style capitalization to the visible name while preserving spaces.
+
+### Radial wheel labels and polish — 14 October 2026
+
+- Placed upright labels inside each wedge under its icon, matching the supplied wheel reference; wrapped Site Progress and Inventory & Logistics, and shortened the wheel label to Admin.
+- Reduced the center opening radius by 15% and halved the remaining angular gap so wedges span more of each slot without extending them farther outward; the left-side active module text panel stays anchored at its existing coordinates.
+- Increased rounding only at each wedge’s outer corners while preserving the smaller rounding on the inner corners.
+- Moved the radial wheel 10dp left and 25dp down total using a screen-space offset, keeping the active module text panel fixed.
+- Set the active wedge label to white while keeping inactive wedge labels off-white.
+- Restored the active wedge label’s original alignment and shifted the full wheel another 10dp left (20dp total), keeping the module text panel fixed.
+- Increased curved wedge label text by 15% and the active module title by 30%, without changing their positions.
+- Reduced the wheel artwork by 10%, compensating the curved-label font size to keep it unchanged on screen, and reduced the center opening radius by another 14%.
+- Restored labels inside the wedges beneath their icons, returned the center opening to its prior radius, and set 30dp spacing above Coming Soon.
+- Switched inactive wedges to warm charcoal, reduced segment stroke width to 12px, and used clearer lucide icons at a consistent 1.75 stroke.
+- Halved the wedge spacing by reducing the angular gap calculation from 22 to 11 viewBox units at the outer radius.
+- Increased wedge radial thickness by 15% by moving only the outer edge, preserving the inner opening and icon placement; extended the SVG viewBox for the new lower edge.
+- Added a gold Open action and module pager dots; increased wheel-to-controls spacing, hide the arrows on touch devices, and dismiss the animated swipe hint after the first drag.
+- Added an 8ms vibration request on snaps where the browser supports it. Extended the SVG viewBox vertically so the wheel no longer crowds the navigation row.

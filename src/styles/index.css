@@ -47,10 +47,10 @@
 
 [data-theme="light"] {
   color-scheme: light;
-  --c-bg: #FFFFFF;
-  --c-surface: #ffffff;
-  --c-surface-2: #F7F8FA;
-  --c-surface-elevated: #ffffff;
+  --c-bg: #FAF6EE;
+  --c-surface: #FFF9EF;
+  --c-surface-2: #F2ECDF;
+  --c-surface-elevated: #FFF9EF;
   --c-border: color-mix(in srgb, #5482B4 36%, transparent);
   --c-text: #3e3e45;
   --c-muted: #052659;

@@ -1,0 +1,13 @@
+.horizontal-scroller { min-width: 0; }
+.horizontal-scroller__viewport { overflow-x: auto; scrollbar-width: none; }
+.horizontal-scroller__viewport::-webkit-scrollbar { display: none; }
+@media (hover: hover) and (pointer: fine) {
+  .horizontal-scroller__viewport { cursor: grab; user-select: none; }
+  .horizontal-scroller__viewport button, .horizontal-scroller__viewport a { cursor: grab; }
+  .horizontal-scroller__viewport.is-dragging, .horizontal-scroller__viewport.is-dragging * { cursor: grabbing; }
+}
+.horizontal-scroller__dots { display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+.horizontal-scroller__dots button { display: grid; place-items: center; min-width: 12px; height: 28px; padding: 0 3px; border: 0; background: transparent; }
+.horizontal-scroller__dots span { width: 5px; height: 5px; border-radius: 999px; background: var(--c-muted); opacity: .5; }
+.horizontal-scroller__dots [aria-current="true"] span { width: 16px; height: 5px; background: var(--sp-accent, #E9B030); opacity: 1; }
+.horizontal-scroller__dots button:focus-visible { outline: 2px solid var(--c-accent); outline-offset: -2px; border-radius: 8px; }

@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
+import { HorizontalScroller } from '../ui/HorizontalScroller'
 import { outboxStore } from '../offline'
 import { StatusPill } from '../ui/StatusPill'
 import type { PhotoRecord } from './types'
 
 export function PhotoEvidence({ photos, ownerId, owner, layout = 'grid' }: { photos: PhotoRecord[]; ownerId: string; owner: 'site_logs' | 'reports' | 'movements'; layout?: 'grid' | 'strip' }) {
   if (!photos.length) return null
-  return <ul className={layout === 'strip' ? 'flex gap-2 overflow-x-auto' : 'grid gap-3 sm:grid-cols-2'}>{photos.map((photo) => <EvidenceTile key={photo.file_id} photo={photo} ownerId={ownerId} owner={owner} layout={layout} />)}</ul>
+  const content = <ul className={layout === 'strip' ? 'flex w-max gap-2' : 'grid gap-3 sm:grid-cols-2'}>{photos.map((photo) => <EvidenceTile key={photo.file_id} photo={photo} ownerId={ownerId} owner={owner} layout={layout} />)}</ul>
+  return layout === 'strip' ? <HorizontalScroller label="Evidence photos">{content}</HorizontalScroller> : content
 }
 
 function EvidenceTile({ photo, ownerId, owner, layout }: { photo: PhotoRecord; ownerId: string; owner: 'site_logs' | 'reports' | 'movements'; layout: 'grid' | 'strip' }) {

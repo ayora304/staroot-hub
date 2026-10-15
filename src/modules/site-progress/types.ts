@@ -61,6 +61,7 @@ export interface ReportSnapshot {
 export interface SiteReport {
   $id: string
   $createdAt: string
+  $updatedAt?: string
   client_id: string
   title: string
   report_date: string
@@ -68,7 +69,9 @@ export interface SiteReport {
   author_name: string
   schema_version: number
   snapshot: string
-  status: 'published' | 'superseded'
+  status: 'pending' | 'final' | 'published' | 'superseded'
+  approved_by?: string | null
+  approved_at?: string | null
   local_status?: 'pending' | 'syncing' | 'failed' | 'needs_review'
   photos?: PhotoRecord[]
 }

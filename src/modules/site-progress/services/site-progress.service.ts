@@ -59,6 +59,15 @@ export async function getCached<T>(userId: string, kind: string, group = 'all') 
   return readCache.get<T>(`${userId}:${kind}:${group}`)
 }
 
+export async function changePendingReport(report: SiteReport, userId: string, change: { action: 'approve' } | { action: 'edit'; title: string; report_date: string; snapshot: ReportSnapshot }) {
+  if (report.local_status || !report.$updatedAt) throw new Error('Wait for this report to sync before editing or approving it.')
+  const result = await apiFetch<{ report: SiteReport }>(ENDPOINTS.siteReports, { method: 'PUT', body: { ...change, report_id: report.$id, base_updated_at: report.$updatedAt } })
+  const updated = { ...result.report, photos: report.photos }
+  const cached = await getCached<SiteReport[]>(userId, 'site-reports') ?? []
+  await readCache.set(userId, 'site-reports', 'all', cached.map((item) => item.$id === updated.$id ? updated : item))
+  return updated
+}
+
 async function appendCached<T>(userId: string, kind: string, group: string, row: T) {
   const rows = await readCache.get<T[]>(`${userId}:${kind}:${group}`) ?? []
   await readCache.set(userId, kind, group, [row, ...rows])
@@ -107,7 +116,7 @@ export async function queueSiteReport(input: { title: string; report_date: strin
     $id: id, $createdAt: new Date().toISOString(), client_id: id,
     title: input.title, report_date: input.report_date, author_id: authorId,
     author_name: input.author_name, schema_version: 1,
-    snapshot: JSON.stringify(input.snapshot), status: 'published', local_status: 'pending',
+    snapshot: JSON.stringify(input.snapshot), status: 'pending', local_status: 'pending',
     photos: photos.map((photo) => ({
       $id: photo.id, client_id: photo.id, file_id: photo.id, owner_collection: 'reports',
       captured_at_client: photo.captured_at_client, gps_lat: photo.gps_lat, gps_lng: photo.gps_lng,
@@ -117,7 +126,7 @@ export async function queueSiteReport(input: { title: string; report_date: strin
   await appendCached(authorId, 'site-reports', 'all', report)
   await syncEngine.enqueue({
     id, userId: authorId, type: SITE_OUTBOX.report,
-    payload: { ...input, photos: photoMetadata },
+    payload: { title: input.title, report_date: input.report_date, snapshot: input.snapshot, photos: photoMetadata },
     blobs: photos.map((photo) => ({ id: photo.id, blob: photo.blob })),
   })
   return report
@@ -151,7 +160,7 @@ export function registerSiteHandlers() {
   syncEngine.registerHandler(SITE_OUTBOX.report, async (item, ctx) => {
     const payload = item.payload as Record<string, unknown>
     const photos = await uploadPhotos(item, ctx, payload.photos, 'reports')
-    const { photos: _photos, ...fields } = payload
+    const { photos: _photos, author_name: _authorName, ...fields } = payload
     await apiFetch(ENDPOINTS.siteReports, { method: 'POST', body: { ...fields, photos, client_id: item.id } })
   })
   syncEngine.registerHandler(SITE_OUTBOX.update, async (item) => {

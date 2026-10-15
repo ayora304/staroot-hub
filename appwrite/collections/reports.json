@@ -1,7 +1,7 @@
 {
   "id": "reports",
   "name": "reports",
-  "purpose": "Published master reports. A published report is an immutable snapshot.",
+  "purpose": "Pending project reports become immutable final snapshots after manager approval.",
   "attributes": [
     {
       "key": "client_id",
@@ -47,10 +47,12 @@
     },
     {
       "key": "status",
-      "type": "enum[published,superseded]",
+      "type": "enum[pending,final,published,superseded]",
       "required": true,
       "note": ""
-    }
+    },
+    { "key": "approved_by", "type": "string", "required": false },
+    { "key": "approved_at", "type": "datetime", "required": false }
   ],
   "indexes": [
     {
@@ -68,5 +70,5 @@
       ]
     }
   ],
-  "permissions_note": "Create via API. Never edited: a correction is a new report that supersedes the old one."
+  "permissions_note": "API only. Authors may edit pending reports. A different manager approves within read scope. Final and legacy published content is immutable."
 }

@@ -4,7 +4,9 @@ import { assertCsrf, authenticate } from '../_lib/auth'
 import { handler, HttpError, readJson, send } from '../_lib/http'
 import { requireAccess } from '../_lib/rbac'
 import { assertPhotoAccess, createReport, findPhotoByClientId, findReportByClientId, getProject, isConflict, listProfilesByIds, listReports, listPhotosByOwner } from '../_lib/siteRepo'
-import { createReportSchema } from '../_lib/siteSchemas'
+import { changeReportSchema, createReportSchema } from '../_lib/siteSchemas'
+import { changeReportAtomically } from '../_lib/siteRepo'
+import { canApproveReport } from '../../src/modules/site-progress/report-workflow'
 import type { SiteReport } from '../../src/modules/site-progress/types'
 import { recordPhotos } from '../_lib/sitePhotos'
 
@@ -29,6 +31,36 @@ export default handler(async (req, res) => {
     const photos = await listPhotosByOwner('reports', items.map((report) => report.$id))
     send(res, 200, { items: items.map((report) => ({ ...report, photos: photos.filter((photo) => photo.owner_id === report.$id) })) })
     return
+  }
+  if (req.method === 'PUT') {
+    assertCsrf(req)
+    const input = changeReportSchema.parse(await readJson(req))
+    const scope = await requireAccess(ctx, 'site', input.action === 'edit' ? 'write' : 'read')
+    try {
+      const report = await changeReportAtomically(input.report_id, async (current) => {
+        const profiles = scope === 'department' ? await listProfilesByIds([current.author_id]) : []
+        if (!visible(scope, ctx, current, profiles[0]?.department)) throw new HttpError(403, 'Forbidden', 'forbidden')
+        if (current.status !== 'pending') throw new HttpError(409, 'Only pending reports can be changed.', 'conflict')
+        if (current.$updatedAt !== input.base_updated_at) throw new HttpError(409, 'Report changed. Reload it before continuing.', 'conflict')
+        if (input.action === 'approve') {
+          if (!canApproveReport(current, { role: ctx.profile.role, id: ctx.userId })) throw new HttpError(403, 'A different manager must approve this report.', 'forbidden')
+          return { status: 'final', approved_by: ctx.userId, approved_at: new Date().toISOString() }
+        }
+        if (current.author_id !== ctx.userId) throw new HttpError(403, 'Only the author can edit this pending report.', 'forbidden')
+        const oldSnapshot = JSON.parse(current.snapshot) as typeof input.snapshot
+        const oldPhotos = new Set(oldSnapshot.projects.flatMap((project) => project.sections.flatMap((section) => section.photo_ids)))
+        if (input.snapshot.projects.some((project) => project.sections.some((section) => section.photo_ids.some((photo) => !oldPhotos.has(photo))))) throw new HttpError(400, 'New photos must be uploaded through a new report.', 'validation')
+        for (const part of input.snapshot.projects) {
+          const project = await getProject(part.project_id)
+          if (!project || project.status !== 'active' || project.name !== part.project_name) throw new HttpError(400, 'A report project is no longer active.', 'validation')
+        }
+        return { title: input.title, report_date: input.report_date, snapshot: JSON.stringify(input.snapshot) }
+      })
+      return send(res, 200, { report })
+    } catch (error) {
+      if (isConflict(error)) throw new HttpError(409, 'Report changed. Reload it before continuing.', 'conflict')
+      throw error
+    }
   }
   if (req.method !== 'POST') throw new HttpError(405, 'Method not allowed', 'method')
   assertCsrf(req)
@@ -58,7 +90,7 @@ export default handler(async (req, res) => {
     const report = await createReport({
       client_id: input.client_id, title: input.title, report_date: input.report_date,
       author_id: ctx.userId, author_name: ctx.profile.display_name,
-      schema_version: 1, snapshot: JSON.stringify(input.snapshot), status: 'published',
+      schema_version: 1, snapshot: JSON.stringify(input.snapshot), status: 'pending',
     })
     const photos = await recordPhotos(ctx.userId, 'reports', report.$id, input.photos)
     send(res, 200, { report: { ...report, photos }, replay: false })

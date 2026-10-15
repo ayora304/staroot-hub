@@ -73,6 +73,21 @@ export async function createReport(data: Record<string, unknown>): Promise<SiteR
   return cast<SiteReport>(await db().createDocument(DB_ID(), 'reports', ID.unique(), data))
 }
 
+export async function changeReportAtomically(id: string, change: (report: SiteReport) => Promise<Record<string, unknown>>) {
+  const databases = db()
+  const transaction = await databases.createTransaction()
+  try {
+    const current = cast<SiteReport>(await databases.getDocument(DB_ID(), 'reports', id, [], transaction.$id))
+    const fields = await change(current)
+    await databases.updateDocument(DB_ID(), 'reports', id, fields, [], transaction.$id)
+    await databases.updateTransaction(transaction.$id, true)
+    return (await getReport(id))!
+  } catch (error) {
+    try { await databases.updateTransaction(transaction.$id, false, true) } catch { /* already closed */ }
+    throw error
+  }
+}
+
 export async function findPhotoByClientId(clientId: string): Promise<PhotoRecord | null> {
   const { documents } = await db().listDocuments(DB_ID(), 'photo_records', [Query.equal('client_id', [clientId]), Query.limit(1)])
   return documents[0] ? cast<PhotoRecord>(documents[0]) : null

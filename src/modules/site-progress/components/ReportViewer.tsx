@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { CheckCircle2 } from 'lucide-react'
 import { Button } from '../../../core/ui/Button'
 import { PhotoEvidence } from '../../../core/evidence/PhotoEvidence'
 import { Card } from '../../../core/ui/Card'
@@ -23,6 +24,7 @@ export function ReportViewer({ report, onBack }: { report: SiteReport; onBack: (
   }
 
   return <article className="space-y-4">
+    <div className="flex items-center gap-2">{report.status === 'final' && <CheckCircle2 size={22} className="text-success" aria-label="Manager approved" />}<StatusPill tone={report.status === 'pending' ? 'warning' : 'success'}>{report.status === 'pending' ? 'Pending manager approval' : report.status === 'final' ? 'Final · approved' : report.status === 'superseded' ? 'Superseded' : 'Published · legacy'}</StatusPill></div>
     <div className="flex flex-wrap items-center justify-between gap-2"><Button type="button" variant="secondary" onClick={onBack}>Back to archive</Button><div className="flex gap-2"><Button type="button" variant="secondary" loading={working === 'pdf'} onClick={() => void exportFile('pdf')}>Export PDF</Button><Button type="button" variant="secondary" loading={working === 'docx'} onClick={() => void exportFile('docx')}>Export Word</Button></div></div>
     {error && <p role="alert" className="text-sm text-danger">{error}</p>}
     <Card className="space-y-2 border-accent/40"><p className="text-xs font-semibold uppercase tracking-wide text-accent">Staroot Real Estate · Site Progress</p><h1 className="text-2xl font-semibold text-text">{report.title}</h1><p className="text-sm text-muted">{new Date(report.report_date).toLocaleDateString()} · Prepared by {report.author_name}</p><p className="border-l-2 border-accent pl-3 text-sm text-muted">{snapshot.disclaimer}</p>{report.local_status && <StatusPill tone="warning">Local copy · waiting to sync</StatusPill>}</Card>

@@ -1,10 +1,22 @@
+import { HorizontalScroller } from '../../../core/ui/HorizontalScroller'
+import { type ComponentProps } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import { SiteReferencePreview } from './SiteReferencePreview'
 import { Button } from '../../../core/ui/Button'
 import { PhotoEvidence } from '../../../core/evidence/PhotoEvidence'
 import { Card } from '../../../core/ui/Card'
 import type { Contractor, SiteLog, SiteProject } from '../types'
 import { ContractorGrid } from './ContractorGrid'
 
-export function SiteDashboard({ projects, selectedProject, onSelectProject, contractors, logs, loading, offline, canWrite, onNewLog }: {
+export function SiteDashboard(props: ComponentProps<typeof LiveSiteDashboard>) {
+  const [params] = useSearchParams()
+  const demo = params.get('view') !== 'live'
+  return <div className="space-y-4">
+    {demo ? <SiteReferencePreview /> : <LiveSiteDashboard {...props} />}
+  </div>
+}
+
+function LiveSiteDashboard({ projects, selectedProject, onSelectProject, contractors, logs, loading, offline, canWrite, onNewLog }: {
   projects: SiteProject[]
   selectedProject: string
   onSelectProject: (id: string) => void
@@ -38,7 +50,7 @@ export function SiteDashboard({ projects, selectedProject, onSelectProject, cont
     }
   })
   return <div className="space-y-5">
-    <div role="tablist" aria-label="Project sites" className="flex gap-2 overflow-x-auto pb-2">{projects.map((projectOption) => <button key={projectOption.$id} type="button" role="tab" aria-selected={selectedProject === projectOption.$id} onClick={() => onSelectProject(projectOption.$id)} className={`shrink-0 rounded-full border px-4 py-2 text-sm ${selectedProject === projectOption.$id ? 'border-accent bg-accent font-semibold text-accent-contrast' : 'border-border bg-surface text-text'}`}>{projectOption.name}</button>)}</div>
+    <HorizontalScroller role="tablist" label="Project sites" className="flex gap-2 pb-2">{projects.map((projectOption) => <button key={projectOption.$id} type="button" role="tab" aria-selected={selectedProject === projectOption.$id} onClick={() => onSelectProject(projectOption.$id)} className={`shrink-0 rounded-full border px-4 py-2 text-sm ${selectedProject === projectOption.$id ? 'border-accent bg-accent font-semibold text-accent-contrast' : 'border-border bg-surface text-text'}`}>{projectOption.name}</button>)}</HorizontalScroller>
     {offline && <div role="status" className="rounded-xl border border-warning/40 bg-warning/10 p-3 text-sm text-warning">Offline view. Showing the last saved project data; new logs and reports remain on this device until sync.</div>}
     {loading && <p role="status" className="text-sm text-muted">Loading site activity…</p>}
     {!loading && projects.length === 0 && <Card><p className="text-sm text-muted">No active project sites are configured yet.</p></Card>}
@@ -82,7 +94,7 @@ export function SiteDashboard({ projects, selectedProject, onSelectProject, cont
           return <Card key={log.$id}><p className="text-sm font-medium text-text">{contractor?.name ?? 'Site team'} · {new Date(log.log_date).toLocaleDateString()}</p><p className="mt-1 whitespace-pre-wrap text-sm text-muted">{log.blockers}</p></Card>
         }) : <Card><p className="text-sm text-muted">No blockers have been reported.</p></Card>}
       </section>
-      {photoLogs.length > 0 && <section className="space-y-3"><div><h2 className="text-lg font-semibold text-text">Photo timeline</h2><p className="text-sm text-muted">Recent evidence attached to daily logs</p></div><div className="flex gap-2 overflow-x-auto">{photoLogs.map((log) => <div key={log.$id} className="min-w-24 space-y-1"><p className="text-[11px] text-muted">{new Date(log.log_date).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</p><PhotoEvidence layout="strip" photos={log.photos ?? []} ownerId={log.$id} owner="site_logs" /></div>)}</div></section>}
+      {photoLogs.length > 0 && <section className="space-y-3"><div><h2 className="text-lg font-semibold text-text">Photo timeline</h2><p className="text-sm text-muted">Recent evidence attached to daily logs</p></div><HorizontalScroller label="Photo timeline" className="flex gap-2">{photoLogs.map((log) => <div key={log.$id} className="min-w-24 space-y-1"><p className="text-[11px] text-muted">{new Date(log.log_date).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</p><PhotoEvidence layout="strip" photos={log.photos ?? []} ownerId={log.$id} owner="site_logs" /></div>)}</HorizontalScroller></section>}
       {canWrite && <Button type="button" className="w-full" onClick={onNewLog}>Update progress</Button>}
     </>}
   </div>

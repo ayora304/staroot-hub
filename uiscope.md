@@ -10,6 +10,8 @@ Staroot Hub is an internal, installable, offline-first PWA for Staroot Real Esta
 
 ## UI principles
 
+- Light-mode page background uses warm ivory `#FAF6EE`, cards/elevated surfaces use warm cream `#FFF9EF`, and secondary surfaces use `#F2ECDF`. Site Progress uses the same cream card token; keep the tuned header fill and layout intact.
+
 - Mobile-first, responsive layouts with one-handed use and large touch targets.
 - Support the official blue-palette dark theme and light theme.
 - Use clear labels and statuses for online/offline, queued, syncing, failed, and needs-review work.
@@ -18,6 +20,37 @@ Staroot Hub is an internal, installable, offline-first PWA for Staroot Real Esta
 - Capture evidence with the in-app camera only. Show permission errors and unverified timestamp/GPS evidence clearly.
 - Maintain keyboard access, visible focus, semantic headings/labels, ARIA state where needed, and reduced-motion support.
 - Keep role-specific actions understandable while leaving access enforcement to the API.
+
+## Reusable header design — approved 15 October 2026
+
+Use the Site Progress header as the reference when applying this pattern to other module screens. Preserve these approved measurements:
+
+- Solid, opaque header from the screen's top edge through its bottom divider; no backdrop blur or transparency. Approved header fill is warm near-black `#1B1812`, matching Site Progress's dark page background.
+- Light mode uses the exact same header layout, safe area, sizes, rounded icon geometry, and 8px offset. Its header and button backgrounds use the module's ivory `#FAF6EE`, with dark `#2B2720` text/icons; both themes resolve the header fill from `--sp-bg`.
+- Sticky header at `top: 0`, with three grid columns: `44px minmax(0, 1fr) 44px`. Keep the title centered between the back and menu controls.
+- Include the top safe area inside the colored header: padding `calc(8px + env(safe-area-inset-top, 0px)) 12px 8px`. The enclosing page has no extra top safe-area padding. Keep `viewport-fit=cover` in the viewport meta tag.
+- Header title: `22.1px`, semibold. Back and menu icons: `26px`, stroke width `3.5`, rounded line caps. Button targets: `42px × 42px`.
+- Back icon is a left chevron with a rounded bend and no arrow shaft, using a `26 × 26` viewBox and path `M16.25 6.5 11.1 11.65Q9.75 13 11.1 14.35L16.25 19.5`. Menu is three rounded horizontal strokes, using a `26 × 26` viewBox and path `M4 6.5h18M4 13h18M4 19.5h18`.
+- Move the title and both controls down `8px` using `transform: translateY(8px)` on the header's direct children. Keep the header boundary fixed when applying this visual offset.
+- Preserve accessible names for back/menu controls, the menu's expanded state, and the close icon when the menu is open.
+
+Implementation reference: `src/modules/site-progress/site-progress.css` and `src/modules/site-progress/components/SiteProgressApp.tsx`. This is the reusable design reference; apply it to additional screens when requested.
+
+### Popup menu treatment — 15 October 2026
+
+Site Progress navigation and Hub Appearance/Sign out use compact 240px popups with 26px corners, 56px rows, 18px text, and 22px row icons. Glass layers use egg-shell noise, subtle inset edge highlights, and layered shadows. Light mode: 8px blur, 0.55 brightness, 1.7 saturation, 0.55 warm tint, and displacement strength 40. Dark mode: 2px blur, 0.66 brightness, 1.4 saturation, 0.4 warm tint, and displacement strength 24. Background refraction remains static; menu text stays above the effect. Reduced-motion mode uses the glass blur without refraction. Hub styling lives in `src/modules/hub/hub-menu.css`.
+
+### Site Progress reference preview
+
+The dashboard opens a labelled demo preview reproducing the supplied HTML's floor progress, section/item progress, upcoming-work text, and photo timeline. Demo projects include Gemini Phase 1, Venus Oak, Gemini Phase 2, and an empty project. Section drilldown, adding demo sections/items, and editing progress/notes work in memory. Photos are labelled illustrative placeholders. The live contractor dashboard remains available through “View live data”; extending live persistence for floors, structured sections/items, and upcoming work remains separate from this visual preview.
+
+Update: the preview/live-data banner was removed at the owner's request; sample data is unchanged, with the live view available at `/m/site?view=live`. Horizontal project/photo/permit strips use small gold/gray pager dots instead of visible scrollbars.
+
+Horizontal strips support desktop mouse click-and-drag as well as touch swiping, trackpads, and clickable dots. A 6px movement threshold distinguishes a drag from an item click; dragging must never activate the underlying link/button. Fine pointers show grab/grabbing cursors.
+
+### Report review stages
+
+Reports archive offers New report, Pending and Final. Builder drafts persist on the current device by user; they are separate from submitted records. Reports submit as Pending and remain editable by their author until a different manager approves the current revision. Approval is enforced by API role, scope and transaction checks, with approver ID/time stored. Approved reports move to Final with a green check and locked content. Existing published reports retain their content and a legacy label. Read-only roles can draft locally but cannot submit. Reference examples are explicitly marked EXAMPLE and must be replaced with verified measurements before submission.
 
 ## Current screen inventory
 

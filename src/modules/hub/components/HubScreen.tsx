@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { useSession, usePermissions } from '../../../core/auth/useSession'
 import { outboxStore, syncEngine, unsyncedCount, useSyncStatus } from '../../../core/offline'
 import { InstallPrompt } from '../../../core/pwa/InstallPrompt'
-import { ThemeToggle } from '../../../core/theme/ThemeToggle'
+import { useTheme } from '../../../core/theme/ThemeProvider'
 import { Icon } from '../../../core/ui/Icons'
 import { RadialHub } from '../../../components/RadialHub'
 import { Bell, ClipboardCheck, Handshake, HardHat, Mail, Menu, Truck, UserCog, X } from 'lucide-react'
@@ -11,6 +11,7 @@ import { PushPrePrompt } from '../../notifications/components/PushPrePrompt'
 import { useApprovalsList } from '../../approvals/hooks/use-approvals'
 import { COMING_SOON, HUB_MODULES } from '../registry'
 import type { HubBadges } from '../types'
+import '../hub-menu.css'
 
 // Unsynced and approval badges are sourced from the live queue and cached/API reads.
 
@@ -37,6 +38,7 @@ export function HubScreen() {
   const sync = useSyncStatus()
   const pendingApprovals = useApprovalsList('pending_mine', can('approvals', 'read'))
   const [menuOpen, setMenuOpen] = useState(false)
+  const { theme, toggle } = useTheme()
   if (!session) return null
   const { profile } = session
   const visible = HUB_MODULES.filter((module) => can(module.id, 'read'))
@@ -89,17 +91,29 @@ export function HubScreen() {
             </div>
           </div>
           {menuOpen && (
-            <div className="absolute right-4 top-[calc(100%-0.25rem)] z-20 min-w-48 rounded-2xl border border-border bg-surface-elevated p-2 shadow-xl">
-              <div className="flex items-center justify-between rounded-xl px-2">
-                <span className="text-sm text-text">Appearance</span>
-                <ThemeToggle />
-              </div>
+            <div className="hub-menu-popup" aria-label="Hub menu">
+              <svg className="hub-menu-popup__filter" width="0" height="0" aria-hidden="true" focusable="false">
+                <defs>
+                  <filter id="hub-menu-liquid-light" x="-20%" y="-20%" width="140%" height="140%" colorInterpolationFilters="sRGB">
+                    <feTurbulence type="fractalNoise" baseFrequency="0.008 0.012" numOctaves="1" seed="7" result="ripple" />
+                    <feDisplacementMap in="SourceGraphic" in2="ripple" scale="40" xChannelSelector="R" yChannelSelector="G" />
+                  </filter>
+                  <filter id="hub-menu-liquid" x="-10%" y="-10%" width="120%" height="120%" colorInterpolationFilters="sRGB">
+                    <feTurbulence type="fractalNoise" baseFrequency="0.008 0.012" numOctaves="1" seed="7" result="ripple" />
+                    <feDisplacementMap in="SourceGraphic" in2="ripple" scale="24" xChannelSelector="R" yChannelSelector="G" />
+                  </filter>
+                </defs>
+              </svg>
+              <button type="button" onClick={toggle} className="hub-menu-popup__appearance" aria-label={`Appearance: switch to ${theme === 'light' ? 'dark' : 'light'} theme`}>
+                <span>Appearance</span>
+                <Icon name={theme === 'light' ? 'moon' : 'sun'} className="size-[22px]" />
+              </button>
               <button
                 type="button"
                 onClick={() => void handleSignOut()}
-                className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-sm text-text transition hover:bg-surface-2 focus-visible:outline-2 focus-visible:outline-accent"
+                className="focus-visible:outline-2 focus-visible:outline-accent"
               >
-                <Icon name="logout" className="size-5 text-muted" />
+                <Icon name="logout" className="size-[22px]" />
                 Sign out
               </button>
             </div>

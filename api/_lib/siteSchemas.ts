@@ -56,3 +56,12 @@ export const updateLogSchema = z.object({
   status: z.enum(['on_track', 'delayed', 'blocked']).optional(),
   progress_pct: z.number().int().min(0).max(100).optional().nullable(),
 }).strict().refine((v) => Object.keys(v).some((k) => !['client_id', 'log_id', 'base_updated_at'].includes(k)), 'At least one field must be changed')
+
+export const changeReportSchema = z.discriminatedUnion('action', [
+  z.object({ action: z.literal('approve'), report_id: z.string().min(1), base_updated_at: z.string().datetime() }).strict(),
+  z.object({
+    action: z.literal('edit'), report_id: z.string().min(1), base_updated_at: z.string().datetime(),
+    title: createReportSchema.shape.title, report_date: createReportSchema.shape.report_date,
+    snapshot: createReportSchema.shape.snapshot,
+  }).strict(),
+])

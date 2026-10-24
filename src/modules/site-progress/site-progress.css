@@ -28,7 +28,7 @@
   max-width: 480px;
   min-height: 100vh;
   margin-inline: auto;
-  background: var(--sp-bg);
+  background: transparent;
   color: var(--sp-ink);
   font-family: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
   padding-top: 0;
@@ -40,7 +40,7 @@
   z-index: -1;
   inset: 0;
   content: "";
-  background: var(--sp-bg);
+  background: transparent;
 }
 
 :root:not([data-theme="light"]) .site-progress-app {
@@ -70,9 +70,9 @@
   grid-template-columns: 44px minmax(0, 1fr) 44px;
   align-items: center;
   padding: calc(8px + env(safe-area-inset-top, 0px)) 12px 8px;
-  background: var(--sp-bg);
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
+  background: color-mix(in srgb, var(--sp-bg) 76%, transparent);
+  -webkit-backdrop-filter: blur(14px) saturate(1.15);
+  backdrop-filter: blur(14px) saturate(1.15);
 }
 
 .site-progress-app .site-progress-app__header-button {
